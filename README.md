@@ -2,42 +2,59 @@
 
 rank anything. Lists of anything, in your order.
 
-A web app built from the See design canvas (*See — Brand Language*). It covers the boards the canvas's
-"Start here" marks as the ones to build from: Handoff, the two prototypes, the landing, and sign up and log in.
+See is a **web app first**. The same product will ship as a desktop app (Tauri, around the web build) and as
+iOS and Android apps (React Native). Everything those apps share lives in `packages/`, so they behave and look
+the same. Built from the See design canvas (*See — Brand Language*): the boards its "Start here" marks as the
+source of truth.
 
 ## Run it
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
-npm run build      # typecheck and production build into dist/
+npm run dev          # the web app at http://localhost:5173
+npm test             # the shared logic's tests
+npm run build        # checks the tokens are current, typechecks, builds the web app
 ```
 
-Routes: `/` landing · `/signup` · `/login` · `/app` (Charts) · `/app/c/:category` · `/app/l/:list` ·
-`/app/polls` · `/app/find` · `/app/you`.
+Desktop (needs Rust, and on Linux WebKitGTK; see `docs/platforms.md`):
 
-## Where things are
+```bash
+npm run dev -w @see/desktop
+```
 
-| Path | What it is | Built from |
+## What is where
+
+```
+apps/web         the web app: landing, sign up and log in, the app        React, Vite
+apps/desktop     the desktop shell: a native window around apps/web     Tauri 2
+packages/tokens  design tokens: tokens.json → tokens.css and TS          every platform
+packages/brand   type engine, wordmark, + box, icons, pictures, app icons every platform
+packages/core    data model, list operations, store, settings, notification copy   every platform
+scripts/         exporting the app icons from their SVG masters
+docs/            platforms.md: how each platform uses the packages
+```
+
+| In `apps/web/src` | What it is | Built from |
 | --- | --- | --- |
-| `src/styles/tokens.css` | Colour roles (dark by default, light, match device), type, shape, motion, sizes, layers, spacing as `--see-*` variables | V3Handoff, V3LightMode |
-| `src/styles/base.css` | The type roles (`t-hero`, `t-row`, `t-label` …) and the one focus ring | V3Handoff · 2, V3FocusStates |
-| `src/brand/type.ts`, `glyphs.ts` | The vector display type: the see wordmark, category tags, the masthead lockup, the + box frames, the 12-unit icon set | DeskApp (v3.6 vector primitives) |
-| `src/brand/marks.tsx`, `Icon.tsx` | `Wordmark`, `Lockup`, `CategoryTag`, `PlusBox`, `Icon` | LogoSee, V3Icons |
-| `src/brand/PlusField.tsx` | The Plus field behind headers; the pointer draws the brand + | V3PlusField |
-| `src/brand/Avatar.tsx`, `ProfilePicture.tsx` | People's pictures, pixelated in their colour | V3ProfilePicture |
-| `src/components/` | Button (sm, md, lg; quiet), read-as chip, switch, field (3A), toast with the box's tick, the + call to action | V3Handoff · 5 |
-| `src/pages/auth/` | Sign up in four steps and log in, on the orange flood | V3AuthWeb*, V3AuthPhone* |
-| `src/pages/app/` | The app: side bar that folds to a rail and peeks open, Charts home, category and list views, Polls (violet), Find, You, Create | DeskApp, PixelPhone, V3SideNav, V3PollWeb, V3Behaviour |
-| `src/pages/landing/` | The landing: RANK [+], the words on scroll, the five working cards, how it works, integrations, what moved, privacy, footer | V3LandingPick |
-| `src/data/` | Seed lists, catalogue, polls and people from the prototypes; lists save to `localStorage` | DeskApp |
+| `pages/landing/` | The landing: RANK [+], the words on scroll, the five working cards, how it works, integrations, what moved, privacy | V3LandingPick |
+| `pages/auth/` | Sign up in four steps and log in, on the orange flood | V3AuthWeb*, V3AuthPhone* |
+| `pages/app/` | The app: side bar and rail, Charts, categories, lists, Polls, Find, Create, your page, Settings, Activity | DeskApp, PixelPhone, V3Responsive, V3Settings, V3Notifications |
+| `brand/`, `components/` | The marks and controls drawn for the web (buttons, chips, switch, field, toast, the + call to action, the Plus field) | V3Handoff, V3PlusField |
 
-Phones (up to 760 px) get the bottom bar, the masthead above the page and sheets. Wider screens get the side
-bar, drawers from the right and the corner Find pill. Reduced motion drops every duration to 1 ms.
+Routes: `/` · `/signup` · `/login` · `/app` (Charts) · `/app/c/:category` · `/app/l/:list` · `/app/polls` ·
+`/app/find` · `/app/you` · `/app/settings/:section` · `/app/activity` · `/open?link=see://…`
+
+## Widths
+
+From V3Responsive: the bottom bar under 840, the rail from 840 to 1279, the side bar from 1280 (its tab or `[`
+folds it). Gutters 20 / 40 / 56; wide phones keep one column centred up to 640; from 1600 the page stops at
+1200. The list table drops columns from the right as it narrows. The same rules carry over to tablets and
+phones in the native apps (`shellFor` and `gutterFor` in `@see/tokens`).
 
 ## Not built yet
 
-These boards are reference for later work: the player and video player, profiles and groups, Settings in
-full, notifications, safety (report and block), emails, integrations (Reddit, Discord, embeds), ads, socials
-and the problem states. The canvas still lists three open choices: whether see goes inside the + box in the app
-(V3Masthead), whether flare is offered as an appearance (V3FlareMode), and how video plays (V3VideoPlayer).
+The player and video player, profiles of other people and groups, safety (report and block), emails,
+integrations (Reddit, Discord, embeds), ads, socials and the problem states. The iOS and Android apps (see
+`docs/platforms.md` for the plan). The canvas still lists three open choices: whether see goes inside the + box
+in the app (V3Masthead), whether flare is offered as an appearance (V3FlareMode), and how video plays
+(V3VideoPlayer).

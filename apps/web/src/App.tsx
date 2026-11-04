@@ -1,9 +1,11 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom';
+import { routeOf } from '@see/core';
 import { SettingsProvider, useSettings } from '@see/core/react';
 import { StoreProvider, webStorage } from './data/store';
 import { applyToDocument, webSettingsStorage } from './data/settings';
 import { ToastProvider } from './components/Toast';
+import { isDesktopShell } from './lib/platform';
 
 const Landing = lazy(() => import('./pages/landing/Landing'));
 const SignUp = lazy(() => import('./pages/auth/SignUp'));
@@ -17,6 +19,13 @@ function SettingsEffects() {
   return null;
 }
 
+/** see:// links (from email, push, or the installed web app's web+see: handler) open the same screen everywhere. */
+function OpenLink() {
+  const [params] = useSearchParams();
+  const link = (params.get('link') ?? '').replace(/^web\+see:(\/\/)?/, 'see://');
+  return <Navigate to={link.startsWith('see://') ? routeOf(link) : '/app'} replace />;
+}
+
 export default function App() {
   return (
     <SettingsProvider storage={webSettingsStorage}>
@@ -25,10 +34,11 @@ export default function App() {
         <ToastProvider>
           <Suspense fallback={null}>
             <Routes>
-              <Route path="/" element={<Landing />} />
+              <Route path="/" element={isDesktopShell() ? <Navigate to="/app" replace /> : <Landing />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<LogIn />} />
               <Route path="/app/*" element={<AppShell />} />
+              <Route path="/open" element={<OpenLink />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
