@@ -1,0 +1,218 @@
+/*
+ * See design tokens. GENERATED from tokens.json by scripts/build.mjs: edit tokens.json, then run `npm run tokens`.
+ * Dark by default. Light under [data-theme="light"], and under [data-theme="system"] when the device asks for it.
+ */
+
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+  --see-bg: #0b0f0e;
+  --see-surface-1: #141a18;
+  --see-surface-2: #1d2422;
+  --see-panel: #0f1412;
+  --see-chip: #232b29;
+  --see-rule: #2b3331;
+  --see-slot: #3a4442;
+  --see-text: #f4f5f2;
+  --see-text-2: #c9cfcc;
+  --see-text-3: #9aa39f;
+  --see-text-4: #7c8884;
+  --see-text-off: #5a6663;
+  --see-flare: #ff4a1c;
+  --see-flare-text: #ff4a1c;
+  --see-flare-soft: #ff8a66;
+  --see-violet: #7c6bff;
+  --see-violet-text: #b9afff;
+  --see-up: #7fd18b;
+  --see-on-flare: #0b0f0e;
+  --see-on-violet: #f4f5f2;
+  --see-focus: #f4f5f2;
+  --see-toast-bg: #f4f5f2;
+  --see-toast-text: #0b0f0e;
+  --see-wash-1: rgba(244, 245, 242, 0.03);
+  --see-wash-2: rgba(244, 245, 242, 0.06);
+  --see-wash-3: rgba(244, 245, 242, 0.1);
+  --see-disabled-bg: #2e3735;
+  --see-placeholder: #2e3735;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --see-bg: #f5f4ef;
+  --see-surface-1: #eae8e1;
+  --see-surface-2: #dedcd4;
+  --see-panel: #f0eee8;
+  --see-chip: #e3e1d9;
+  --see-rule: #c9c6bc;
+  --see-slot: #b9b6ac;
+  --see-text: #0b0f0e;
+  --see-text-2: #2e3633;
+  --see-text-3: #535c59;
+  --see-text-4: #5e6764;
+  --see-text-off: #8a928f;
+  --see-flare: #ff4a1c;
+  --see-flare-text: #c2330b;
+  --see-flare-soft: #b23a12;
+  --see-violet: #7c6bff;
+  --see-violet-text: #5440e6;
+  --see-up: #1d7434;
+  --see-on-flare: #0b0f0e;
+  --see-on-violet: #0b0f0e;
+  --see-focus: #0b0f0e;
+  --see-toast-bg: #0b0f0e;
+  --see-toast-text: #ff4a1c;
+  --see-wash-1: rgba(11, 15, 14, 0.03);
+  --see-wash-2: rgba(11, 15, 14, 0.06);
+  --see-wash-3: rgba(11, 15, 14, 0.1);
+  --see-disabled-bg: #d6d3ca;
+  --see-placeholder: #c9c6bc;
+}
+
+@media (prefers-color-scheme: light) {
+  [data-theme='system'] {
+    color-scheme: light;
+    --see-bg: #f5f4ef;
+    --see-surface-1: #eae8e1;
+    --see-surface-2: #dedcd4;
+    --see-panel: #f0eee8;
+    --see-chip: #e3e1d9;
+    --see-rule: #c9c6bc;
+    --see-slot: #b9b6ac;
+    --see-text: #0b0f0e;
+    --see-text-2: #2e3633;
+    --see-text-3: #535c59;
+    --see-text-4: #5e6764;
+    --see-text-off: #8a928f;
+    --see-flare: #ff4a1c;
+    --see-flare-text: #c2330b;
+    --see-flare-soft: #b23a12;
+    --see-violet: #7c6bff;
+    --see-violet-text: #5440e6;
+    --see-up: #1d7434;
+    --see-on-flare: #0b0f0e;
+    --see-on-violet: #0b0f0e;
+    --see-focus: #0b0f0e;
+    --see-toast-bg: #0b0f0e;
+    --see-toast-text: #ff4a1c;
+    --see-wash-1: rgba(11, 15, 14, 0.03);
+    --see-wash-2: rgba(11, 15, 14, 0.06);
+    --see-wash-3: rgba(11, 15, 14, 0.1);
+    --see-disabled-bg: #d6d3ca;
+    --see-placeholder: #c9c6bc;
+  }
+}
+
+:root {
+  /* The accent: flare everywhere, violet while you are in Polls. Screens set --see-accent on their root. */
+  --see-accent: var(--see-flare);
+  --see-accent-text: var(--see-flare-text);
+  --see-accent-soft: var(--see-flare-soft);
+
+  /* Type */
+  --see-font-display: 'Archivo', 'Helvetica Neue', sans-serif;
+  --see-font-body: 'Instrument Sans', system-ui, sans-serif;
+  --see-font-serif: 'Newsreader', Georgia, serif;
+
+  /* Shape: nothing is rounded. Slants and cut corners only. */
+  --see-slant-chip: 6px;
+  --see-slant-button-sm: 8px;
+  --see-slant-button: 10px;
+  --see-slant-button-lg: 13px;
+  --see-cut-sm: 6px;
+  --see-cut: 10px;
+  --see-cut-lg: 14px;
+
+  /* Motion */
+  --see-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --see-ease-exit: cubic-bezier(0.5, 0, 0.8, 0.4);
+  --see-dur-press: 120ms;
+  --see-dur-switch: 160ms;
+  --see-dur-quick: 180ms;
+  --see-dur-base: 200ms;
+  --see-dur-rise: 220ms;
+  --see-dur-guard: 240ms;
+  --see-dur-sheet: 300ms;
+  --see-dur-player: 420ms;
+  --see-dur-exit: 220ms;
+  --see-dur-slot-frame: 45ms;
+  --see-toast-hold: 2000ms;
+  --see-toast-hold-undo: 3600ms;
+
+  /* Sizes */
+  --see-hit-min: 44px;
+  --see-status-bar: 44px;
+  --see-bottom-nav: 80px;
+  --see-bottom-nav-short: 56px;
+  --see-side-bar: 288px;
+  --see-rail: 88px;
+  --see-button: 44px;
+  --see-button-sm: 36px;
+  --see-button-lg: 58px;
+  --see-read-chip: 26px;
+  --see-list-chip: 34px;
+  --see-field: 48px;
+  --see-field-auth: 56px;
+  --see-switch-w: 44px;
+  --see-switch-h: 24px;
+  --see-icon: 20px;
+  --see-icon-sm: 16px;
+  --see-avatar-grid: 24px;
+  --see-gutter-phone: 20px;
+  --see-gutter-tablet: 40px;
+  --see-gutter-desktop: 56px;
+  --see-content-max: 1200px;
+  --see-phone-wide-max: 640px;
+  --see-sheet-max: 600px;
+
+  /* Layers */
+  --see-z-page: 1;
+  --see-z-bottom-nav: 36;
+  --see-z-masthead: 42;
+  --see-z-details-scrim: 44;
+  --see-z-details-sheet: 45;
+  --see-z-sheet-scrim: 50;
+  --see-z-sheets: 51;
+  --see-z-drag-tray: 52;
+  --see-z-smart-create: 55;
+  --see-z-settings-desktop: 60;
+  --see-z-settings-phone: 70;
+  --see-z-report: 80;
+  --see-z-signed-out: 85;
+  --see-z-toast: 90;
+  --see-z-launch: 200;
+
+  /* Spacing steps: 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56 */
+  --see-space-1: 2px;
+  --see-space-2: 4px;
+  --see-space-3: 6px;
+  --see-space-4: 8px;
+  --see-space-5: 10px;
+  --see-space-6: 12px;
+  --see-space-7: 14px;
+  --see-space-8: 16px;
+  --see-space-9: 20px;
+  --see-space-10: 24px;
+  --see-space-11: 28px;
+  --see-space-12: 32px;
+  --see-space-13: 40px;
+  --see-space-14: 48px;
+  --see-space-15: 56px;
+}
+
+/* Breakpoints (media queries cannot read variables; use these numbers): phone-wide 600 · tablet 840 · desktop 1280 · wide 1600 · short 500 */
+
+/* Reduced motion (the OS setting): every duration drops to 1 ms, things change in place. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --see-dur-press: 1ms;
+    --see-dur-switch: 1ms;
+    --see-dur-quick: 1ms;
+    --see-dur-base: 1ms;
+    --see-dur-rise: 1ms;
+    --see-dur-guard: 1ms;
+    --see-dur-sheet: 1ms;
+    --see-dur-player: 1ms;
+    --see-dur-exit: 1ms;
+    --see-dur-slot-frame: 1ms;
+  }
+}
