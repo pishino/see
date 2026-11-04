@@ -5,9 +5,9 @@ import App from './App';
 import '@see/tokens/tokens.css';
 import './styles/base.css';
 import './components/components.css';
-import { readAppearance, setAppearance } from './lib/appearance';
+import { applySavedSettings } from './data/settings';
 
-setAppearance(readAppearance());
+applySavedSettings();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -6,6 +6,7 @@ import { ProfilePicture } from '../../brand/ProfilePicture';
 import { tagOf } from '@see/brand';
 import { useStore } from '../../data/store';
 import type { Shell } from '@see/tokens';
+import { useUi } from './ui';
 
 const KEY = 'see.side.open';
 
@@ -35,6 +36,7 @@ export function SideBar({ category, onCreate, shell }: { category: string; onCre
   const peekT = useRef(0);
   const mode = pinned ? 'open' : peek ? 'peek' : 'rail';
   const listId = useMatch('/app/l/:id')?.params.id;
+  const ui = useUi();
 
   const pinnedRef = useRef(pinned);
   pinnedRef.current = pinned;
@@ -179,7 +181,17 @@ export function SideBar({ category, onCreate, shell }: { category: string; onCre
             <button type="button" role="menuitem" onClick={() => navigate('/app/you')}>
               Your profile
             </button>
-            <button type="button" role="menuitem" onClick={() => navigate('/app/you')}>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setYouOpen(false);
+                ui.openActivity();
+              }}
+            >
+              Activity{ui.unread ? ` · ${ui.unread} new` : ''}
+            </button>
+            <button type="button" role="menuitem" onClick={() => navigate('/app/settings/profile')}>
               Settings
             </button>
             <hr />
@@ -194,7 +206,7 @@ export function SideBar({ category, onCreate, shell }: { category: string; onCre
           onClick={() => setYouOpen((o) => !o)}
           aria-expanded={youOpen}
           aria-haspopup="menu"
-          aria-current={loc.pathname.startsWith('/app/you') ? 'page' : undefined}
+          aria-current={/^\/app\/(you|settings|activity)/.test(loc.pathname) ? 'page' : undefined}
           aria-label="You: profile and settings"
           title="You"
         >

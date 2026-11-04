@@ -2,9 +2,10 @@
  * The store for React: the same provider and hook on the web and in React Native. Each platform passes its own
  * StorageAdapter.
  */
-import { createContext, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from 'react';
 import { newCategory, newList, reduce, seedState, validState, type Action, type State, type StorageAdapter } from './store';
 import type { Category, List } from './seed';
+import { DEFAULT_SETTINGS, withDefaults, type Settings } from './settings';
 
 export interface Store extends State {
   dispatch: (a: Action) => void;
@@ -76,5 +77,56 @@ export function StoreProvider({ storage, children }: { storage: StorageAdapter; 
 export function useStore(): Store {
   const s = useContext(Ctx);
   if (!s) throw new Error('useStore outside StoreProvider');
+  return s;
+}
+
+/* ---------------------------------------------------------------- settings */
+
+export interface SettingsStorage {
+  load(): unknown | Promise<unknown>;
+  save(settings: Settings): void | Promise<void>;
+}
+
+interface SettingsCtx {
+  settings: Settings;
+  set: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
+  reset: () => void;
+}
+
+const SetCtx = createContext<SettingsCtx | null>(null);
+
+/** Settings save as you make them. The same provider on every platform; each passes its own storage. */
+export function SettingsProvider({ storage, children }: { storage: SettingsStorage; children: ReactNode }) {
+  const [settings, setSettings] = useState<Settings>(() => {
+    const v = storage.load();
+    return v instanceof Promise ? DEFAULT_SETTINGS : withDefaults(v);
+  });
+  const ready = useRef(false);
+  useEffect(() => {
+    const v = storage.load();
+    if (v instanceof Promise) {
+      v.then((x) => {
+        setSettings(withDefaults(x));
+        ready.current = true;
+      });
+    } else ready.current = true;
+  }, [storage]);
+  useEffect(() => {
+    if (ready.current) void storage.save(settings);
+  }, [settings, storage]);
+  const value = useMemo<SettingsCtx>(
+    () => ({
+      settings,
+      set: (key, value) => setSettings((s) => ({ ...s, [key]: value })),
+      reset: () => setSettings(DEFAULT_SETTINGS),
+    }),
+    [settings],
+  );
+  return <SetCtx.Provider value={value}>{children}</SetCtx.Provider>;
+}
+
+export function useSettings(): SettingsCtx {
+  const s = useContext(SetCtx);
+  if (!s) throw new Error('useSettings outside SettingsProvider');
   return s;
 }

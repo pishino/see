@@ -5,3 +5,5 @@
 export * from './seed';
 export * from './model';
 export * from './store';
+export * from './notifications';
+export * from './settings';

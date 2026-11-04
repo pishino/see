@@ -4,17 +4,19 @@ import { Icon } from '../../brand/Icon';
 import { Button } from '../../components/Button';
 import { useToast } from '../../components/Toast';
 import { useStore } from '../../data/store';
+import { useSettings } from '@see/core/react';
 import { SIZE_STOPS, suggestCategory } from '@see/core';
 
 /** Create: name the list first; See suggests the category. A drawer from the right; a sheet on phones. */
 export function CreateDrawer({ defaultCategory, onClose }: { defaultCategory: string; onClose: () => void }) {
   const store = useStore();
+  const { settings } = useSettings();
   const toast = useToast();
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [cat, setCat] = useState<string | null>(defaultCategory || null);
   const [touched, setTouched] = useState(false);
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(() => Number(settings.size) || 10);
   const input = useRef<HTMLInputElement>(null);
   const cats = store.categories.map((c) => c.id);
   const suggested = useMemo(() => suggestCategory(name, cats), [name, cats]);

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link, NavLink, Route, Routes, useLocation, useMatch } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, NavLink, Route, Routes, useLocation, useMatch, useNavigate } from 'react-router-dom';
 import { Icon } from '../../brand/Icon';
 import { Lockup, PlusBox } from '../../brand/marks';
 import { PlusField } from '../../brand/PlusField';
@@ -12,6 +12,9 @@ import { ListView } from './ListView';
 import { PollsView } from './PollsView';
 import { FindPill, FindView } from './Find';
 import { YouView } from './YouView';
+import { SettingsView } from './SettingsView';
+import { ActivityList, ActivityView } from './ActivityView';
+import { UiProvider } from './ui';
 import { CreateDrawer } from './CreateDrawer';
 import './app.css';
 
@@ -33,6 +36,12 @@ export default function AppShell() {
   const polls = loc.pathname.startsWith('/app/polls');
   const cat = useCurrentCategory();
   const [creating, setCreating] = useState(false);
+  const [activity, setActivity] = useState(false);
+  const navigate = useNavigate();
+  const openCreate = useCallback(() => setCreating(true), []);
+  // Activity: a panel from the right over whatever you were doing; on phones, its own page
+  const openActivity = useCallback(() => (phone ? navigate('/app/activity') : setActivity(true)), [phone, navigate]);
+  useEffect(() => setActivity(false), [loc.pathname]);
 
   // a fresh page starts at the top
   useEffect(() => {
@@ -43,8 +52,9 @@ export default function AppShell() {
   const catName = store.categories.find((c) => c.id === cat)?.name ?? '';
 
   return (
+    <UiProvider onCreate={openCreate} onActivity={openActivity}>
     <div className="app" data-accent={polls ? 'violet' : undefined} data-shell={shell} data-short={short || undefined}>
-      {!phone && <SideBar category={cat} shell={shell} onCreate={() => setCreating(true)} />}
+      {!phone && <SideBar category={cat} shell={shell} onCreate={openCreate} />}
       <main className="app-main">
         {phone && <PhoneMasthead category={catName} inline={short} home={loc.pathname === '/app' || loc.pathname === '/app/'} polls={polls} />}
         <div className="app-scroll no-scrollbar">
@@ -56,14 +66,51 @@ export default function AppShell() {
             <Route path="polls" element={<PollsView category={cat} onNew={() => setCreating(true)} />} />
             <Route path="find" element={<FindView />} />
             <Route path="you" element={<YouView />} />
+            <Route path="settings" element={<SettingsView />} />
+            <Route path="settings/:section" element={<SettingsView />} />
+            <Route path="activity" element={<ActivityView />} />
           </Routes>
           </div>
         </div>
         {!phone && <FindPill />}
-        {phone && <BottomNav onCreate={() => setCreating(true)} />}
+        {phone && <BottomNav onCreate={openCreate} />}
       </main>
       {creating && <CreateDrawer defaultCategory={cat} onClose={() => setCreating(false)} />}
+      {activity && <ActivityDrawer onClose={() => setActivity(false)} />}
     </div>
+    </UiProvider>
+  );
+}
+
+/** Wide screens: Activity is a panel from the right; close it and you are back. */
+function ActivityDrawer({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  return (
+    <>
+      <div className="scrim" onClick={onClose} aria-hidden="true" />
+      <div role="dialog" aria-modal="true" aria-labelledby="act-title" className="drawer" style={{ width: 440 }}>
+        <div className="drawer__head">
+          <span style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span className="t-label" style={{ fontSize: 9.5 }}>
+              You
+            </span>
+            <h2 id="act-title" className="t-hero" style={{ fontSize: 30 }}>
+              Activity
+            </h2>
+          </span>
+          <button type="button" className="icon-btn" onClick={onClose} aria-label="Close Activity" autoFocus>
+            <Icon name="close" size={20} color="var(--see-text)" />
+          </button>
+        </div>
+        <div className="drawer__body" style={{ gap: 0, paddingTop: 0 }}>
+          <ActivityList onGo={onClose} />
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -103,10 +150,10 @@ function BottomNav({ onCreate }: { onCreate: () => void }) {
         <Icon name="search" size={22} />
         <span>Find</span>
       </NavLink>
-      <NavLink to="/app/you">
+      <Link to="/app/you" aria-current={/^\/app\/(you|settings|activity)/.test(loc.pathname) ? 'page' : undefined}>
         <Icon name="person" size={22} />
         <span>You</span>
-      </NavLink>
+      </Link>
     </nav>
   );
 }

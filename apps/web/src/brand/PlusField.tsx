@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useSettings } from '@see/core/react';
 
 /*
  * The Plus field: See's background, behind every header. Plus signs drift in bands on the icon's slant and stay
@@ -235,10 +236,13 @@ export function PlusField({
 }: Partial<Opts> & { style?: CSSProperties }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const themeKey = useThemeKey();
+  const on = useSettings().settings.field;
   useEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current || !on) return;
     return start(ref.current, { theme, cell, bg, calm, plusPx });
-  }, [theme, cell, bg, calm, plusPx, themeKey]);
+  }, [theme, cell, bg, calm, plusPx, themeKey, on]);
+  // Settings › Display: the field off means plain ink
+  if (!on) return <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: bg ?? 'var(--see-bg)', ...style }} />;
   return (
     <canvas
       ref={ref}

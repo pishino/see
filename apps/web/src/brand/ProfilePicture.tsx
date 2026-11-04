@@ -1,4 +1,5 @@
 import { PICTURE_LAYERS } from '@see/brand';
+import { useSettings } from '@see/core/react';
 
 function hex(h: string) {
   const n = parseInt(h.slice(1), 16);
@@ -11,7 +12,9 @@ function mix(a: string, b: string, t: number) {
 }
 
 /** Your picture: four tones of your colour on the 24-cell grid. */
-export function ProfilePicture({ size = 34, colour = '#FF4A1C', label = 'Your picture' }: { size?: number; colour?: string; label?: string }) {
+export function ProfilePicture({ size = 34, colour, label = 'Your picture' }: { size?: number; colour?: string; label?: string }) {
+  const mine = useSettings().settings.colour;
+  colour = colour ?? mine;
   const ink = '#0B0F0E';
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" role="img" aria-label={label} shapeRendering="crispEdges" style={{ flexShrink: 0 }}>
