@@ -474,7 +474,7 @@
 }
 
 /* ---- phones: the mark stacks, the body starts high and runs to the gutters ---- */
-@media (max-width: 720px) {
+@media (max-width: 839px) {
   .au-mk {
     left: 22px;
     top: 20px;

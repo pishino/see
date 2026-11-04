@@ -787,6 +787,10 @@
   color: var(--see-text-2);
   font-size: 13.5px;
 }
+.lv-second {
+  display: none;
+  max-width: 100%;
+}
 .lv-play {
   opacity: 0;
   width: 44px;
@@ -1132,7 +1136,7 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-  max-width: 760px;
+  max-width: 820px;
 }
 .you__who {
   display: flex;
@@ -1148,15 +1152,62 @@
   border-bottom: 1px solid var(--see-surface-2);
 }
 
-/* ================= Widths ================= */
+/* ================= Widths (V3Responsive) =================
+ * phone 0–599 · phone-wide 600–839: the bottom bar, one column (centred up to 640 on wide phones)
+ * tablet 840–1279: the rail · desktop 1280–1599: the side bar · wide 1600+: content stops at 1200 and centres
+ * Gutters 20 / 40 / 56. Nothing is hidden at smaller widths, only folded.
+ */
 
-@media (max-width: 1100px) {
+.app-main {
+  container: main / inline-size;
+}
+.app-page {
+  min-height: 100%;
+}
+
+@media (min-width: 1600px) {
+  .app-page {
+    max-width: var(--see-content-max);
+    margin-inline: auto;
+  }
+}
+
+@container main (max-width: 900px) {
   .home__grid3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 760px) {
+/* the table drops columns from the right: the album first, then the artist into the second line */
+@container main (max-width: 860px) {
+  .lv-cols,
+  .lv-row {
+    grid-template-columns: var(--grid-1);
+  }
+  .lv-c2 {
+    display: none;
+  }
+}
+@container main (max-width: 660px) {
+  .lv-cols,
+  .lv-row {
+    grid-template-columns: var(--grid-0);
+  }
+  .lv-c1 {
+    display: none;
+  }
+  .lv-name {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+  }
+  .lv-second {
+    display: block;
+  }
+}
+
+@media (max-width: 839px) {
   .app {
     --gutter: var(--see-gutter-phone);
     flex-direction: column;
@@ -1214,6 +1265,9 @@
   .lv-name .t-row {
     font-size: 14px;
   }
+  .lv-second {
+    display: block;
+  }
   .lv-play,
   .lv-cell {
     display: none;
@@ -1254,6 +1308,47 @@
     font-size: 22px;
   }
 }
+/* wide phones and small tablets: 40 px gutters, one column centred up to 640, pinned cards two across */
+@media (min-width: 600px) and (max-width: 839px) {
+  .app {
+    --gutter: var(--see-gutter-tablet);
+  }
+  .app-page {
+    max-width: calc(var(--see-phone-wide-max) + 2 * var(--gutter));
+    margin-inline: auto;
+  }
+  .home {
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+  }
+  .home__grid2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mast {
+    padding-left: var(--gutter);
+  }
+  .drawer {
+    max-width: var(--see-sheet-max);
+    margin-inline: auto;
+    right: 0;
+  }
+}
+
+/* a phone on its side: the masthead folds to one line and the bar drops to 56 */
+.app[data-short] .mast {
+  padding-top: 10px;
+  padding-bottom: 8px;
+}
+.app[data-short] .bottom-nav {
+  height: var(--see-bottom-nav-short);
+  padding-bottom: 0;
+}
+.app[data-short] .bottom-nav a,
+.app[data-short] .bottom-nav button {
+  height: 52px;
+  gap: 3px;
+}
+
 @keyframes see-sheet-in {
   from {
     transform: translateY(100%);

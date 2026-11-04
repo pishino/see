@@ -17,7 +17,7 @@ function textWidth(text: string, px: number) {
 
 /** The box beside see: a plus, or the name of what you rank. Its width follows the word. */
 export function AuthMark({ word }: { word: string }) {
-  const phone = useMediaQuery('(max-width: 720px)');
+  const phone = useMediaQuery('(max-width: 839px)');
   const h = phone ? 17.92 : 29.12;
   const [, force] = useState(0);
   // re-measure once the display face has loaded

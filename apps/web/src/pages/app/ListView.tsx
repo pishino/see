@@ -56,7 +56,9 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
   const [playing, setPlaying] = useState<string | null>(null);
   const [menu, setMenu] = useState(false);
   const [sizeOpen, setSizeOpen] = useState(false);
-  const grid = `48px 56px minmax(0, 1.3fr) ${cols.map(() => 'minmax(0, 1fr)').join(' ')} 48px 40px`;
+  // the full table, then with the album dropped, then with the maker folded into the title's second line
+  const gridOf = (n: number) => `48px 56px minmax(0, 1.3fr) ${Array.from({ length: n }, () => 'minmax(0, 1fr) ').join('')}48px 40px`;
+  const gridVars = { '--grid': gridOf(cols.length), '--grid-1': gridOf(Math.min(1, cols.length)), '--grid-0': gridOf(0) } as Record<string, string>;
 
   // ---- reorder: drag the grip, or arrow keys on it ----
   const [drag, setDrag] = useState<{ from: number; dy: number } | null>(null);
@@ -213,9 +215,9 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
         </div>
       </div>
 
-      <div className="lv-cols" style={{ ['--grid' as string]: grid }} aria-hidden="true">
+      <div className="lv-cols" style={gridVars} aria-hidden="true">
         {['No.', 'Move', kind === 'artist' || kind === 'director' || kind === 'athlete' ? 'Name' : 'Title', ...cols.map((c) => c[0]), '', ''].map((h, i) => (
-          <span key={i} className="t-label">
+          <span key={i} className={`t-label${i >= 3 && i < 3 + cols.length ? ` lv-c${i - 2}` : ''}`}>
             {h}
           </span>
         ))}
@@ -241,7 +243,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
               data-dragging={isDrag}
               data-over={!!drag && !isDrag && ix === target && target < drag.from}
               style={{
-                ['--grid' as string]: grid,
+                ...gridVars,
                 animationDelay: `${Math.min(ix, 12) * 22}ms`,
                 transform: isDrag ? `translateY(${drag!.dy}px)` : undefined,
                 transition: isDrag ? 'none' : undefined,
@@ -255,10 +257,10 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
               </span>
               <button type="button" className="lv-name" onClick={() => setFocus(ix)} aria-label={`No. ${ix + 1}: ${x.t}, ${makerOf(x)}`}>
                 <span className="t-row">{x.t}</span>
-                {phone && <span className="t-meta" style={{ maxWidth: '100%' }}>{makerOf(x)}</span>}
+                <span className="t-meta lv-second">{makerOf(x)}</span>
               </button>
               {cols.map(([, key], ci) => (
-                <span key={ci} className="t-meta lv-cell">
+                <span key={ci} className={`t-meta lv-cell lv-c${ci + 1}`}>
                   {key === 'm' && x.k === 'artist' ? 'Artist' : x[key]}
                 </span>
               ))}

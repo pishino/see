@@ -3,7 +3,7 @@ import { Link, NavLink, Route, Routes, useLocation, useMatch } from 'react-route
 import { Icon } from '../../brand/Icon';
 import { Lockup, PlusBox } from '../../brand/marks';
 import { PlusField } from '../../brand/PlusField';
-import { usePhone } from '../../lib/useMediaQuery';
+import { useShell, useShort } from '../../lib/useMediaQuery';
 import { useStore } from '../../data/store';
 import { SideBar } from './SideBar';
 import { Home } from './Home';
@@ -26,7 +26,9 @@ function useCurrentCategory(): string {
 }
 
 export default function AppShell() {
-  const phone = usePhone();
+  const shell = useShell();
+  const phone = shell === 'bottom';
+  const short = useShort();
   const loc = useLocation();
   const polls = loc.pathname.startsWith('/app/polls');
   const cat = useCurrentCategory();
@@ -41,11 +43,12 @@ export default function AppShell() {
   const catName = store.categories.find((c) => c.id === cat)?.name ?? '';
 
   return (
-    <div className="app" data-accent={polls ? 'violet' : undefined}>
-      {!phone && <SideBar category={cat} onCreate={() => setCreating(true)} />}
+    <div className="app" data-accent={polls ? 'violet' : undefined} data-shell={shell} data-short={short || undefined}>
+      {!phone && <SideBar category={cat} shell={shell} onCreate={() => setCreating(true)} />}
       <main className="app-main">
-        {phone && <PhoneMasthead category={catName} home={loc.pathname === '/app' || loc.pathname === '/app/'} polls={polls} />}
+        {phone && <PhoneMasthead category={catName} inline={short} home={loc.pathname === '/app' || loc.pathname === '/app/'} polls={polls} />}
         <div className="app-scroll no-scrollbar">
+          <div className="app-page">
           <Routes>
             <Route index element={<Home onNewCategory={() => setCreating(true)} />} />
             <Route path="c/:cat" element={<CategoryView onNewList={() => setCreating(true)} />} />
@@ -54,6 +57,7 @@ export default function AppShell() {
             <Route path="find" element={<FindView />} />
             <Route path="you" element={<YouView />} />
           </Routes>
+          </div>
         </div>
         {!phone && <FindPill />}
         {phone && <BottomNav onCreate={() => setCreating(true)} />}
@@ -63,8 +67,8 @@ export default function AppShell() {
   );
 }
 
-/** Phones: the masthead sits above the page (see+ on home; see and its category tag inside it). */
-function PhoneMasthead({ category, home, polls }: { category: string; home: boolean; polls: boolean }) {
+/** Phones: the masthead sits above the page (see+ on home; see and its category tag). On its side, one line. */
+function PhoneMasthead({ category, home, polls, inline }: { category: string; home: boolean; polls: boolean; inline: boolean }) {
   return (
     <header className="mast">
       {(home || polls) && (
@@ -73,7 +77,7 @@ function PhoneMasthead({ category, home, polls }: { category: string; home: bool
         </div>
       )}
       <Link to="/app" aria-label={category ? 'see: back to everything' : 'see+: home'} style={{ display: 'block' }}>
-        <Lockup category={category} />
+        <Lockup category={category} inline={inline} />
       </Link>
     </header>
   );

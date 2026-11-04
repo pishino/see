@@ -5,41 +5,47 @@ import { CategoryTag, Lockup, PlusBox } from '../../brand/marks';
 import { ProfilePicture } from '../../brand/ProfilePicture';
 import { tagOf } from '@see/brand';
 import { useStore } from '../../data/store';
+import type { Shell } from '@see/tokens';
 
 const KEY = 'see.side.open';
 
-function readPinned() {
+/** Your choice, if you made one with the tab or "[": 'open' or 'fold'. */
+function readChoice(): 'open' | 'fold' | null {
   try {
-    return localStorage.getItem(KEY) === '1';
+    const v = localStorage.getItem(KEY);
+    return v === 'open' || v === 'fold' ? v : null;
   } catch {
-    return false;
+    return null;
   }
 }
 
 /**
- * The side bar (C): it folds, it does not jump. Folded, it is an 88 px rail: the + box, the three icons and the
- * categories standing on end. Near it, it peeks open over the page. The tab on its edge (or "[") keeps it open.
+ * The side bar (C): it folds, it does not jump. From 1280 it starts open (288); from 840 to 1279 it starts as the
+ * 84 px rail: the + box, the three icons and the categories standing on end. Folded, it peeks open over the page
+ * when the pointer comes near. The tab on its edge (or "[") opens or folds it, and See remembers.
  */
-export function SideBar({ category, onCreate }: { category: string; onCreate: () => void }) {
+export function SideBar({ category, onCreate, shell }: { category: string; onCreate: () => void; shell: Shell }) {
   const store = useStore();
   const navigate = useNavigate();
   const loc = useLocation();
-  const [pinned, setPinned] = useState(readPinned);
+  const [choice, setChoice] = useState(readChoice);
+  const pinned = choice ? choice === 'open' : shell === 'side';
   const [peek, setPeek] = useState(false);
   const [youOpen, setYouOpen] = useState(false);
   const peekT = useRef(0);
   const mode = pinned ? 'open' : peek ? 'peek' : 'rail';
   const listId = useMatch('/app/l/:id')?.params.id;
 
+  const pinnedRef = useRef(pinned);
+  pinnedRef.current = pinned;
   const toggle = () => {
-    setPinned((p) => {
-      try {
-        localStorage.setItem(KEY, p ? '0' : '1');
-      } catch {
-        /* the choice lasts this visit only */
-      }
-      return !p;
-    });
+    const next = pinnedRef.current ? 'fold' : 'open';
+    setChoice(next);
+    try {
+      localStorage.setItem(KEY, next);
+    } catch {
+      /* the choice lasts this visit only */
+    }
     setPeek(false);
   };
 
