@@ -6,6 +6,7 @@ import { StoreProvider, webStorage } from './data/store';
 import { applyToDocument, webSettingsStorage } from './data/settings';
 import { ToastProvider } from './components/Toast';
 import { isDesktopShell } from './lib/platform';
+import { Legal } from './pages/legal/Legal';
 
 const Landing = lazy(() => import('./pages/landing/Landing'));
 const SignUp = lazy(() => import('./pages/auth/SignUp'));
@@ -39,6 +40,8 @@ export default function App() {
               <Route path="/login" element={<LogIn />} />
               <Route path="/app/*" element={<AppShell />} />
               <Route path="/open" element={<OpenLink />} />
+              <Route path="/terms" element={<Legal doc="terms" />} />
+              <Route path="/privacy" element={<Legal doc="privacy" />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>

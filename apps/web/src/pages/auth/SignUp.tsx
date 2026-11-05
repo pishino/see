@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthFrame, GoArrow, useAuthToast } from './AuthFrame';
 import spotify from '../../assets/logos/spotify.png';
 import youtube from '../../assets/logos/youtube.png';
@@ -89,7 +89,9 @@ export default function SignUp() {
               Log in
             </button>
           </div>
-          <p className="au-legal">By continuing you accept the Terms and Privacy notice.</p>
+          <p className="au-legal">
+            By continuing you accept the <Link to="/terms">Terms</Link> and <Link to="/privacy">Privacy notice</Link>.
+          </p>
         </div>
       )}
       {step === 2 && <CodeStep email={email || 'joey@example.com'} onDone={() => setStep(3)} toast={toast} />}

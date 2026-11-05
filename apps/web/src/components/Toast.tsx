@@ -17,7 +17,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const show = useCallback((text: string, undo?: () => void) => {
     window.clearTimeout(timer.current);
     setMsg({ id: Date.now(), text, undo });
-    timer.current = window.setTimeout(() => setMsg(null), undo ? 3600 : 2000);
+    timer.current = window.setTimeout(() => setMsg(null), undo ? 6000 : 4000);
   }, []);
 
   // the box turns its plus into a tick: six frames, 45 ms apart

@@ -1172,7 +1172,9 @@
   gap: 22px;
   flex-grow: 1;
 }
-.lo-fl span {
+.lo-fl span,
+.lo-fl a {
+  text-decoration: none;
   color: var(--see-text-2);
   font-weight: 600;
 }

@@ -215,10 +215,11 @@ function Field<K extends keyof Settings>({ k, label, sub, clean }: { k: K; label
   );
 }
 
-function LinkRow({ label, value, sub }: { label: string; value?: string; sub?: string }) {
+function LinkRow({ label, value, sub, to }: { label: string; value?: string; sub?: string; to?: string }) {
   const toast = useToast();
+  const navigate = useNavigate();
   return (
-    <button type="button" className="st-item rowbtn" style={{ border: 0, borderBottom: '1px solid var(--see-surface-1)', background: 'transparent', textAlign: 'left', color: 'inherit' }} onClick={() => toast(`${label}: opens in the full app`)}>
+    <button type="button" className="st-item rowbtn" style={{ border: 0, borderBottom: '1px solid var(--see-surface-1)', background: 'transparent', textAlign: 'left', color: 'inherit' }} onClick={() => (to ? navigate(to) : toast(`${label}: opens in the full app`))}>
       <div className="st-line">
         <span>
           <b>{label}</b>
@@ -579,8 +580,8 @@ function SectionBody({ id }: { id: SectionId }) {
           <LinkRow label="Help" sub="Answers, and how to reach us" />
           <LinkRow label="Report a problem" sub="With a screenshot if you like" />
           <LinkRow label="Community rules" />
-          <LinkRow label="Terms" />
-          <LinkRow label="Privacy policy" />
+          <LinkRow label="Terms" to="/terms" />
+          <LinkRow label="Privacy policy" to="/privacy" />
           <LinkRow label="Licences" value="Open source" />
           <div className="st-note" style={{ marginTop: 16, borderLeftColor: 'var(--see-rule)' }}>
             {VERSION}. Made in Lagos and Abuja.

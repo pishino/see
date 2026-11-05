@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CategoryTag, PLUS_12, CHECK_12, Wordmark } from '../../brand/marks';
 import { useToast } from '../../components/Toast';
 import { usePhone } from '../../lib/useMediaQuery';
@@ -980,8 +980,8 @@ export default function Landing() {
         <Wordmark height={26} color="var(--see-flare)" />
         <span className="lo-fl">
           <span>Help</span>
-          <span>Terms</span>
-          <span>Privacy</span>
+          <Link to="/terms">Terms</Link>
+          <Link to="/privacy">Privacy</Link>
           <span>Cookies</span>
         </span>
         <span className="lo-fc">
