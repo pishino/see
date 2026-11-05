@@ -4,7 +4,7 @@
  */
 import { createContext, useContext, useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from 'react';
 import { newCategory, newList, reduce, seedState, validState, type Action, type State, type StorageAdapter } from './store';
-import type { Category, List } from './seed';
+import { ownEntry, registerOwn, type Category, type Entry, type Kind, type List } from './seed';
 import { DEFAULT_SETTINGS, withDefaults, type Settings } from './settings';
 
 export interface Store extends State {
@@ -18,6 +18,8 @@ export interface Store extends State {
   togglePin: (id: string) => void;
   addCategory: (name: string) => Category;
   addList: (cat: string, name: string, n?: number) => List;
+  /** something See doesn't have, as your own item; it can be ranked at once */
+  addOwn: (title: string, kind: Kind) => Entry;
   reset: () => void;
 }
 
@@ -27,7 +29,11 @@ export function StoreProvider({ storage, children }: { storage: StorageAdapter; 
   const [state, dispatch] = useReducer(reduce, undefined, () => {
     // a synchronous adapter (the web's) loads before the first paint; an async one (native) loads after it
     const v = storage.load();
-    return !(v instanceof Promise) && validState(v) ? v : seedState();
+    if (!(v instanceof Promise) && validState(v)) {
+      registerOwn(v.own);
+      return v;
+    }
+    return seedState();
   });
   const loaded = useRef(false);
 
@@ -65,6 +71,12 @@ export function StoreProvider({ storage, children }: { storage: StorageAdapter; 
         const L = newList(cat, name, n);
         dispatch({ type: 'addList', list: L });
         return L;
+      },
+      addOwn: (title, kind) => {
+        const x = ownEntry(title, kind);
+        registerOwn([x]); // findable before the next render
+        dispatch({ type: 'addOwn', entry: x });
+        return x;
       },
       reset: () => dispatch({ type: 'reset' }),
     }),

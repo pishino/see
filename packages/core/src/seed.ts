@@ -22,6 +22,8 @@ export interface Entry {
   g: string;
   /** removed at its source (a source key): it keeps its place, play is off */
   gone?: string;
+  /** your own item: See doesn't have it yet, so nothing plays until a source is linked */
+  own?: boolean;
 }
 
 export interface Category {
@@ -161,6 +163,7 @@ export function pad2(n: number) {
 }
 
 export function makerOf(x: Entry) {
+  if (x.own) return 'Your own';
   if (x.k === 'artist') return `Top song: ${x.a}`;
   return x.m + (x.a && x.k !== 'album' ? ` · ${x.a}` : '');
 }
@@ -171,4 +174,31 @@ export function search(q: string, kind?: Kind | 'mixed' | ''): Entry[] {
   const pool = kind && kind !== 'mixed' ? CATALOG.filter((x) => x.k === kind) : CATALOG;
   if (!s) return pool.slice(0, 6);
   return pool.filter((x) => `${x.t} ${x.m} ${x.a} ${x.tags} ${x.g}`.toLowerCase().includes(s)).slice(0, 8);
+}
+
+/** What a list ranks, for something new on it: its own kind, else its category's. */
+export function kindFor(L: List, catName = L.cat): Kind {
+  const k = kindOf(L);
+  if (k && k !== 'mixed') return k;
+  const c = catName.toUpperCase();
+  if (/MOVIE|FILM|CINEMA/.test(c)) return 'film';
+  if (/TV|SHOW|SERIES/.test(c)) return 'show';
+  if (/SPORT|FOOTBALL|SOCCER|BASKET/.test(c)) return 'team';
+  return 'song';
+}
+
+/** Your own item, named as you typed it: anything See doesn't have yet (V3ProblemStates E3). */
+export function ownEntry(title: string, kind: Kind): Entry {
+  const t = title.trim().replace(/\s+/g, ' ').slice(0, 80);
+  const id = `own-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  return { id, t, m: '', a: '', k: kind, tags: '', src: [], y: '', g: '', own: true };
+}
+
+/** Your own items join the catalogue on this device, so every lookup and search finds them. */
+export function registerOwn(xs: Entry[] = []): void {
+  for (const x of xs) {
+    if (BY_ID[x.id]) continue;
+    CATALOG.push(x);
+    BY_ID[x.id] = x;
+  }
 }

@@ -137,3 +137,32 @@ describe('search never ends at no', () => {
     expect(didYouMean('zzzzzzzz')).toBeNull();
   });
 });
+
+describe('your own items', () => {
+  it('ranks something See does not have, and finds it again after a reload', async () => {
+    const { ownEntry, registerOwn, BY_ID, search, kindFor } = await import('./seed');
+    const { reduce, seedState } = await import('./store');
+    const s0 = seedState();
+    const L = s0.lists[0];
+    const x = ownEntry('  Ozzeba  ', kindFor(L));
+    expect(x.t).toBe('Ozzeba');
+    expect(x.own).toBe(true);
+    const s1 = reduce(s0, { type: 'addOwn', entry: x });
+    expect(s1.own).toEqual([x]);
+    expect(BY_ID[x.id]).toBe(x);
+    expect(search('ozzeba').map((y) => y.id)).toContain(x.id);
+    // a reload brings it back through load
+    const copy = JSON.parse(JSON.stringify({ ...s1, own: [{ ...x, id: `${x.id}-b` }] }));
+    reduce(s0, { type: 'load', state: copy });
+    registerOwn(copy.own);
+    expect(BY_ID[`${x.id}-b`]?.t).toBe('Ozzeba');
+  });
+
+  it('files a new item under the list’s kind, or its category’s', async () => {
+    const { kindFor } = await import('./seed');
+    const empty = { id: 'e', cat: 'MOVIES', name: 'x', n: 10, items: [], pinned: false, poll: false, people: [], per: 0 } as never;
+    expect(kindFor(empty, 'MOVIES')).toBe('film');
+    expect(kindFor(empty, 'TV')).toBe('show');
+    expect(kindFor(empty, 'MUSIC')).toBe('song');
+  });
+});

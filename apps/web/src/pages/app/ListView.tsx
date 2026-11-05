@@ -10,7 +10,7 @@ import { ReadChip } from '../../components/controls';
 import { useToast } from '../../components/Toast';
 import { usePending } from '../../data/pending';
 import { useStore } from '../../data/store';
-import { BY_ID, COLS, KIND_PL, PEOPLE, PERIODS, belowTheLine, goneLine, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, removeAt, search, slotsOf, titleOf, type Entry, type List } from '@see/core';
+import { BY_ID, COLS, KIND_PL, PEOPLE, PERIODS, belowTheLine, goneLine, kindFor, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, removeAt, search, slotsOf, titleOf, type Entry, type Kind, type List } from '@see/core';
 import { usePhone } from '../../lib/useMediaQuery';
 import { usePlayer } from './player';
 
@@ -241,7 +241,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
       <div role="list" aria-label={`${L.name}, top ${L.n}`}>
         {slots.map((xid, ix) => {
           if (!xid) {
-            return <Slot key={`slot-${ix}`} ix={ix} first={ix === firstOpen} kind={kind} taken={L.items} onPick={(x) => add(ix, x)} />;
+            return <Slot key={`slot-${ix}`} ix={ix} first={ix === firstOpen} kind={kind} ownKind={kindFor(L, store.categories.find((c) => c.id === L.cat)?.name)} taken={L.items} onPick={(x) => add(ix, x)} />;
           }
           const x = BY_ID[xid];
           const mv = moveOf(L, xid, ix);
@@ -291,15 +291,15 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
               </button>
               {cols.map(([, key], ci) => (
                 <span key={ci} className={`t-meta lv-cell lv-c${ci + 1}`}>
-                  {key === 'm' && x.k === 'artist' ? 'Artist' : x[key]}
+                  {key === 'm' && x.own ? 'Your own' : key === 'm' && x.k === 'artist' ? 'Artist' : x[key]}
                 </span>
               ))}
               <button
                 type="button"
                 className="icon-btn lv-play"
                 aria-pressed={isPlaying}
-                aria-label={x.gone ? `Play is off: ${goneLine(x)}` : `${isPlaying ? 'Pause' : 'Play'} ${x.t}`}
-                disabled={!!x.gone}
+                aria-label={x.gone ? `Play is off: ${goneLine(x)}` : x.own ? `${x.t} is your own: nothing to play yet` : `${isPlaying ? 'Pause' : 'Play'} ${x.t}`}
+                disabled={!!x.gone || !!x.own}
                 onClick={() => (player.xid === xid ? player.toggle() : player.play(xid, { listId: L.id, view: 'mini' }))}
               >
                 <Icon name={isPlaying ? 'pause' : 'play'} size={16} color={isPlaying ? 'var(--see-accent)' : 'var(--see-text-2)'} />
@@ -341,7 +341,8 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
 }
 
 /** An open place: type to find it, pick from what See suggests. */
-function Slot({ ix, first, kind, taken, onPick }: { ix: number; first: boolean; kind: ReturnType<typeof kindOf>; taken: (string | null)[]; onPick: (x: Entry) => void }) {
+function Slot({ ix, first, kind, ownKind, taken, onPick }: { ix: number; first: boolean; kind: ReturnType<typeof kindOf>; ownKind: Kind; taken: (string | null)[]; onPick: (x: Entry) => void }) {
+  const store = useStore();
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -360,6 +361,8 @@ function Slot({ ix, first, kind, taken, onPick }: { ix: number; first: boolean; 
     setQ('');
     setOpen(false);
   };
+  // nothing matches: rank it as your own (search never ends at "no")
+  const addOwn = () => pick(store.addOwn(q, ownKind));
   const id = `slot-sugs-${ix}`;
   return (
     <label ref={wrap} className="lv-slot" data-first={first} role="listitem">
@@ -388,6 +391,9 @@ function Slot({ ix, first, kind, taken, onPick }: { ix: number; first: boolean; 
           } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             setActive((a) => Math.max(0, a - 1));
+          } else if (e.key === 'Enter' && !results.length && q.trim().length > 1) {
+            e.preventDefault();
+            addOwn();
           } else if (e.key === 'Enter' && results[active]) {
             e.preventDefault();
             pick(results[active]);
@@ -399,6 +405,16 @@ function Slot({ ix, first, kind, taken, onPick }: { ix: number; first: boolean; 
       <span style={{ display: 'flex', justifyContent: 'center' }}>
         <Icon name="search" size={12} color="var(--see-text-4)" />
       </span>
+      {open && results.length === 0 && q.trim().length > 1 && (
+        <div className="lv-sugs" id={id} role="listbox" aria-label="Suggestions">
+          <button type="button" role="option" aria-selected className="lv-sug" data-active onPointerDown={(e) => e.preventDefault()} onClick={addOwn}>
+            <span className="t-row" style={{ fontSize: 14, fontWeight: 800 }}>
+              Add “{q.trim()}”
+            </span>
+            <span className="t-meta">Nothing matches. Rank it as your own; you can link a source later.</span>
+          </button>
+        </div>
+      )}
       {open && results.length > 0 && (
         <div className="lv-sugs" id={id} role="listbox" aria-label="Suggestions">
           {results.map((x, i) => (

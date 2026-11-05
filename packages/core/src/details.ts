@@ -31,6 +31,7 @@ export function kickerOf(x: Entry): string {
 
 /** The line under the title: who made it, and what it is from. */
 export function makerLine(x: Entry): string {
+  if (x.own) return 'Your own · no source yet';
   switch (x.k) {
     case 'film':
       return `Directed by ${x.m}`;
@@ -120,6 +121,7 @@ export function whereItRanks(xid: string, lists: List[]): Placing[] {
 
 /** A plain description from what See knows; no invented facts. */
 export function aboutOf(x: Entry): string {
+  if (x.own) return 'Your own item. See doesn’t have it yet, so nothing plays; you can link a source later.';
   const kind = KIND_WORD[x.k].toLowerCase();
   switch (x.k) {
     case 'film':

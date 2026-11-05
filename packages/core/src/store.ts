@@ -2,13 +2,15 @@
  * Your lists and categories as one state, changed only by actions. Platform-free: the web keeps it in
  * localStorage, the native apps in their own storage, through a StorageAdapter. A server replaces the adapter.
  */
-import { SEED_CATEGORIES, seedLists, type Category, type List } from './seed';
+import { SEED_CATEGORIES, registerOwn, seedLists, type Category, type Entry, type List } from './seed';
 import { resize } from './model';
 import { withoutPerson } from './people';
 
 export interface State {
   lists: List[];
   categories: Category[];
+  /** your own items, made when See didn't have something */
+  own?: Entry[];
 }
 
 export type Action =
@@ -21,6 +23,7 @@ export type Action =
   | { type: 'addList'; list: List }
   | { type: 'removeList'; id: string }
   | { type: 'removePerson'; handle: string }
+  | { type: 'addOwn'; entry: Entry }
   | { type: 'load'; state: State }
   | { type: 'reset' };
 
@@ -52,7 +55,11 @@ export function reduce(s: State, a: Action): State {
       return { ...s, lists: s.lists.filter((L) => L.id !== a.id) };
     case 'removePerson':
       return { ...s, lists: withoutPerson(s.lists, a.handle) };
+    case 'addOwn':
+      registerOwn([a.entry]);
+      return { ...s, own: [...(s.own ?? []), a.entry] };
     case 'load':
+      registerOwn(a.state.own);
       return a.state;
     case 'reset':
       return seedState();

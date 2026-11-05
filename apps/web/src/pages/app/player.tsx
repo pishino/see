@@ -63,8 +63,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       xid,
       listId: opts.listId === undefined ? (x.xid === xid ? x.listId : null) : opts.listId,
       view: opts.view ?? 'sheet',
-      // removed at its source: the details still open, but nothing plays
-      playing: BY_ID[xid]?.gone ? false : (opts.autoplay ?? true),
+      // removed at its source, or your own with no source yet: the details still open, but nothing plays
+      playing: BY_ID[xid]?.gone || BY_ID[xid]?.own ? false : (opts.autoplay ?? true),
       t: x.xid === xid ? x.t : 0,
     }));
   }, []);
@@ -75,7 +75,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       entry,
       duration,
       play,
-      toggle: () => setS((x) => (BY_ID[x.xid!]?.gone ? x : x.t >= durationOf(BY_ID[x.xid!]) ? { ...x, t: 0, playing: true } : { ...x, playing: !x.playing })),
+      toggle: () => setS((x) => (BY_ID[x.xid!]?.gone || BY_ID[x.xid!]?.own ? x : x.t >= durationOf(BY_ID[x.xid!]) ? { ...x, t: 0, playing: true } : { ...x, playing: !x.playing })),
       seek: (t) => setS((x) => ({ ...x, t: Math.max(0, Math.min(duration, t)) })),
       setView: (view) => setS((x) => ({ ...x, view })),
       close: () => setS(IDLE),
