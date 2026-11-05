@@ -3,6 +3,8 @@
  * instruction; it reads as a pause, not a punishment.
  */
 export const VOTE_RUN = { max: 8, windowMs: 30_000, pauseMs: 42_000 };
+/** Playing this or that is quicker by nature: only a run faster than anyone reads pauses. */
+export const PICK_RUN = { max: 25, windowMs: 20_000, pauseMs: 42_000 };
 
 /** Seconds to wait before voting again (0: vote away), from the times of your recent votes. */
 export function votePause(times: number[], now: number, rule = VOTE_RUN): number {

@@ -5,12 +5,16 @@
 import { SEED_CATEGORIES, registerOwn, seedLists, type Category, type Entry, type List } from './seed';
 import { resize } from './model';
 import { withoutPerson } from './people';
+import type { Game, PollDef } from './polls';
 
 export interface State {
   lists: List[];
   categories: Category[];
   /** your own items, made when See didn't have something */
   own?: Entry[];
+  /** polls you made, and where you are in every poll you've played */
+  polls?: PollDef[];
+  games?: Record<string, Game>;
 }
 
 export type Action =
@@ -25,6 +29,8 @@ export type Action =
   | { type: 'removePerson'; handle: string }
   | { type: 'addOwn'; entry: Entry }
   | { type: 'addFound'; entries: Entry[] }
+  | { type: 'addPoll'; poll: PollDef }
+  | { type: 'saveGame'; id: string; game: Game | null }
   | { type: 'load'; state: State }
   | { type: 'reset' };
 
@@ -56,6 +62,14 @@ export function reduce(s: State, a: Action): State {
       return { ...s, lists: s.lists.filter((L) => L.id !== a.id) };
     case 'removePerson':
       return { ...s, lists: withoutPerson(s.lists, a.handle) };
+    case 'addPoll':
+      return { ...s, polls: [...(s.polls ?? []), a.poll] };
+    case 'saveGame': {
+      const games = { ...(s.games ?? {}) };
+      if (a.game) games[a.id] = a.game;
+      else delete games[a.id];
+      return { ...s, games };
+    }
     case 'addFound': {
       // what a connected service filled: it joins the catalogue on this device, once
       const have = new Set((s.own ?? []).map((x) => x.id));

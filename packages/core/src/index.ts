@@ -15,3 +15,4 @@ export * from './access';
 export * from './votes';
 export * from './share';
 export * from './connections';
+export * from './polls';

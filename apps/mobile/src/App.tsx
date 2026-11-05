@@ -10,7 +10,7 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import * as Linking from 'expo-linking';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { BY_ID, POLLS, PEOPLE, SEED_ACTIVITY, VOTE_SAYS, votePause, type Poll, addToList, filledCount, listSummary, makerOf, search, slotsOf, type List } from '@see/core';
+import { BY_ID, PEOPLE, SEED_ACTIVITY, addToList, filledCount, listSummary, makerOf, search, slotsOf, type List } from '@see/core';
 import { PlayerProvider, SettingsProvider, StoreProvider, usePlayer, useSettings, useStore } from '@see/core/react';
 import { size } from '@see/tokens';
 import { CategoryTag, Icon, PlusBox, Wordmark, type IconName } from './marks';
@@ -22,6 +22,7 @@ import { JoinScreen } from './Access';
 import { PlusField } from './Field';
 import { MiniPlayer, PlayerSheet } from './Player';
 import { useColors, type C } from './theme';
+import { Polls } from './Polls';
 import { ProfilePicture } from './ProfilePicture';
 import { SettingsScreen } from './Settings';
 import { Auth } from './Auth';
@@ -351,82 +352,6 @@ function Charts({ c }: { c: C }) {
   );
 }
 
-/** Polls: violet. Results after you vote. */
-function Polls({ c }: { c: C }) {
-  const store = useStore();
-  const [votes, setVotes] = useState<Record<string, number>>({});
-  const [mast, setMast] = useState({ w: 0, h: 0 });
-  // too many tries (O2): a fast run of votes pauses; the countdown is the whole instruction
-  const [times, setTimes] = useState<number[]>([]);
-  const [now, setNow] = useState(() => Date.now());
-  const wait = votePause(times, now);
-  useEffect(() => {
-    if (!wait) return;
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, [wait]);
-  const vote = (id: string, i: number) => {
-    const t = Date.now();
-    if (votePause(times, t)) return;
-    setTimes((ts) => [...ts.slice(-20), t]);
-    setNow(t);
-    setVotes((v) => ({ ...v, [id]: i }));
-  };
-  // any list can become a poll: its top four are the options
-  const fromLists: Poll[] = store.lists
-    .filter((L) => L.poll)
-    .map((L) => ({ id: `list-${L.id}`, cat: L.cat, q: `${L.name}: what’s No. 1?`, n: 46, o: slotsOf(L).filter(Boolean).slice(0, 4).map((x, i) => [BY_ID[x!]?.t ?? '', [38, 27, 21, 14][i]] as [string, number]) }));
-  const all = [...fromLists, ...POLLS];
-  return (
-    <ScrollView contentContainerStyle={[s.page, { gap: 12 }]}>
-      <View style={{ marginHorizontal: -size['gutter-phone'], marginTop: -12, paddingHorizontal: size['gutter-phone'], paddingTop: 16, paddingBottom: 18, overflow: 'hidden' }} onLayout={(e) => setMast({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
-        <PlusField width={mast.w} height={mast.h} color={c.violet} />
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <Wordmark height={30} color={c.violet} />
-          <PlusBox height={24} color={c.violet} />
-        </View>
-      </View>
-      <Txt style={[s.label, { color: c['violet-text'] }]}>All polls</Txt>
-      {wait > 0 && (
-        <View style={[s.banner, { marginHorizontal: 0, backgroundColor: c['surface-2'], borderLeftColor: c.violet }]} accessibilityLiveRegion="polite">
-          <Txt style={{ color: c.text, fontSize: 12.5, lineHeight: 18 }}>{VOTE_SAYS(wait)}</Txt>
-        </View>
-      )}
-      {all.length === 0 && (
-        <View style={{ gap: 8 }}>
-          <Txt style={{ color: c.text, fontSize: 22, fontWeight: '800' }}>No polls yet</Txt>
-          <Txt style={{ color: c['text-2'], fontSize: 14, lineHeight: 21 }}>Any list can become a poll: open its menu and choose Make it a poll. People vote; your list stays yours.</Txt>
-        </View>
-      )}
-      {all.map((p) => {
-        const mine = p.closed ? p.voted : votes[p.id];
-        const voted = mine !== undefined || !!p.closed;
-        return (
-          <View key={p.id} style={[s.card, { backgroundColor: c['surface-1'], borderLeftColor: c.violet }]}>
-            {!!p.closed && <Txt style={{ color: c['text-2'], fontSize: 13 }}>This poll is closed. Here’s how it ended.</Txt>}
-            <Txt style={[s.hero, { color: c.text, fontSize: 19 }]}>{p.q}</Txt>
-            {p.o.map(([label, share], i) => (
-              <Pressable
-                key={label}
-                disabled={!!p.closed || wait > 0}
-                onPress={() => vote(p.id, i)}
-                style={[s.row, { borderBottomColor: c['surface-2'], opacity: wait > 0 && !p.closed ? 0.45 : 1 }]}
-                aria-selected={mine === i}
-              >
-                <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: voted ? `${share}%` : 0, backgroundColor: c['surface-2'] }} />
-                <Txt style={{ flex: 1, color: mine === i ? c['violet-text'] : c.text, fontWeight: '700', fontSize: 14 }}>{label}</Txt>
-                {voted && <Txt style={{ color: c['text-2'], fontWeight: '800', fontSize: 13 }}>{share}%</Txt>}
-              </Pressable>
-            ))}
-            <Txt style={{ color: c['text-3'], fontSize: 11.5 }}>
-              {p.closed ? `Voting closed on ${p.closed}.` : voted ? 'Your vote is in. Change it any time.' : 'Results after you vote'}
-            </Txt>
-          </View>
-        );
-      })}
-    </ScrollView>
-  );
-}
 
 /** Find: anything in See; + adds it to your pinned list. Nothing matching? Add it as your own. */
 function Find({ c, say }: { c: C; say: (t: string) => void }) {
