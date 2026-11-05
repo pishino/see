@@ -19,6 +19,7 @@ import { Icon } from '../../brand/Icon';
 import { ProfilePicture } from '../../brand/ProfilePicture';
 import { Button } from '../../components/Button';
 import { Switch } from '../../components/controls';
+import { usePushPermission } from '../../lib/usePushPermission';
 import { useToast } from '../../components/Toast';
 import { usePhone } from '../../lib/useMediaQuery';
 import './you.css';
@@ -245,6 +246,7 @@ function SectionBody({ id }: { id: SectionId }) {
   const toast = useToast();
   const [del, setDel] = useState<'closed' | 'confirm' | 'done'>('closed');
   const [typed, setTyped] = useState('');
+  const [push, askPush] = usePushPermission();
 
   switch (id) {
     case 'profile':
@@ -456,6 +458,12 @@ function SectionBody({ id }: { id: SectionId }) {
     case 'notif':
       return (
         <>
+          {push === 'denied' && (
+            <div className="ps-banner" role="status" style={{ margin: '0 0 8px', ['--bar' as string]: 'var(--see-flare-soft)' }}>
+              Notifications are off for See in this browser’s settings, so push can’t reach you. Email still can. Turn them on from the
+              lock or site icon beside the address.
+            </div>
+          )}
           <div className="st-notif" aria-hidden="true" style={{ paddingBottom: 4, borderBottom: 0 }}>
             <span />
             <span className="t-label" style={{ fontSize: 10 }}>
@@ -474,7 +482,15 @@ function SectionBody({ id }: { id: SectionId }) {
                   <b style={{ fontSize: 13.5 }}>{n.label}</b>
                   {n.sub && <div className="st-sub">{n.sub}</div>}
                 </span>
-                <Switch checked={v.push} label={`${n.label} by push`} onChange={(on) => put('push', on)} />
+                <Switch
+                  checked={v.push && push !== 'denied'}
+                  disabled={push === 'denied'}
+                  label={push === 'denied' ? `${n.label} by push: can’t reach you, notifications are off in this browser` : `${n.label} by push`}
+                  onChange={(on) => {
+                    if (on) askPush();
+                    put('push', on);
+                  }}
+                />
                 <Switch checked={v.email} label={`${n.label} by email`} onChange={(on) => put('email', on)} />
               </div>
             );

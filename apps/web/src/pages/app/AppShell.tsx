@@ -19,6 +19,7 @@ import { PlayerProvider, usePlayer } from './player';
 import { MiniPlayer, PlayerSheet } from './PlayerView';
 import { PersonDrawer, PersonView } from './PersonView';
 import { overOf } from './PersonLink';
+import { OurSide } from '../../components/OurSide';
 import { flushPending, usePending } from '../../data/pending';
 import { useOnline } from '../../lib/useOnline';
 import { useToast } from '../../components/Toast';
@@ -94,6 +95,7 @@ export default function AppShell() {
         )}
         <div className="app-scroll no-scrollbar">
           <div className="app-page">
+          <OurSide where="this page" resetKey={page.pathname}>
           <Routes location={page}>
             <Route index element={<Home onNewCategory={openCreate} />} />
             <Route path="c/:cat" element={<CategoryView onNewList={newBlank} />} />
@@ -106,6 +108,7 @@ export default function AppShell() {
             <Route path="activity" element={<ActivityView />} />
             <Route path="u/:handle" element={<PersonView />} />
           </Routes>
+          </OurSide>
           </div>
         </div>
         {!phone && <FindPill />}
