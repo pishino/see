@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, type ReactNode } from 'react';
-import { Animated, BackHandler, Easing, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, BackHandler, Easing, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '@see/core/react';
 import { motion } from '@see/tokens';
@@ -7,7 +7,8 @@ import { NavCtx } from './nav';
 import type { C } from './theme';
 
 /* Everything that opens on a phone is a sheet from the bottom, menus included (V3Behaviour). Back or the scrim closes it. */
-export function Sheet({ c, onClose, label, children }: { c: C; onClose: () => void; label: string; children: ReactNode }) {
+/** `modal`: for a sheet opened from inside a scrolling page, so it covers the screen rather than scrolling with it. */
+export function Sheet({ c, onClose, label, children, modal = false }: { c: C; onClose: () => void; label: string; children: ReactNode; modal?: boolean }) {
   const insets = useSafeAreaInsets();
   const reduce = useSettings().settings.reduceMotion;
   const y = useRef(new Animated.Value(600)).current;
@@ -17,7 +18,7 @@ export function Sheet({ c, onClose, label, children }: { c: C; onClose: () => vo
   useEffect(() => nav?.cover(), [nav]);
   useEffect(() => {
     Animated.timing(y, { toValue: 0, duration: reduce ? 1 : motion.sheet, easing: Easing.bezier(0.2, 0.8, 0.2, 1), useNativeDriver: true }).start();
-    if (Platform.OS !== 'android') return;
+    if (Platform.OS !== 'android' || modal) return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       close.current();
       return true;
@@ -25,7 +26,7 @@ export function Sheet({ c, onClose, label, children }: { c: C; onClose: () => vo
     return () => sub.remove();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  return (
+  const body = (
     <View style={[StyleSheet.absoluteFill, { zIndex: 20 }]}>
       <Pressable style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(11,15,14,0.66)' }]} onPress={onClose} accessibilityLabel="Close" />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end' }} pointerEvents="box-none">
@@ -39,5 +40,12 @@ export function Sheet({ c, onClose, label, children }: { c: C; onClose: () => vo
         </Animated.View>
       </KeyboardAvoidingView>
     </View>
+  );
+  return modal ? (
+    <Modal transparent visible onRequestClose={onClose} statusBarTranslucent>
+      {body}
+    </Modal>
+  ) : (
+    body
   );
 }

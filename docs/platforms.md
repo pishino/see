@@ -94,6 +94,16 @@ drag. Toasts sit above the tabs, and move to the top whenever a sheet or the pla
 - **To send one by hand:** `node scripts/send-push.mjs 'ExponentPushToken[…]' poll-results` (any kind; `--dry`
   prints the payload, `--quiet "22:00 to 08:00"` shows the hold). Behind a proxy, add `NODE_USE_ENV_PROXY=1`.
 
-Next for the phones: a server that keeps tokens and settings and sends with `deliver()` and `sendExpo()`.
+Also on the phones and the web alike, from the shared words in `@see/core`: a deleted list, a private list (Ask to
+join), invites (`see://join/…`, Join this list, and Ask again once 7 days have passed), a fast run of votes pausing
+with a countdown, a preview not available in your country (Play the next, Open on its source), and a service that
+didn't connect (closing its sign-in changes nothing, and says so). The phones also show the page's shape while
+saved lists load, polls made from your lists, the + field behind the Charts and Polls mastheads (Settings ›
+Display), and Session ended after 30 days away, as a sheet over where you were. The web also keeps two windows in
+step, settles a clash between them, retries a save the device couldn't make, and turns an uploaded photo into
+your pixel picture.
+
+Next: a server that keeps lists, tokens and settings, and sends with `deliver()` and `sendExpo()`. Then the
+seeded access states, invites and the clash between windows become the real ones between people.
 Reduced motion: the OS setting and
 Settings › Display both drop every duration to 1 ms, as on the web.

@@ -156,7 +156,7 @@ export function YouView() {
             className="icon-btn"
             aria-label="Share your page"
             onClick={() => {
-              navigator.clipboard?.writeText(`${location.origin}/u/${handle}`).catch(() => {});
+              navigator.clipboard?.writeText(`${location.origin}${import.meta.env.BASE_URL}u/${handle}`).catch(() => {});
               toast('Link to your page copied');
             }}
           >

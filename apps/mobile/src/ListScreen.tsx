@@ -7,10 +7,11 @@ import { useEffect, useRef, useState } from 'react';
 import { PanResponder, Pressable, ScrollView, Share, StyleSheet, TextInput, View, type HostInstance, type ScrollViewInstance } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { BY_ID, SIZE_STOPS, belowTheLine, filledCount, goneLine, kindFor, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, search, slotsOf, type List } from '@see/core';
-import { usePlayer, useStore } from '@see/core/react';
+import { silent, usePlayer, useStore } from '@see/core/react';
 import { size } from '@see/tokens';
 import { CategoryTag, Icon } from './marks';
 import { PlayGlyph } from './Player';
+import { NoList } from './Access';
 import { useNav } from './nav';
 import { Sheet } from './Sheet';
 import type { C } from './theme';
@@ -103,16 +104,8 @@ export function ListScreen({ id, c }: { id: string; c: C }) {
     last.current = drag ? target : -1;
   }, [target, drag]);
 
-  if (!L) {
-    return (
-      <View style={{ padding: size['gutter-phone'], gap: 14 }}>
-        <Txt style={{ color: c.text, fontSize: 28, fontWeight: '900', textTransform: 'uppercase' }}>This list isn’t here</Txt>
-        <Pressable onPress={onBack} accessibilityRole="button">
-          <Txt style={{ color: c.flare, fontWeight: '800' }}>Back to charts</Txt>
-        </Pressable>
-      </View>
-    );
-  }
+  if (!L && !store.ready) return <Skeleton c={c} />;
+  if (!L) return <NoList id={id} c={c} />;
 
   const shiftFor = (ix: number) => {
     if (!drag || ix === drag.from) return 0;
@@ -173,7 +166,7 @@ export function ListScreen({ id, c }: { id: string; c: C }) {
           const shown = lifted ? target : ix + shiftFor(ix) / ROW; // the rank each row will have if you let go now
           const mv = moveOf(L, xid, ix);
           const playing = player.xid === xid;
-          const off = !!x.gone || !!x.own;
+          const off = silent(xid);
           const dy = lifted ? Math.max(-ix * ROW, Math.min((filled - 1 - ix) * ROW, drag!.dy)) : shiftFor(ix);
           return (
             <View
@@ -206,7 +199,7 @@ export function ListScreen({ id, c }: { id: string; c: C }) {
                   {x.t}
                 </Txt>
                 <Txt numberOfLines={1} style={{ color: x.gone ? c['flare-soft'] : c['text-3'], fontSize: 12 }}>
-                  {x.gone ? goneLine(x, ix + 1) : makerOf(x)}
+                  {x.gone ? goneLine(x, ix + 1) : x.notHere ? `${makerOf(x)} · not available here` : makerOf(x)}
                 </Txt>
               </Pressable>
               <Pressable
@@ -365,3 +358,22 @@ const s = StyleSheet.create({
   icon: { width: 40, height: 44, alignItems: 'center', justifyContent: 'center' },
   grip: { width: 44, height: ROW, alignItems: 'center', justifyContent: 'center' },
 });
+
+/** The page's shape while saved lists load (L1): title, then rows, in greys. Nothing jumps when they land. */
+export function Skeleton({ c, rows = 8 }: { c: C; rows?: number }) {
+  return (
+    <View style={{ padding: size['gutter-phone'], gap: 14 }} accessibilityLabel="Loading your lists" accessibilityRole="progressbar">
+      <View style={{ width: 90, height: 18, backgroundColor: c['surface-1'] }} />
+      <View style={{ width: '80%', height: 34, backgroundColor: c['surface-1'] }} />
+      {Array.from({ length: rows }, (_, i) => (
+        <View key={i} style={{ height: ROW - 14, flexDirection: 'row', alignItems: 'center', gap: 14, opacity: 1 - i * 0.08 }}>
+          <View style={{ width: 24, height: 14, backgroundColor: c['surface-2'] }} />
+          <View style={{ flex: 1, gap: 6 }}>
+            <View style={{ width: `${60 + ((i * 17) % 30)}%`, height: 12, backgroundColor: c['surface-1'] }} />
+            <View style={{ width: '35%', height: 10, backgroundColor: c['surface-1'] }} />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}

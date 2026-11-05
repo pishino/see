@@ -27,6 +27,7 @@ import { Icon } from './marks';
 import { ProfilePicture } from './ProfilePicture';
 import { useNav } from './nav';
 import { usePushPermission } from './push';
+import { Sheet } from './Sheet';
 import type { C } from './theme';
 import { Txt } from './type';
 
@@ -105,6 +106,8 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
   const [typed, setTyped] = useState('');
   const [push, askPush] = usePushPermission();
   const nav = useNav();
+  const [asking, setAsking] = useState<string | null>(null);
+  const [failed, setFailed] = useState<string | null>(null);
   const toggle = <K extends keyof Settings>(k: K, title: string, sub?: string) => (
     <SwitchRow title={title} sub={sub} on={!!settings[k]} onChange={(v) => set(k, v as Settings[K])} c={c} />
   );
@@ -252,7 +255,8 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
                     on={on}
                     c={c}
                     onChange={() => {
-                      set('conn', { ...settings.conn, [n]: !on });
+                      if (!on) return setAsking(n);
+                      set('conn', { ...settings.conn, [n]: false });
                       set('lastConn', n);
                     }}
                   />
@@ -260,6 +264,51 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
               })}
             </View>
           ))}
+          {failed && !settings.conn[failed] && (
+            <View style={{ backgroundColor: c['surface-2'], borderLeftWidth: 3, borderLeftColor: c['flare-soft'], padding: 14, gap: 10, marginTop: 14 }} accessibilityRole="alert">
+              <Txt style={{ color: c.text, fontSize: 13, lineHeight: 19 }}>
+                {failed} didn’t connect. The sign-in closed before it finished. Nothing was changed. Try again, or skip it for now.
+              </Txt>
+              <QuietButton label="Try again" c={c} onPress={() => setAsking(failed)} />
+            </View>
+          )}
+          {asking && (
+            <Sheet
+              modal
+              c={c}
+              label={`Connect ${asking}`}
+              onClose={() => {
+                setFailed(asking);
+                setAsking(null);
+              }}
+            >
+              <Txt style={{ color: c.text, fontSize: 24, fontWeight: '900', textTransform: 'uppercase' }}>Connect {asking}?</Txt>
+              <Txt style={{ color: c['text-2'], fontSize: 14, lineHeight: 21 }}>
+                See will read {READS[asking]}, to suggest what to rank. It never posts for you, and you can disconnect it here any time.
+              </Txt>
+              <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>
+                <QuietButton
+                  label="Cancel"
+                  c={c}
+                  onPress={() => {
+                    setFailed(asking);
+                    setAsking(null);
+                  }}
+                />
+                <QuietButton
+                  label="Connect"
+                  tone={c.flare}
+                  c={c}
+                  onPress={() => {
+                    set('conn', { ...settings.conn, [asking]: true });
+                    set('lastConn', asking);
+                    setFailed(null);
+                    setAsking(null);
+                  }}
+                />
+              </View>
+            </Sheet>
+          )}
           <Txt style={{ color: last ? c['text-2'] : c['text-3'], fontSize: 12, lineHeight: 17, paddingTop: 14 }} accessibilityLiveRegion="polite">
             {last
               ? settings.conn[last]

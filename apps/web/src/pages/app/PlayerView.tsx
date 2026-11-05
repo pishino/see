@@ -199,7 +199,7 @@ export function PlayerSheet() {
             className="icon-btn"
             aria-label="Share"
             onClick={() => {
-              navigator.clipboard?.writeText(`${location.origin}/open?link=see://entry/${x.id}`).catch(() => {});
+              navigator.clipboard?.writeText(`${location.origin}${import.meta.env.BASE_URL}open?link=see://entry/${x.id}`).catch(() => {});
               toast('Link copied');
             }}
           >

@@ -177,7 +177,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
                     type="button"
                     role="menuitem"
                     onClick={() => {
-                      navigator.clipboard?.writeText(`${location.origin}/app/l/${L.id}`).catch(() => {});
+                      navigator.clipboard?.writeText(`${location.origin}${import.meta.env.BASE_URL}app/l/${L.id}`).catch(() => {});
                       setMenu(false);
                       toast('Link copied');
                     }}

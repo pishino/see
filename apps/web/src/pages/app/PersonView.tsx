@@ -221,7 +221,7 @@ function PersonPage({ handle, inDrawer = false }: { handle: string; inDrawer?: b
                 type="button"
                 role="menuitem"
                 onClick={() => {
-                  navigator.clipboard?.writeText(`${location.origin}/open?link=see://u/${h}`).catch(() => {});
+                  navigator.clipboard?.writeText(`${location.origin}${import.meta.env.BASE_URL}open?link=see://u/${h}`).catch(() => {});
                   setMenu(false);
                   toast('Link to their page copied');
                 }}

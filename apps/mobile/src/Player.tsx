@@ -4,11 +4,11 @@
  * @see/core/react, so autoplay, the clock and "nothing plays from a removed source" behave the same.
  */
 import { useEffect, useRef, useState } from 'react';
-import { Animated, BackHandler, Easing, Platform, Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
+import { Animated, BackHandler, Easing, Linking, Platform, Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path, Rect } from 'react-native-svg';
-import { aboutOf, addToList, clock, goneLine, isVideo, kickerOf, kindOf, makerLine, moreLikeIt, playWord, sourcesOf, whereItRanks, type Entry } from '@see/core';
-import { usePlayer, useSettings, useStore } from '@see/core/react';
+import { aboutOf, addToList, clock, goneLine, isVideo, kickerOf, kindOf, makerLine, moreLikeIt, nextInList, notHereLine, playWord, sourceName, sourceUrl, sourcesOf, whereItRanks, type Entry } from '@see/core';
+import { silent, usePlayer, useSettings, useStore } from '@see/core/react';
 import { motion } from '@see/tokens';
 import { Icon, PlusBox } from './marks';
 import { Picture } from './Picture';
@@ -128,7 +128,8 @@ export function PlayerSheet({ c, say, onOpenList }: { c: C; say: (t: string) => 
   const from = source ?? sources[0];
   const word = playWord(x);
   const gone = goneLine(x);
-  const off = !!x.gone || !!x.own;
+  const off = silent(x.id);
+  const next = p.listId ? nextInList(store.list(p.listId), x.id) : null;
 
   return (
     <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: c.bg, paddingTop: insets.top, transform: [{ translateY: rise }] }]} accessibilityViewIsModal>
@@ -142,6 +143,26 @@ export function PlayerSheet({ c, say, onOpenList }: { c: C; say: (t: string) => 
           <Pressable onPress={p.toggle} style={[s.bigplay, { backgroundColor: c.flare }]} accessibilityLabel={p.playing ? 'Pause' : word.verb}>
             <PlayGlyph playing={p.playing} size={18} color={c['on-flare']} />
           </Pressable>
+        )}
+        {x.notHere && (
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(11,15,14,0.82)', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 20 }]} accessibilityRole="alert">
+            <Txt style={{ color: '#F4F5F2', fontSize: 11, fontWeight: '600', letterSpacing: 1.2, textTransform: 'uppercase' }}>Preview · {sourceName(x.notHere)}</Txt>
+            <Txt style={{ color: '#F4F5F2', fontSize: 15, fontWeight: '700', textAlign: 'center' }}>{notHereLine(x)}</Txt>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {next && (
+                <Pressable onPress={() => p.play(next, { listId: p.listId })} style={[s.btn, { backgroundColor: c.flare }]}>
+                  <View style={s.btnIn}>
+                    <Txt style={[s.btnText, { color: c['on-flare'] }]}>Play No. {(places.find((pl) => pl.listId === p.listId)?.rank ?? 0) + 1}</Txt>
+                  </View>
+                </Pressable>
+              )}
+              <Pressable onPress={() => Linking.openURL(sourceUrl(x, sourceName(x.notHere!))).catch(() => {})} style={[s.btn, { backgroundColor: 'rgba(244,245,242,0.14)' }]}>
+                <View style={s.btnIn}>
+                  <Txt style={[s.btnText, { color: '#F4F5F2' }]}>Open on {sourceName(x.notHere)}</Txt>
+                </View>
+              </Pressable>
+            </View>
+          </View>
         )}
         <View style={{ position: 'absolute', left: 16, right: 16, bottom: 8 }}>
           {!isVideo(x) && !off && (
@@ -323,7 +344,7 @@ export function MiniPlayer({ c }: { c: C }) {
           </Txt>
         </View>
       </Pressable>
-      {!x.gone && !x.own && (
+      {!silent(x.id) && (
         <Pressable onPress={p.toggle} style={s.icon} accessibilityLabel={p.playing ? 'Pause' : 'Play'}>
           <PlayGlyph playing={p.playing} size={16} color={c.text} />
         </Pressable>

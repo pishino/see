@@ -10,25 +10,30 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import * as Linking from 'expo-linking';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { BY_ID, POLLS, PEOPLE, SEED_ACTIVITY, addToList, filledCount, listSummary, makerOf, search, slotsOf, type List } from '@see/core';
+import { BY_ID, POLLS, PEOPLE, SEED_ACTIVITY, VOTE_SAYS, votePause, type Poll, addToList, filledCount, listSummary, makerOf, search, slotsOf, type List } from '@see/core';
 import { PlayerProvider, SettingsProvider, StoreProvider, usePlayer, useSettings, useStore } from '@see/core/react';
 import { size } from '@see/tokens';
 import { CategoryTag, Icon, PlusBox, Wordmark, type IconName } from './marks';
 import { nativeSettings, nativeStorage } from './storage';
 import { Txt, useBrandFonts } from './type';
 import { Launch } from './Launch';
-import { ListScreen } from './ListScreen';
+import { ListScreen, Skeleton } from './ListScreen';
+import { JoinScreen } from './Access';
+import { PlusField } from './Field';
 import { MiniPlayer, PlayerSheet } from './Player';
 import { useColors, type C } from './theme';
 import { ProfilePicture } from './ProfilePicture';
 import { SettingsScreen } from './Settings';
 import { Auth } from './Auth';
 import { usePushDelivery } from './notify';
+import { Sheet } from './Sheet';
 import { NavCtx, useNav, type Nav, type Route, type Tab } from './nav';
 import { ActivityScreen, Button, CategoryScreen, CreateSheet, PersonScreen, useFollowLink } from './Screens';
 
 const SESSION = 'see.session.v1';
 const SEEN = 'see.activity.seen';
+const SESSION_AT = 'see.session.at';
+const SESSION_DAYS = 30;
 
 export default function App() {
   return (
@@ -50,25 +55,55 @@ function Root() {
   const { c, dark } = useColors();
   const { settings } = useSettings();
   const [session, setSession] = useState<'wait' | 'in' | 'out'>('wait');
+  const [ended, setEnded] = useState(false);
+  const [authMode, setAuthMode] = useState<'up' | 'in'>('up');
   useEffect(() => {
-    AsyncStorage.getItem(SESSION).then(
-      (v) => setSession(v === 'in' ? 'in' : 'out'),
+    AsyncStorage.multiGet([SESSION, SESSION_AT]).then(
+      ([[, v], [, at]]) => {
+        setSession(v === 'in' ? 'in' : 'out');
+        if (v !== 'in') return;
+        // a long time away (A5): signed out to keep the account safe; a sheet over where you were, not a bounce
+        if (at && Date.now() - Number(at) > SESSION_DAYS * 86_400_000) setEnded(true);
+        else AsyncStorage.setItem(SESSION_AT, String(Date.now())).catch(() => {});
+      },
       () => setSession('out'),
     );
   }, []);
   const signIn = () => {
     setSession('in');
-    AsyncStorage.setItem(SESSION, 'in').catch(() => {});
+    setEnded(false);
+    AsyncStorage.multiSet([
+      [SESSION, 'in'],
+      [SESSION_AT, String(Date.now())],
+    ]).catch(() => {});
   };
   const signOut = () => {
     setSession('out');
+    setEnded(false);
+    setAuthMode('in');
     AsyncStorage.removeItem(SESSION).catch(() => {});
   };
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
       <StatusBar style={session === 'out' ? 'dark' : dark ? 'light' : 'dark'} />
       {fonts && session === 'in' && <Shell onSignOut={signOut} />}
-      {fonts && session === 'out' && <Auth onIn={signIn} />}
+      {fonts && session === 'out' && <Auth onIn={signIn} initialMode={authMode} />}
+      {fonts && session === 'in' && ended && (
+        <Sheet c={c} onClose={() => {}} label="Session ended">
+          <Txt style={{ color: c['text-3'], fontSize: 11, fontWeight: '600', letterSpacing: 1.2 }}>SESSION ENDED</Txt>
+          <Txt style={[s.hero, { color: c.text, fontSize: 26 }]}>Sign in again</Txt>
+          <Txt style={{ color: c['text-2'], fontSize: 14, lineHeight: 21 }}>
+            It’s been a while, so we signed you out to keep your account safe. Your lists are exactly as you left them.
+          </Txt>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Button label="Continue with Google" c={c} onPress={signIn} />
+            <Txt style={{ color: c['text-3'], fontSize: 11, fontWeight: '600' }}>Last used</Txt>
+          </View>
+          <Pressable onPress={signOut} accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
+            <Txt style={{ color: c.text, fontWeight: '700', textDecorationLine: 'underline' }}>Use email instead</Txt>
+          </Pressable>
+        </Sheet>
+      )}
       <Launch bg={c.bg} flare={c.flare} reduce={settings.reduceMotion} />
     </View>
   );
@@ -176,6 +211,8 @@ function Shell({ onSignOut }: { onSignOut: () => void }) {
             <CategoryScreen id={top.id} c={c} />
           ) : top?.k === 'activity' ? (
             <ActivityScreen c={c} />
+          ) : top?.k === 'join' ? (
+            <JoinScreen key={top.code} code={top.code} c={c} />
           ) : top?.k === 'person' ? (
             <PersonScreen key={top.h} h={top.h} c={c} />
           ) : top?.k === 'settings' ? (
@@ -252,16 +289,21 @@ function LinkFollower({ set }: { set: (f: (l: string) => void) => void }) {
 /** Charts: what you pinned, then your categories. */
 function Charts({ c }: { c: C }) {
   const store = useStore();
+  const [mast, setMast] = useState({ w: 0, h: 0 });
   const nav = useNav();
   const onOpen = (id: string) => nav.push({ k: 'list', id });
   const pinned = store.lists.filter((L) => L.pinned);
   return (
     <ScrollView contentContainerStyle={s.page}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingBottom: 18 }}>
-        <Wordmark height={30} color={c.flare} />
-        <PlusBox height={24} color={c.flare} />
+      <View style={{ marginHorizontal: -size['gutter-phone'], marginTop: -12, paddingHorizontal: size['gutter-phone'], paddingTop: 16, paddingBottom: 22, overflow: 'hidden' }} onLayout={(e) => setMast({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+        <PlusField width={mast.w} height={mast.h} color={c.flare} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Wordmark height={30} color={c.flare} />
+          <PlusBox height={24} color={c.flare} />
+        </View>
       </View>
-      {store.lists.length === 0 && (
+      {!store.ready && <Skeleton c={c} rows={6} />}
+      {store.ready && store.lists.length === 0 && (
         <View style={{ gap: 12, paddingVertical: 12 }}>
           <Txt style={[s.hero, { color: c.text, fontSize: 28 }]}>Your first list</Txt>
           <Txt style={{ color: c['text-2'], fontSize: 14, lineHeight: 21 }}>Name something you’d rank: a year of songs, the films you love, shows to start. See files it for you.</Txt>
@@ -311,11 +353,52 @@ function Charts({ c }: { c: C }) {
 
 /** Polls: violet. Results after you vote. */
 function Polls({ c }: { c: C }) {
+  const store = useStore();
   const [votes, setVotes] = useState<Record<string, number>>({});
+  const [mast, setMast] = useState({ w: 0, h: 0 });
+  // too many tries (O2): a fast run of votes pauses; the countdown is the whole instruction
+  const [times, setTimes] = useState<number[]>([]);
+  const [now, setNow] = useState(() => Date.now());
+  const wait = votePause(times, now);
+  useEffect(() => {
+    if (!wait) return;
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [wait]);
+  const vote = (id: string, i: number) => {
+    const t = Date.now();
+    if (votePause(times, t)) return;
+    setTimes((ts) => [...ts.slice(-20), t]);
+    setNow(t);
+    setVotes((v) => ({ ...v, [id]: i }));
+  };
+  // any list can become a poll: its top four are the options
+  const fromLists: Poll[] = store.lists
+    .filter((L) => L.poll)
+    .map((L) => ({ id: `list-${L.id}`, cat: L.cat, q: `${L.name}: what’s No. 1?`, n: 46, o: slotsOf(L).filter(Boolean).slice(0, 4).map((x, i) => [BY_ID[x!]?.t ?? '', [38, 27, 21, 14][i]] as [string, number]) }));
+  const all = [...fromLists, ...POLLS];
   return (
     <ScrollView contentContainerStyle={[s.page, { gap: 12 }]}>
+      <View style={{ marginHorizontal: -size['gutter-phone'], marginTop: -12, paddingHorizontal: size['gutter-phone'], paddingTop: 16, paddingBottom: 18, overflow: 'hidden' }} onLayout={(e) => setMast({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+        <PlusField width={mast.w} height={mast.h} color={c.violet} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Wordmark height={30} color={c.violet} />
+          <PlusBox height={24} color={c.violet} />
+        </View>
+      </View>
       <Txt style={[s.label, { color: c['violet-text'] }]}>All polls</Txt>
-      {POLLS.map((p) => {
+      {wait > 0 && (
+        <View style={[s.banner, { marginHorizontal: 0, backgroundColor: c['surface-2'], borderLeftColor: c.violet }]} accessibilityLiveRegion="polite">
+          <Txt style={{ color: c.text, fontSize: 12.5, lineHeight: 18 }}>{VOTE_SAYS(wait)}</Txt>
+        </View>
+      )}
+      {all.length === 0 && (
+        <View style={{ gap: 8 }}>
+          <Txt style={{ color: c.text, fontSize: 22, fontWeight: '800' }}>No polls yet</Txt>
+          <Txt style={{ color: c['text-2'], fontSize: 14, lineHeight: 21 }}>Any list can become a poll: open its menu and choose Make it a poll. People vote; your list stays yours.</Txt>
+        </View>
+      )}
+      {all.map((p) => {
         const mine = p.closed ? p.voted : votes[p.id];
         const voted = mine !== undefined || !!p.closed;
         return (
@@ -325,9 +408,9 @@ function Polls({ c }: { c: C }) {
             {p.o.map(([label, share], i) => (
               <Pressable
                 key={label}
-                disabled={!!p.closed}
-                onPress={() => setVotes((v) => ({ ...v, [p.id]: i }))}
-                style={[s.row, { borderBottomColor: c['surface-2'] }]}
+                disabled={!!p.closed || wait > 0}
+                onPress={() => vote(p.id, i)}
+                style={[s.row, { borderBottomColor: c['surface-2'], opacity: wait > 0 && !p.closed ? 0.45 : 1 }]}
                 aria-selected={mine === i}
               >
                 <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: voted ? `${share}%` : 0, backgroundColor: c['surface-2'] }} />

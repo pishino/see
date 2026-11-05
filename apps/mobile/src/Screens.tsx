@@ -142,6 +142,7 @@ export function useFollowLink() {
     const p = link.replace(/^see:\/\//, '');
     if (p.startsWith('list/')) nav.push({ k: 'list', id: p.slice(5).split('/')[0] });
     else if (p.startsWith('u/')) nav.push({ k: 'person', h: p.slice(2).split('/')[0] });
+    else if (p.startsWith('join/')) nav.push({ k: 'join', code: p.slice(5).split('/')[0] });
     else if (p.startsWith('poll/')) nav.tab('polls');
     else if (p.startsWith('you/activity')) nav.push({ k: 'activity' });
     else if (p.startsWith('you')) nav.tab('you');

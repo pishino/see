@@ -3,7 +3,7 @@ import type { SettingsPage } from './Settings';
 
 /* Where you are on the phone: a tab, and a stack of pages over it. Android's back pops one. */
 export type Tab = 'charts' | 'polls' | 'find' | 'you';
-export type Route = { k: 'list'; id: string } | { k: 'cat'; id: string } | { k: 'settings'; page: SettingsPage } | { k: 'activity' } | { k: 'person'; h: string };
+export type Route = { k: 'list'; id: string } | { k: 'cat'; id: string } | { k: 'settings'; page: SettingsPage } | { k: 'activity' } | { k: 'person'; h: string } | { k: 'join'; code: string };
 
 export interface Nav {
   push: (r: Route) => void;

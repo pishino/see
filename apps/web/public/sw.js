@@ -3,8 +3,10 @@
  * when there is one and from here when there isn't; the built files (hashed names) are kept as they are fetched.
  * Your lists are in this browser's storage, not here.
  */
-const CACHE = 'see-v1';
-const SHELL = ['/', '/app', '/manifest.webmanifest'];
+const CACHE = 'see-v2';
+// everything is relative to where See is served from (/ normally, /see/ on GitHub Pages)
+const BASE = new URL(self.registration.scope).pathname;
+const SHELL = [BASE, `${BASE}app`, `${BASE}manifest.webmanifest`];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -31,10 +33,10 @@ self.addEventListener('fetch', (e) => {
       fetch(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put('/app', copy));
+          caches.open(CACHE).then((c) => c.put(`${BASE}app`, copy));
           return res;
         })
-        .catch(() => caches.match(req).then((hit) => hit || caches.match('/app')).then((hit) => hit || caches.match('/'))),
+        .catch(() => caches.match(req).then((hit) => hit || caches.match(`${BASE}app`)).then((hit) => hit || caches.match(BASE))),
     );
     return;
   }
@@ -45,7 +47,7 @@ self.addEventListener('fetch', (e) => {
       (hit) =>
         hit ||
         fetch(req).then((res) => {
-          if (res.ok && (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/icons/'))) {
+          if (res.ok && (url.pathname.startsWith(`${BASE}assets/`) || url.pathname.startsWith(`${BASE}icons/`))) {
             const copy = res.clone();
             caches.open(CACHE).then((c) => c.put(req, copy));
           }

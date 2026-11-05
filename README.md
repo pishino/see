@@ -7,6 +7,20 @@ iOS and Android apps (React Native). Everything those apps share lives in `packa
 the same. Built from the See design canvas (*See — Brand Language*): the boards its "Start here" marks as the
 source of truth.
 
+## Try it without cloning
+
+Every push to `main` publishes the web app and a browser preview of the phone app to GitHub Pages:
+
+- Web app: https://pishino.github.io/see/ (straight in: https://pishino.github.io/see/app)
+- Phone app preview: https://pishino.github.io/see/phone/ (open it on your phone, or narrow your browser)
+
+One-time setup: Settings › Pages › Build and deployment › Source: **GitHub Actions**. To publish a branch before
+it is merged, run the **Pages** workflow from the Actions tab on that branch, after allowing the branch under
+Settings › Environments › github-pages › Deployment branches.
+
+The phone preview runs the real phone app in a browser. Haptics, push and the phone's own share sheet need a
+phone: open the project in Expo Go (`npm run start -w @see/mobile`, then scan the QR code).
+
 ## Run it
 
 ```bash

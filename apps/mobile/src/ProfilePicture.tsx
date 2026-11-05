@@ -1,5 +1,5 @@
 import Svg, { Path, Rect } from 'react-native-svg';
-import { PICTURE_LAYERS } from '@see/brand';
+import { PICTURE_LAYERS, photoLayers } from '@see/brand';
 import { useSettings } from '@see/core/react';
 
 function rgb(h: string) {
@@ -14,15 +14,16 @@ function mix(a: string, b: string, t: number) {
 
 /** Your picture: four tones of your colour on the 24-cell grid, as on the web. */
 export function ProfilePicture({ size = 34, colour }: { size?: number; colour?: string }) {
-  const mine = useSettings().settings.colour;
-  const c = colour ?? mine;
+  const { settings } = useSettings();
+  const c = colour ?? settings.colour;
+  const L = settings.photo && !colour ? photoLayers(settings.photo) : PICTURE_LAYERS;
   const ink = '#0B0F0E';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityLabel="Your picture">
       <Rect width={24} height={24} fill={mix(ink, c, 0.16)} />
-      <Path d={PICTURE_LAYERS.r1} fill={mix(ink, c, 0.42)} />
-      <Path d={PICTURE_LAYERS.r2} fill={c} />
-      <Path d={PICTURE_LAYERS.r3} fill={mix(c, '#FFFFFF', 0.55)} />
+      <Path d={L.r1} fill={mix(ink, c, 0.42)} />
+      <Path d={L.r2} fill={c} />
+      <Path d={L.r3} fill={mix(c, '#FFFFFF', 0.55)} />
     </Svg>
   );
 }

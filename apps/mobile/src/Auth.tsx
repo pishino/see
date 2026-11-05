@@ -42,10 +42,10 @@ function Field(props: React.ComponentProps<typeof TextInput>) {
   return <TextInput placeholderTextColor="rgba(11,15,14,0.5)" {...props} style={[{ height: 56, paddingHorizontal: 16, backgroundColor: 'rgba(11,15,14,0.12)', color: INK, fontSize: 16, fontFamily: 'InstrumentSans_600SemiBold' }, props.style]} />;
 }
 
-export function Auth({ onIn }: { onIn: () => void }) {
+export function Auth({ onIn, initialMode = 'up' }: { onIn: () => void; initialMode?: 'up' | 'in' }) {
   const store = useStore();
   const { settings, set } = useSettings();
-  const [mode, setMode] = useState<'up' | 'in'>('up');
+  const [mode, setMode] = useState<'up' | 'in'>(initialMode);
   const [step, setStep] = useState(1);
   const [picked, setPicked] = useState<string[]>([]);
   const [email, setEmail] = useState('');
