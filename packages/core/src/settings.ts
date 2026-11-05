@@ -46,8 +46,10 @@ export interface Settings {
   rankAds: boolean;
   /** Everyone you blocked (Settings › Privacy lists them) */
   blocked: string[];
-  /** People whose pages you follow */
+  /** People whose pages you follow (and makers, as m:<name>) */
   following: string[];
+  /** other people's lists you keep up with: handle/name */
+  savedLists: string[];
 }
 
 export const COLOURS: [string, string][] = [
@@ -126,6 +128,7 @@ export const DEFAULT_SETTINGS: Settings = {
   rankAds: true,
   blocked: [],
   following: [],
+  savedLists: [],
 };
 
 export interface Section {

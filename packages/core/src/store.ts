@@ -30,6 +30,7 @@ export type Action =
   | { type: 'addOwn'; entry: Entry }
   | { type: 'addFound'; entries: Entry[] }
   | { type: 'addPoll'; poll: PollDef }
+  | { type: 'moveList'; id: string; cat: string }
   | { type: 'saveGame'; id: string; game: Game | null }
   | { type: 'load'; state: State }
   | { type: 'reset' };
@@ -62,6 +63,9 @@ export function reduce(s: State, a: Action): State {
       return { ...s, lists: s.lists.filter((L) => L.id !== a.id) };
     case 'removePerson':
       return { ...s, lists: withoutPerson(s.lists, a.handle) };
+    case 'moveList':
+      // a renamed list that now reads as somewhere else moves there, ranks and people and all
+      return patch(s.categories.some((c) => c.id === a.cat) ? s : { ...s, categories: [...s.categories, { id: a.cat, name: a.cat }] }, a.id, (L) => ({ ...L, cat: a.cat }));
     case 'addPoll':
       return { ...s, polls: [...(s.polls ?? []), a.poll] };
     case 'saveGame': {

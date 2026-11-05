@@ -190,3 +190,37 @@ describe('access, invites and the vote pause', () => {
     expect(VOTE_SAYS(42)).toContain('0:42');
   });
 });
+
+describe('pages, live lists and panels', () => {
+  it('reads a name and says which word it read', async () => {
+    const { readName } = await import('./model');
+    expect(readName('Novels I gave five stars', ['MUSIC', 'MOVIES'])).toEqual({ cat: 'BOOKS', word: 'novels' });
+    expect(readName('Summer bangers', ['MUSIC'])).toEqual({ cat: 'MUSIC', word: 'bangers' });
+    expect(readName('Best jollof in Lagos', [])?.cat).toBe('FOOD');
+    expect(readName('Things', [])).toBeNull();
+  });
+
+  it('moves a renamed list where it now belongs, ranks and all', async () => {
+    const { reduce, seedState } = await import('./store');
+    const s = reduce(seedState(), { type: 'moveList', id: 'l1', cat: 'BOOKS' });
+    expect(s.lists.find((L) => L.id === 'l1')?.cat).toBe('BOOKS');
+    expect(s.categories.some((c) => c.id === 'BOOKS')).toBe(true);
+  });
+
+  it('opens a maker’s page with what they made and where it sits on your lists', async () => {
+    const { makerPage } = await import('./pages');
+    const p = makerPage('Asake', seedLists());
+    expect(p?.role).toBe('Artist');
+    expect(p?.yours[0]).toMatchObject({ list: 'Videos of the year', rank: 1 });
+    expect(p?.related.length).toBeGreaterThan(0);
+  });
+
+  it('adds a panel’s ballots into one chart', async () => {
+    const { panelChart, seedPanel, panelLocked } = await import('./pages');
+    const p = seedPanel();
+    const chart = panelChart(p);
+    expect(chart.length).toBe(10);
+    for (let i = 1; i < chart.length; i++) expect(chart[i - 1].points).toBeGreaterThanOrEqual(chart[i].points);
+    expect(panelLocked(p)).toBe(false);
+  });
+});

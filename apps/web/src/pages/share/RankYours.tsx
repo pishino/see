@@ -316,3 +316,76 @@ export function EmbedPage() {
     </div>
   );
 }
+
+/**
+ * A published chart (V3WebList): the list as you ranked it, on the web for anyone with the link. Only you and the
+ * people on the list can rank it; anyone can rank their own copy.
+ */
+export function ChartPage() {
+  const { code = '' } = useParams();
+  const t = decodeTemplate(code);
+  if (!t || !t.order) {
+    return (
+      <div className="tp">
+        <Wordmark height={26} color="var(--see-flare)" />
+        <h1 className="t-hero" style={{ fontSize: 40 }}>
+          This chart can’t be read
+        </h1>
+      </div>
+    );
+  }
+  const items = t.items.map((r) => itemOf(r, BY_ID));
+  const order = t.order;
+  return (
+    <div className="tp">
+      <Link to="/" aria-label="See">
+        <Wordmark height={26} color="var(--see-flare)" />
+      </Link>
+      <span className="t-label">
+        Top {t.n} · {t.kind} · a published chart
+      </span>
+      <h1 className="t-hero" style={{ fontSize: 44 }}>
+        {t.name}
+      </h1>
+      <div>
+        {order.map((i, k) => (
+          <a key={i} className="tp-row" href={`https://www.google.com/search?q=${encodeURIComponent(`${items[i]?.t} ${items[i]?.m}`)}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+            <span className="t-rank" style={{ color: k === 0 ? 'var(--see-accent)' : undefined }}>
+              {pad2(k + 1)}
+            </span>
+            <span>
+              <b className="t-row-sm" style={{ textTransform: 'uppercase' }}>
+                {items[i]?.t}
+              </b>
+              <span className="t-meta" style={{ display: 'block' }}>
+                {items[i]?.m}
+              </span>
+            </span>
+            <span />
+          </a>
+        ))}
+        {Array.from({ length: Math.max(0, t.n - order.length) }, (_, k) => (
+          <div key={`o${k}`} className="tp-row">
+            <span className="t-rank" style={{ color: 'var(--see-slot)' }}>
+              {pad2(order.length + k + 1)}
+            </span>
+            <span className="t-meta">Open</span>
+            <span />
+          </div>
+        ))}
+      </div>
+      <span className="t-meta">
+        {order.length} of {t.n} · only whoever made it and the people on it can rank it
+      </span>
+      <span style={{ display: 'flex', gap: 8 }}>
+        <Link className="btn btn--sm" to={`/t/${encodeTemplate({ ...t, order: undefined })}`}>
+          Rank yours
+        </Link>
+        <Link className="btn btn--sm btn--quiet" to="/app">
+          Open See
+        </Link>
+      </span>
+    </div>
+  );
+}
+export const chartLink = (t: Template) => `${location.origin}${import.meta.env.BASE_URL}chart/${encodeTemplate(t)}`;

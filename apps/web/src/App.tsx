@@ -7,7 +7,7 @@ import { applyToDocument, webSettingsStorage } from './data/settings';
 import { ToastProvider } from './components/Toast';
 import { isDesktopShell } from './lib/platform';
 import { Legal } from './pages/legal/Legal';
-import { EmbedPage, TemplatePage } from './pages/share/RankYours';
+import { ChartPage, EmbedPage, TemplatePage } from './pages/share/RankYours';
 import { ConnectReturn } from './pages/ConnectReturn';
 import { EmailsPreview } from './pages/EmailsPreview';
 
@@ -47,6 +47,7 @@ export default function App() {
               <Route path="/emails" element={<EmailsPreview />} />
               <Route path="/connect/:service" element={<ConnectReturn />} />
               <Route path="/embed/:code" element={<EmbedPage />} />
+              <Route path="/chart/:code" element={<ChartPage />} />
               <Route path="/terms" element={<Legal doc="terms" />} />
               <Route path="/privacy" element={<Legal doc="privacy" />} />
               <Route path="*" element={<Navigate to="/" replace />} />

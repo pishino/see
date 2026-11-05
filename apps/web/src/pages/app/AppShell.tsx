@@ -18,6 +18,7 @@ import { UiProvider } from './ui';
 import { PlayerProvider, usePlayer } from './player';
 import { MiniPlayer, PlayerSheet } from './PlayerView';
 import { PersonDrawer, PersonView } from './PersonView';
+import { MakerPage, MakerView, OverDrawer, PanelView, TheirListView } from './Pages';
 import { overOf } from './PersonLink';
 import { OurSide } from '../../components/OurSide';
 import { Launch } from '../../components/Launch';
@@ -48,6 +49,7 @@ export default function AppShell() {
   const over = phone ? undefined : overOf(loc.state);
   const page = over ?? loc;
   const overHandle = over ? matchPath('/app/u/:handle', loc.pathname)?.params.handle : undefined;
+  const overMaker = over ? matchPath('/app/m/:name', loc.pathname)?.params.name : undefined;
   const polls = page.pathname.startsWith('/app/polls');
   const cat = useCurrentCategory();
   const [creating, setCreating] = useState<string | false>(false);
@@ -110,6 +112,9 @@ export default function AppShell() {
             <Route path="activity" element={<ActivityView />} />
             <Route path="u/:handle" element={<PersonView />} />
             <Route path="join/:code" element={<JoinView />} />
+            <Route path="m/:name" element={<MakerView />} />
+            <Route path="u/:handle/l/:name" element={<TheirListView />} />
+            <Route path="g/:id" element={<PanelView />} />
           </Routes>
           </OurSide>
           </div>
@@ -120,6 +125,11 @@ export default function AppShell() {
       {creating !== false && <CreateDrawer defaultCategory={cat} initialName={creating} onClose={() => setCreating(false)} />}
       {activity && <ActivityDrawer onClose={() => setActivity(false)} />}
       {overHandle && <PersonDrawer handle={overHandle} onClose={() => navigate(-1)} />}
+      {overMaker && (
+        <OverDrawer label="Page" onClose={() => navigate(-1)}>
+          <MakerPage name={decodeURIComponent(overMaker)} inDrawer />
+        </OverDrawer>
+      )}
       <PlayerLayer />
       <Launch />
       <TabSync />

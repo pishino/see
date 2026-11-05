@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button, ButtonLink } from '../../components/Button';
 import { PlusCta } from '../../components/controls';
 import { ShareSheet } from '../share/ShareSheet';
+import { PeopleSheet } from './Pages';
+import { MakerLink } from './PersonLink';
 import './safety.css';
 import { Avatar } from '../../brand/Avatar';
 import { Icon } from '../../brand/Icon';
@@ -12,7 +14,7 @@ import { ReadChip } from '../../components/controls';
 import { useToast } from '../../components/Toast';
 import { usePending } from '../../data/pending';
 import { useStore } from '../../data/store';
-import { ACCESS_SAYS, INVITES, accessOf, joinInvite, BY_ID, COLS, KIND_PL, PEOPLE, PERIODS, belowTheLine, goneLine, kindFor, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, removeAt, search, slotsOf, titleOf, type Entry, type Kind, type List } from '@see/core';
+import { readName, ACCESS_SAYS, INVITES, accessOf, joinInvite, BY_ID, COLS, KIND_PL, PEOPLE, PERIODS, belowTheLine, goneLine, kindFor, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, removeAt, search, slotsOf, titleOf, type Entry, type Kind, type List } from '@see/core';
 import { usePhone } from '../../lib/useMediaQuery';
 import { usePlayer } from './player';
 
@@ -64,6 +66,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
   const [menu, setMenu] = useState(false);
   const [sizeOpen, setSizeOpen] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [peopleOpen, setPeopleOpen] = useState(false);
   // the full table, then with the album dropped, then with the maker folded into the title's second line
   const gridOf = (n: number) => `48px 56px minmax(0, 1.3fr) ${Array.from({ length: n }, () => 'minmax(0, 1fr) ').join('')}48px 40px`;
   const gridVars = { '--grid': gridOf(cols.length), '--grid-1': gridOf(Math.min(1, cols.length)), '--grid-0': gridOf(0) } as Record<string, string>;
@@ -137,9 +140,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
         <PlusField cell={phone ? 6 : 8} plusPx={phone ? 44 : 64} />
         <div className="hdr__shade" />
         <div className="hdr__in">
-          <h1 className="t-hero lv-title" style={{ fontSize: titleSize(L.name, phone) }}>
-            {L.name}
-          </h1>
+          <TitleField L={L} size={titleSize(L.name, phone)} />
           <div className="lv-bar">
             <div>
               {L.chips && (
@@ -158,7 +159,10 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
             </div>
             <div style={{ position: 'relative' }}>
               {L.poll && <span className="poll-chip" style={{ height: 24, fontSize: 11.5, padding: '0 8px' }}>Poll</span>}
-              <Avatars handles={L.people} />
+              <button type="button" onClick={() => setPeopleOpen(true)} aria-label={`People on ${L.name}: ${L.people.length}. Open`} style={{ border: 0, background: 'transparent', padding: 4, display: 'flex', alignItems: 'center', gap: 6, color: 'var(--see-text-3)' }}>
+                <Avatars handles={L.people} />
+                {L.people.length === 0 && <span className="t-meta">Put people on it</span>}
+              </button>
               <button type="button" className="icon-btn" onClick={() => setMenu((m) => !m)} aria-label="List actions" aria-haspopup="menu" aria-expanded={menu} style={{ width: 44, height: 44 }}>
                 <Icon name="dots" size={22} color="var(--see-text-2)" />
               </button>
@@ -283,7 +287,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
               </button>
               {cols.map(([, key], ci) => (
                 <span key={ci} className={`t-meta lv-cell lv-c${ci + 1}`}>
-                  {key === 'm' && x.own ? 'Your own' : key === 'm' && x.k === 'artist' ? 'Artist' : x[key]}
+                  {key === 'm' && x.own ? 'Your own' : key === 'm' && x.k === 'artist' ? 'Artist' : key === 'm' && x.m ? <MakerLink name={x.m} /> : x[key]}
                 </span>
               ))}
               <button
@@ -323,6 +327,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
       </div>
 
       {sharing && <ShareSheet L={L} onClose={() => setSharing(false)} />}
+      {peopleOpen && <PeopleSheet L={L} onClose={() => setPeopleOpen(false)} />}
       <div className="lv-foot">
         <i aria-hidden="true" />
         <span className="t-foot" style={{ fontSize: 11 }}>
@@ -562,6 +567,67 @@ export function JoinView() {
           navigate(`/app/l/${r.list.id}`);
         }}
       />
+    </div>
+  );
+}
+
+/**
+ * A list's name is a button (V3ListsLive): tap it and it becomes the field, same size, same place. As you type, the
+ * line under it says what the name now reads as; Enter saves (and moves the list if it now belongs somewhere else,
+ * with Undo), Esc puts it back.
+ */
+function TitleField({ L, size }: { L: List; size: number }) {
+  const store = useStore();
+  const toast = useToast();
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(L.name);
+  const cats = store.categories.map((c) => c.id);
+  const read = readName(name, cats);
+  const moves = !!read && read.cat !== L.cat;
+  const save = () => {
+    const n = name.trim();
+    setEditing(false);
+    if (!n || n === L.name) return setName(L.name);
+    const before = { name: L.name, cat: L.cat };
+    store.rename(L.id, n);
+    if (moves && read) {
+      store.dispatch({ type: 'moveList', id: L.id, cat: read.cat });
+      toast(`Moved to ${read.cat}`, () => {
+        store.rename(L.id, before.name);
+        store.dispatch({ type: 'moveList', id: L.id, cat: before.cat });
+      });
+    } else toast('Renamed');
+  };
+  if (!editing) {
+    return (
+      <h1 className="t-hero lv-title" style={{ fontSize: size }}>
+        <button type="button" onClick={() => (setName(L.name), setEditing(true))} aria-label={`${L.name}. Rename`} style={{ all: 'unset', cursor: 'text' }}>
+          {L.name}
+        </button>
+      </h1>
+    );
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <input
+        className="t-hero lv-title"
+        value={name}
+        autoFocus
+        aria-label="List name"
+        onChange={(e) => setName(e.target.value.slice(0, 60))}
+        onBlur={save}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') save();
+          if (e.key === 'Escape') {
+            setName(L.name);
+            setEditing(false);
+          }
+        }}
+        style={{ fontSize: size, background: 'transparent', border: 0, borderBottom: '2px solid var(--see-accent)', color: 'var(--see-text)', width: '100%', padding: 0 }}
+      />
+      <span className="t-meta" style={{ whiteSpace: 'normal' }} role="status">
+        {moves && read ? `Reads as ${read.cat} (“${read.word}”). Saving moves it there.` : read ? `Reads as ${read.cat}. It stays here.` : 'See can’t tell where this goes, so it stays here.'} Enter saves · Esc cancels
+      </span>
     </div>
   );
 }

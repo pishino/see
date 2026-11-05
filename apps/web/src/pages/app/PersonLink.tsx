@@ -10,3 +10,13 @@ export function PersonLink({ handle, ...rest }: Omit<LinkProps, 'to' | 'state'> 
   const loc = useLocation();
   return <Link to={`/app/u/${handle}`} state={{ over: overOf(loc.state) ?? loc }} {...rest} />;
 }
+
+/** A maker's name (an artist, a director) that opens their page over where you are (V3Objects: the dotted underline). */
+export function MakerLink({ name, children, ...rest }: Omit<LinkProps, 'to' | 'state'> & { name: string }) {
+  const loc = useLocation();
+  return (
+    <Link to={`/app/m/${encodeURIComponent(name)}`} state={{ over: overOf(loc.state) ?? loc }} className="name-link" onClick={(e) => e.stopPropagation()} {...rest}>
+      {children ?? name}
+    </Link>
+  );
+}

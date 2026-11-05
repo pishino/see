@@ -10,6 +10,7 @@ import { useToast } from '../../components/Toast';
 import { useStore } from '../../data/store';
 import { usePhone } from '../../lib/useMediaQuery';
 import { silent, usePlayer } from './player';
+import { MakerLink } from './PersonLink';
 import './player.css';
 
 
@@ -236,7 +237,7 @@ export function PlayerSheet() {
         <span className="t-label">{kickerOf(x)}</span>
         <h1 className="t-hero pl-title">{x.t}</h1>
         <span className="t-meta" style={{ whiteSpace: 'normal' }}>
-          {makerLine(x)}
+          <MakerLine x={x} />
         </span>
 
         <div className="pl-acts">
@@ -382,5 +383,19 @@ export function MiniPlayer() {
         </span>
       </div>
     </div>
+  );
+}
+
+/** The line under the title, with the maker's name as a link to their page. */
+function MakerLine({ x }: { x: Entry }) {
+  const line = makerLine(x);
+  const at = x.m ? line.indexOf(x.m) : -1;
+  if (at < 0 || x.own) return <>{line}</>;
+  return (
+    <>
+      {line.slice(0, at)}
+      <MakerLink name={x.m} />
+      {line.slice(at + x.m.length)}
+    </>
   );
 }

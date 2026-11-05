@@ -4,7 +4,7 @@ import { drawListCard } from '../../brand/card';
 import { Button } from '../../components/Button';
 import { useToast } from '../../components/Toast';
 import { Dialog } from '../app/PersonView';
-import { embedLink, templateLink } from './RankYours';
+import { chartLink, embedLink, templateLink } from './RankYours';
 import './share.css';
 
 /*
@@ -76,9 +76,14 @@ export function ShareSheet({ L, onClose }: { L: List; onClose: () => void }) {
       <h2 className="t-hero dlg-h">{L.name}</h2>
       <p className="dlg-p">The link carries the list, never your order or your name. Whoever opens it ranks their own.</p>
 
-      <Button size="sm" onClick={() => copy(link, 'Link copied')} style={{ alignSelf: 'flex-start' }}>
-        Copy the link
-      </Button>
+      <span style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <Button size="sm" onClick={() => copy(link, 'Link copied')}>
+          Copy the link
+        </Button>
+        <Button size="sm" variant="quiet" onClick={() => copy(chartLink(withOrder(t, myOrder)), 'Link to your published chart copied')}>
+          Copy your published chart
+        </Button>
+      </span>
 
       <span className="t-label" style={{ paddingTop: 6 }}>
         Where it goes

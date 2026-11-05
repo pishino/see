@@ -2,7 +2,7 @@
  * People and safety (V3Objects, V3Safety): every name is a page. Two ways to deal with someone: report what they
  * made, or block them. Both start from the same ··· menu, both are three taps, and neither tells them.
  */
-import { PEOPLE, type List } from './seed';
+import { CATALOG, PEOPLE, type List } from './seed';
 
 export interface Person {
   handle: string;
@@ -84,4 +84,20 @@ export const BLOCK_SAYS = {
 /** Blocking someone takes them off the lists you made. */
 export function withoutPerson(lists: List[], handle: string): List[] {
   return lists.map((L) => (L.people.includes(handle) ? { ...L, people: L.people.filter((p) => p !== handle) } : L));
+}
+
+/**
+ * Someone else's list, as it is (V3ListsLive): their order so far, read-only. Until See has a server, a steady
+ * sample of the catalogue in that category, filled part of the way, like a list someone is still on.
+ */
+export function theirList(handle: string, name: string, cat: string): List {
+  const kinds: Record<string, string[]> = { MUSIC: ['song', 'video'], MOVIES: ['film'], TV: ['show'], SPORTS: ['team', 'athlete'] };
+  let h = 2166136261;
+  for (const ch of `${handle}/${name}`) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  const pool = CATALOG.filter((x) => (kinds[cat] ?? ['song']).includes(x.k) && !x.own && !x.src.some((s) => s.includes(':')));
+  const n = 10;
+  const filled = 4 + ((h >>> 0) % 5);
+  const start = (h >>> 3) % Math.max(1, pool.length);
+  const items = Array.from({ length: Math.min(filled, pool.length) }, (_, i) => pool[(start + i * 3) % pool.length].id);
+  return { id: `their-${handle}-${name}`, cat, name, n, per: 0, items: [...new Set(items)], prev: [], pinned: false, people: [handle], poll: false, chips: false };
 }

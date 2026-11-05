@@ -81,16 +81,30 @@ export function titleOf(id: string | null | undefined): string {
 }
 
 /** How See reads a name: the words that point at a category. Returns an existing category when one fits. */
-export function suggestCategory(name: string, existing: string[]): string | null {
-  const n = name.toUpperCase();
-  const rules: [RegExp, string[]][] = [
-    [/SONG|ALBUM|ARTIST|VIDEO|MUSIC|AFRO|RAP|JAZZ|POP|TRACK|PLAYLIST/, ['MUSIC']],
-    [/FILM|MOVIE|CINEMA|DIRECTOR|HORROR/, ['MOVIES', 'FILMS']],
-    [/\bTV\b|SHOW|SERIES|ANIME|SEASON/, ['TV', 'SHOWS']],
-    [/BOOK|NOVEL|READ/, ['BOOKS']],
-    [/GAME/, ['GAMES']],
-    [/TEAM|CLUB|PLAYER|MATCH|LEAGUE|FOOTBALL/, ['TEAMS', 'SPORTS']],
-  ];
-  for (const [re, ids] of rules) if (re.test(n)) return ids.find((id) => existing.includes(id)) ?? ids[0];
+/*
+ * How See reads a name (V3ListsLive): the kind words, words like bangers or novels, and names it knows. It says
+ * which word it read, so the line under the field can say why. If nothing fits it returns null and the sheet asks.
+ */
+const READS: [RegExp, string[]][] = [
+  [/\b(songs?|albums?|artists?|videos?|music|afro\w*|rap|jazz|pop|tracks?|playlists?|bangers?|anthems?|davido|wizkid|burna|tems|asake|rema|tyla)\b/i, ['MUSIC']],
+  [/\b(films?|movies?|cinema|directors?|horror|rom-?coms?|thrillers?|nolan|coogler|nollywood)\b/i, ['MOVIES', 'FILMS']],
+  [/\b(tv|shows?|series|anime|seasons?|sitcoms?|finales?|rewatch\w*)\b/i, ['TV', 'SHOWS']],
+  [/\b(books?|novels?|reads?|reading|authors?|chimamanda|achebe|adichie|poetry)\b/i, ['BOOKS']],
+  [/\b(games?|gaming)\b/i, ['GAMES']],
+  [/\b(teams?|clubs?|players?|match(es)?|league|football|goals?|arsenal|chelsea|super eagles)\b/i, ['SPORTS', 'TEAMS']],
+  [/\b(dish(es)?|food|snacks?|rice|jollof|suya|meals?|restaurants?|recipes?)\b/i, ['FOOD']],
+  [/\b(places?|cities|city|beaches|travel|spots?)\b/i, ['PLACES']],
+];
+
+/** What a name reads as, and the word it read. */
+export function readName(name: string, existing: string[]): { cat: string; word: string } | null {
+  for (const [re, ids] of READS) {
+    const m = re.exec(name);
+    if (m) return { cat: ids.find((id) => existing.includes(id)) ?? ids[0], word: m[0].toLowerCase() };
+  }
   return null;
+}
+
+export function suggestCategory(name: string, existing: string[]): string | null {
+  return readName(name, existing)?.cat ?? null;
 }

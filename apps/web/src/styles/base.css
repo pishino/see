@@ -284,3 +284,14 @@ p {
   outline: 2px solid var(--see-focus);
   outline-offset: 2px;
 }
+
+/* Everything is a page (V3Objects): a dotted underline says there's a page */
+.name-link {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--see-text-3);
+  text-underline-offset: 3px;
+}
+.name-link:hover {
+  text-decoration-color: var(--see-accent);
+}

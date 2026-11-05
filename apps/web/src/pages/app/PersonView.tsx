@@ -276,9 +276,9 @@ function PersonPage({ handle, inDrawer = false }: { handle: string; inDrawer?: b
           <CategoryTag name={cat} height={14} />
           <div className="yp-chips">
             {names.map((n) => (
-              <span key={n} className="yp-chip">
+              <Link key={n} to={`/app/u/${h}/l/${encodeURIComponent(n)}`} className="yp-chip">
                 {n}
-              </span>
+              </Link>
             ))}
           </div>
         </section>

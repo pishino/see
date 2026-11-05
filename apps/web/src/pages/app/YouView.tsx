@@ -146,6 +146,32 @@ export function YouView() {
         )}
       </div>
 
+      <section className="yp-cat" aria-label="Panels and saved lists">
+        <span className="t-label">Panels</span>
+        <div className="yp-chips">
+          <Link to="/app/g/lagos-desk" className="yp-chip">
+            The Lagos music desk <span>7 members</span>
+          </Link>
+        </div>
+        {(settings.savedLists ?? []).length > 0 && (
+          <>
+            <span className="t-label" style={{ paddingTop: 8 }}>
+              Saved lists
+            </span>
+            <div className="yp-chips">
+              {settings.savedLists.map((k) => {
+                const [h, n] = k.split('/');
+                return (
+                  <Link key={k} to={`/app/u/${h}/l/${encodeURIComponent(n)}`} className="yp-chip">
+                    {n} <span>@{h}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </section>
+
       <div className="yp-bar">
         <span className="t-row-sm" style={{ fontWeight: 600, fontFamily: 'var(--see-font-body)' }}>
           {store.lists.length} lists · {store.categories.length} categories
