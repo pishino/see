@@ -1,0 +1,120 @@
+/* Ads: grey AD tag, never flare or violet (V3Ads) */
+.ad-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 5px;
+  border: 1px solid var(--see-text-off);
+  color: var(--see-text-3);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  vertical-align: middle;
+}
+.ad-line,
+.ad-buy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--see-text-2);
+  text-decoration: none;
+}
+.ad-buy {
+  min-height: 40px;
+  border-top: 1px solid var(--see-surface-1);
+  padding-top: 8px;
+}
+.ad-search {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 2px;
+  color: var(--see-text);
+  text-decoration: none;
+  border-top: 1px dashed var(--see-rule);
+}
+.ad-video {
+  position: relative;
+  display: block;
+  width: 260px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--see-surface-1);
+  color: var(--see-text);
+  text-decoration: none;
+}
+.ad-video canvas {
+  width: 120%;
+  height: 120%;
+  animation: ad-drift 7.5s linear 2 both;
+}
+.ad-video[data-still] canvas,
+.app:has(input:focus) .ad-video canvas,
+.app:has([data-dragging='true']) .ad-video canvas {
+  animation-play-state: paused;
+}
+@keyframes ad-drift {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(-14%, -10%) scale(1.06);
+  }
+}
+.ad-video__line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 6px 8px;
+  background: rgba(11, 15, 14, 0.78);
+  color: #f4f5f2;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ad-video__sound {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: rgba(11, 15, 14, 0.66);
+  color: #f4f5f2;
+}
+.ad-spot {
+  position: fixed;
+  left: 50%;
+  bottom: 170px;
+  translate: -50% 0;
+  z-index: 40;
+  width: min(420px, calc(100% - 32px));
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--see-surface-2);
+  color: var(--see-text);
+  font-size: 12.5px;
+}
+.ad-spot__bar {
+  grid-column: 1 / -1;
+  height: 2px;
+  background: var(--see-surface-1);
+}
+.ad-spot__bar i {
+  display: block;
+  height: 100%;
+  background: var(--see-text-3);
+}
+.ad-spot button {
+  border: 0;
+  background: transparent;
+  color: var(--see-text);
+  font-weight: 700;
+  text-decoration: underline;
+}

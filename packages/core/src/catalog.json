@@ -1,0 +1,1622 @@
+{
+ "catalog": [
+  {
+   "id": "v0",
+   "t": "Lonely At The Top",
+   "m": "Asake",
+   "a": "Work Of Art",
+   "k": "video",
+   "tags": "lonely top alone money",
+   "src": [
+    "yt",
+    "sp",
+    "am"
+   ],
+   "sc": 0,
+   "y": "2023",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "v1",
+   "t": "Water",
+   "m": "Tyla",
+   "a": "Tyla",
+   "k": "video",
+   "tags": "water dance body",
+   "src": [
+    "yt",
+    "sp",
+    "am"
+   ],
+   "sc": 1,
+   "y": "2023",
+   "g": "Amapiano"
+  },
+  {
+   "id": "v2",
+   "t": "City Boys",
+   "m": "Burna Boy",
+   "a": "I Told Them…",
+   "k": "video",
+   "tags": "city boys night",
+   "src": [
+    "yt",
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2023",
+   "g": "Afro-fusion"
+  },
+  {
+   "id": "v3",
+   "gone": "yt",
+   "t": "Unavailable",
+   "m": "Davido",
+   "a": "Timeless",
+   "k": "video",
+   "tags": "busy money love",
+   "src": [
+    "yt",
+    "sp",
+    "am"
+   ],
+   "sc": 3,
+   "y": "2023",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "v4",
+   "t": "Rush",
+   "m": "Ayra Starr",
+   "a": "19 & Dangerous",
+   "k": "video",
+   "tags": "rush love bad",
+   "src": [
+    "yt",
+    "sp",
+    "am"
+   ],
+   "sc": 4,
+   "y": "2022",
+   "g": "Afropop"
+  },
+  {
+   "id": "v5",
+   "notHere": "yt",
+   "t": "Calm Down",
+   "m": "Rema",
+   "a": "Rave & Roses",
+   "k": "video",
+   "tags": "calm love girl",
+   "src": [
+    "yt",
+    "sp",
+    "am"
+   ],
+   "sc": 5,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "v6",
+   "t": "Soweto",
+   "m": "Victony",
+   "a": "Outlaw",
+   "k": "video",
+   "tags": "party night",
+   "src": [
+    "yt",
+    "sp",
+    "am"
+   ],
+   "sc": 0,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "v7",
+   "t": "Terminator",
+   "m": "Asake",
+   "a": "Mr Money With The Vibe",
+   "k": "video",
+   "tags": "love fire",
+   "src": [
+    "yt",
+    "sp",
+    "am"
+   ],
+   "sc": 1,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "v8",
+   "t": "People",
+   "m": "Libianca",
+   "a": "People",
+   "k": "video",
+   "tags": "people sad heart",
+   "src": [
+    "yt",
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2022",
+   "g": "Afro-soul"
+  },
+  {
+   "id": "v9",
+   "t": "Bandana",
+   "m": "Fireboy DML",
+   "a": "Bandana",
+   "k": "video",
+   "tags": "party dance",
+   "src": [
+    "yt",
+    "sp",
+    "am"
+   ],
+   "sc": 3,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s0",
+   "t": "Lonely At The Top",
+   "m": "Asake",
+   "a": "Work Of Art",
+   "k": "song",
+   "tags": "lonely top alone money",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 0,
+   "y": "2023",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s1",
+   "t": "Water",
+   "m": "Tyla",
+   "a": "Tyla",
+   "k": "song",
+   "tags": "water dance body",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 5,
+   "y": "2023",
+   "g": "Amapiano"
+  },
+  {
+   "id": "s2",
+   "t": "City Boys",
+   "m": "Burna Boy",
+   "a": "I Told Them…",
+   "k": "song",
+   "tags": "city boys night",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2023",
+   "g": "Afro-fusion"
+  },
+  {
+   "id": "s3",
+   "t": "Unavailable",
+   "m": "Davido",
+   "a": "Timeless",
+   "k": "song",
+   "tags": "busy money love",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2023",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s4",
+   "t": "Rush",
+   "m": "Ayra Starr",
+   "a": "19 & Dangerous",
+   "k": "song",
+   "tags": "rush love bad",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 4,
+   "y": "2022",
+   "g": "Afropop"
+  },
+  {
+   "id": "s5",
+   "t": "Calm Down",
+   "m": "Rema",
+   "a": "Rave & Roses",
+   "k": "song",
+   "tags": "calm love girl",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 5,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s6",
+   "t": "Soweto",
+   "m": "Victony",
+   "a": "Outlaw",
+   "k": "song",
+   "tags": "party night",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 5,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s7",
+   "t": "Terminator",
+   "m": "Asake",
+   "a": "Mr Money With The Vibe",
+   "k": "song",
+   "tags": "love fire",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 5,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s8",
+   "t": "People",
+   "m": "Libianca",
+   "a": "People",
+   "k": "song",
+   "tags": "people sad heart",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 1,
+   "y": "2022",
+   "g": "Afro-soul"
+  },
+  {
+   "id": "s9",
+   "t": "Bandana",
+   "m": "Fireboy DML",
+   "a": "Bandana",
+   "k": "song",
+   "tags": "party dance",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 5,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s10",
+   "t": "Essence",
+   "m": "Wizkid",
+   "a": "Made in Lagos",
+   "k": "song",
+   "tags": "love essence night",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2020",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s11",
+   "t": "Last Last",
+   "m": "Burna Boy",
+   "a": "Love, Damini",
+   "k": "song",
+   "tags": "heart love sad",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 0,
+   "y": "2022",
+   "g": "Afro-fusion"
+  },
+  {
+   "id": "s12",
+   "t": "Peru",
+   "m": "Fireboy DML",
+   "a": "Playboy",
+   "k": "song",
+   "tags": "money party",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 4,
+   "y": "2021",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s13",
+   "t": "Sungba",
+   "m": "Asake",
+   "a": "Mr Money With The Vibe",
+   "k": "song",
+   "tags": "dance street",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s14",
+   "t": "Joha",
+   "m": "Asake",
+   "a": "Mr Money With The Vibe",
+   "k": "song",
+   "tags": "love party",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s15",
+   "t": "Commas",
+   "m": "Ayra Starr",
+   "a": "The Year I Turned 21",
+   "k": "song",
+   "tags": "money love",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2024",
+   "g": "Afropop"
+  },
+  {
+   "id": "s16",
+   "t": "Ozeba",
+   "m": "Rema",
+   "a": "Ozeba",
+   "k": "song",
+   "tags": "night party",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 5,
+   "y": "2024",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s17",
+   "t": "Charm",
+   "m": "Rema",
+   "a": "Rave & Roses",
+   "k": "song",
+   "tags": "love charm",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 5,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "s18",
+   "t": "Ku Lo Sa",
+   "m": "Oxlade",
+   "a": "Ku Lo Sa",
+   "k": "song",
+   "tags": "love body",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 5,
+   "y": "2022",
+   "g": "Afro-soul"
+  },
+  {
+   "id": "s19",
+   "t": "Free Mind",
+   "m": "Tems",
+   "a": "For Broken Ears",
+   "k": "song",
+   "tags": "mind free rain",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 0,
+   "y": "2020",
+   "g": "R&B"
+  },
+  {
+   "id": "s20",
+   "t": "Love Me JeJe",
+   "m": "Tems",
+   "a": "Born in the Wild",
+   "k": "song",
+   "tags": "love gentle",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2024",
+   "g": "R&B"
+  },
+  {
+   "id": "s21",
+   "t": "Kwaku the Traveller",
+   "m": "Black Sherif",
+   "a": "The Villain I Never Was",
+   "k": "song",
+   "tags": "travel lonely street",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 3,
+   "y": "2022",
+   "g": "Highlife rap"
+  },
+  {
+   "id": "s22",
+   "t": "Feel",
+   "m": "Davido",
+   "a": "Timeless",
+   "k": "song",
+   "tags": "love feel",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2023",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "a0",
+   "t": "Work Of Art",
+   "m": "Asake",
+   "a": "",
+   "k": "album",
+   "tags": "",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 5,
+   "y": "2023",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "a1",
+   "t": "Mr Money With The Vibe",
+   "m": "Asake",
+   "a": "",
+   "k": "album",
+   "tags": "",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 4,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "a2",
+   "t": "Timeless",
+   "m": "Davido",
+   "a": "",
+   "k": "album",
+   "tags": "",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 4,
+   "y": "2023",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "a3",
+   "t": "I Told Them…",
+   "m": "Burna Boy",
+   "a": "",
+   "k": "album",
+   "tags": "",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 0,
+   "y": "2023",
+   "g": "Afro-fusion"
+  },
+  {
+   "id": "a4",
+   "t": "Love, Damini",
+   "m": "Burna Boy",
+   "a": "",
+   "k": "album",
+   "tags": "",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2022",
+   "g": "Afro-fusion"
+  },
+  {
+   "id": "a5",
+   "t": "Rave & Roses",
+   "m": "Rema",
+   "a": "",
+   "k": "album",
+   "tags": "",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 4,
+   "y": "2022",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "a6",
+   "t": "19 & Dangerous",
+   "m": "Ayra Starr",
+   "a": "",
+   "k": "album",
+   "tags": "",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 4,
+   "y": "2021",
+   "g": "Afropop"
+  },
+  {
+   "id": "a7",
+   "t": "The Year I Turned 21",
+   "m": "Ayra Starr",
+   "a": "",
+   "k": "album",
+   "tags": "",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 2,
+   "y": "2024",
+   "g": "Afropop"
+  },
+  {
+   "id": "a8",
+   "t": "Made in Lagos",
+   "m": "Wizkid",
+   "a": "",
+   "k": "album",
+   "tags": "",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 4,
+   "y": "2020",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "a9",
+   "t": "Born in the Wild",
+   "m": "Tems",
+   "a": "",
+   "k": "album",
+   "tags": "",
+   "src": [
+    "sp",
+    "am"
+   ],
+   "sc": 5,
+   "y": "2024",
+   "g": "R&B"
+  },
+  {
+   "id": "r0",
+   "t": "Asake",
+   "m": "Artist",
+   "a": "Lonely At The Top",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 5,
+   "y": "",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "r1",
+   "t": "Burna Boy",
+   "m": "Artist",
+   "a": "Last Last",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 0,
+   "y": "",
+   "g": "Afro-fusion"
+  },
+  {
+   "id": "r2",
+   "t": "Tems",
+   "m": "Artist",
+   "a": "Free Mind",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 1,
+   "y": "",
+   "g": "R&B"
+  },
+  {
+   "id": "r3",
+   "t": "Tyla",
+   "m": "Artist",
+   "a": "Water",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 2,
+   "y": "",
+   "g": "Amapiano"
+  },
+  {
+   "id": "r4",
+   "t": "Ayra Starr",
+   "m": "Artist",
+   "a": "Rush",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 5,
+   "y": "",
+   "g": "Afropop"
+  },
+  {
+   "id": "r5",
+   "t": "Rema",
+   "m": "Artist",
+   "a": "Calm Down",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 5,
+   "y": "",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "r6",
+   "t": "Davido",
+   "m": "Artist",
+   "a": "Unavailable",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 5,
+   "y": "",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "r7",
+   "t": "Wizkid",
+   "m": "Artist",
+   "a": "Essence",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 2,
+   "y": "",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "r8",
+   "t": "Victony",
+   "m": "Artist",
+   "a": "Soweto",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 4,
+   "y": "",
+   "g": "Afrobeats"
+  },
+  {
+   "id": "r9",
+   "t": "Fireboy DML",
+   "m": "Artist",
+   "a": "Peru",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 1,
+   "y": "",
+   "g": "Afropop"
+  },
+  {
+   "id": "r10",
+   "t": "Black Sherif",
+   "m": "Artist",
+   "a": "Kwaku the Traveller",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 2,
+   "y": "",
+   "g": "Highlife rap"
+  },
+  {
+   "id": "r11",
+   "t": "Oxlade",
+   "m": "Artist",
+   "a": "Ku Lo Sa",
+   "k": "artist",
+   "tags": "",
+   "src": [
+    "sp",
+    "am",
+    "yt"
+   ],
+   "sc": 5,
+   "y": "",
+   "g": "Afro-soul"
+  },
+  {
+   "id": "f0",
+   "t": "Sinners",
+   "m": "Ryan Coogler",
+   "a": "",
+   "k": "film",
+   "tags": "",
+   "src": [
+    "lb",
+    "nf"
+   ],
+   "sc": 0,
+   "y": "2025",
+   "g": "Horror"
+  },
+  {
+   "id": "f1",
+   "t": "One Battle After Another",
+   "m": "Paul Thomas Anderson",
+   "a": "",
+   "k": "film",
+   "tags": "",
+   "src": [
+    "lb",
+    "nf"
+   ],
+   "sc": 1,
+   "y": "2025",
+   "g": "Action thriller"
+  },
+  {
+   "id": "f2",
+   "t": "Weapons",
+   "m": "Zach Cregger",
+   "a": "",
+   "k": "film",
+   "tags": "",
+   "src": [
+    "lb",
+    "nf"
+   ],
+   "sc": 1,
+   "y": "2025",
+   "g": "Horror"
+  },
+  {
+   "id": "f3",
+   "t": "F1",
+   "m": "Joseph Kosinski",
+   "a": "",
+   "k": "film",
+   "tags": "",
+   "src": [
+    "lb",
+    "nf"
+   ],
+   "sc": 5,
+   "y": "2025",
+   "g": "Sports drama"
+  },
+  {
+   "id": "f4",
+   "t": "28 Years Later",
+   "m": "Danny Boyle",
+   "a": "",
+   "k": "film",
+   "tags": "",
+   "src": [
+    "lb",
+    "nf"
+   ],
+   "sc": 2,
+   "y": "2025",
+   "g": "Horror"
+  },
+  {
+   "id": "f5",
+   "t": "Superman",
+   "m": "James Gunn",
+   "a": "",
+   "k": "film",
+   "tags": "",
+   "src": [
+    "lb",
+    "nf"
+   ],
+   "sc": 3,
+   "y": "2025",
+   "g": "Superhero"
+  },
+  {
+   "id": "f6",
+   "t": "Bugonia",
+   "m": "Yorgos Lanthimos",
+   "a": "",
+   "k": "film",
+   "tags": "",
+   "src": [
+    "lb",
+    "nf"
+   ],
+   "sc": 1,
+   "y": "2025",
+   "g": "Sci-fi comedy"
+  },
+  {
+   "id": "f7",
+   "t": "Marty Supreme",
+   "m": "Josh Safdie",
+   "a": "",
+   "k": "film",
+   "tags": "",
+   "src": [
+    "lb",
+    "nf"
+   ],
+   "sc": 4,
+   "y": "2025",
+   "g": "Sports drama"
+  },
+  {
+   "id": "d0",
+   "t": "Ryan Coogler",
+   "m": "Director",
+   "a": "Sinners",
+   "k": "director",
+   "tags": "",
+   "src": [
+    "lb"
+   ],
+   "sc": 5,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "d1",
+   "t": "Paul Thomas Anderson",
+   "m": "Director",
+   "a": "One Battle After Another",
+   "k": "director",
+   "tags": "",
+   "src": [
+    "lb"
+   ],
+   "sc": 4,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "d2",
+   "t": "Zach Cregger",
+   "m": "Director",
+   "a": "Weapons",
+   "k": "director",
+   "tags": "",
+   "src": [
+    "lb"
+   ],
+   "sc": 3,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "d3",
+   "t": "Denis Villeneuve",
+   "m": "Director",
+   "a": "Dune",
+   "k": "director",
+   "tags": "",
+   "src": [
+    "lb"
+   ],
+   "sc": 2,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "d4",
+   "t": "Greta Gerwig",
+   "m": "Director",
+   "a": "Barbie",
+   "k": "director",
+   "tags": "",
+   "src": [
+    "lb"
+   ],
+   "sc": 4,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "d5",
+   "t": "Jordan Peele",
+   "m": "Director",
+   "a": "Get Out",
+   "k": "director",
+   "tags": "",
+   "src": [
+    "lb"
+   ],
+   "sc": 1,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "t0",
+   "t": "Severance",
+   "m": "Apple TV+",
+   "a": "",
+   "k": "show",
+   "tags": "",
+   "src": [
+    "nf",
+    "pv"
+   ],
+   "sc": 0,
+   "y": "2022",
+   "g": "Sci-fi thriller"
+  },
+  {
+   "id": "t1",
+   "t": "The Bear",
+   "m": "FX",
+   "a": "",
+   "k": "show",
+   "tags": "",
+   "src": [
+    "nf",
+    "pv"
+   ],
+   "sc": 3,
+   "y": "2022",
+   "g": "Comedy drama"
+  },
+  {
+   "id": "t2",
+   "t": "Shōgun",
+   "m": "FX",
+   "a": "",
+   "k": "show",
+   "tags": "",
+   "src": [
+    "nf",
+    "pv"
+   ],
+   "sc": 4,
+   "y": "2024",
+   "g": "Historical drama"
+  },
+  {
+   "id": "t3",
+   "t": "Adolescence",
+   "m": "Netflix",
+   "a": "",
+   "k": "show",
+   "tags": "",
+   "src": [
+    "nf",
+    "pv"
+   ],
+   "sc": 0,
+   "y": "2025",
+   "g": "Crime drama"
+  },
+  {
+   "id": "t4",
+   "t": "The Pitt",
+   "m": "HBO Max",
+   "a": "",
+   "k": "show",
+   "tags": "",
+   "src": [
+    "nf",
+    "pv"
+   ],
+   "sc": 0,
+   "y": "2025",
+   "g": "Medical drama"
+  },
+  {
+   "id": "t5",
+   "t": "Andor",
+   "m": "Disney+",
+   "a": "",
+   "k": "show",
+   "tags": "",
+   "src": [
+    "nf",
+    "pv"
+   ],
+   "sc": 2,
+   "y": "2022",
+   "g": "Sci-fi"
+  },
+  {
+   "id": "t6",
+   "t": "The White Lotus",
+   "m": "HBO",
+   "a": "",
+   "k": "show",
+   "tags": "",
+   "src": [
+    "nf",
+    "pv"
+   ],
+   "sc": 3,
+   "y": "2021",
+   "g": "Satire"
+  },
+  {
+   "id": "g0",
+   "t": "Arsenal",
+   "m": "Premier League",
+   "a": "",
+   "k": "team",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 2,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "g1",
+   "t": "Barcelona",
+   "m": "La Liga",
+   "a": "",
+   "k": "team",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 3,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "g2",
+   "t": "Super Eagles",
+   "m": "Nigeria",
+   "a": "",
+   "k": "team",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 0,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "g3",
+   "t": "Real Madrid",
+   "m": "La Liga",
+   "a": "",
+   "k": "team",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 5,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "g4",
+   "t": "Enyimba",
+   "m": "NPFL",
+   "a": "",
+   "k": "team",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 1,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "g5",
+   "t": "Liverpool",
+   "m": "Premier League",
+   "a": "",
+   "k": "team",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 2,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "g6",
+   "t": "Los Angeles Lakers",
+   "m": "NBA",
+   "a": "",
+   "k": "team",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 5,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "g7",
+   "t": "Bayern Munich",
+   "m": "Bundesliga",
+   "a": "",
+   "k": "team",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 5,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "p0",
+   "t": "Victor Osimhen",
+   "m": "Football",
+   "a": "",
+   "k": "athlete",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 0,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "p1",
+   "t": "Ademola Lookman",
+   "m": "Football",
+   "a": "",
+   "k": "athlete",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 4,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "p2",
+   "t": "Tobi Amusan",
+   "m": "Athletics",
+   "a": "",
+   "k": "athlete",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 5,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "p3",
+   "t": "Asisat Oshoala",
+   "m": "Football",
+   "a": "",
+   "k": "athlete",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 0,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "p4",
+   "t": "Lionel Messi",
+   "m": "Football",
+   "a": "",
+   "k": "athlete",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 4,
+   "y": "",
+   "g": ""
+  },
+  {
+   "id": "p5",
+   "t": "LeBron James",
+   "m": "Basketball",
+   "a": "",
+   "k": "athlete",
+   "tags": "",
+   "src": [
+    "fm",
+    "es"
+   ],
+   "sc": 2,
+   "y": "",
+   "g": ""
+  }
+ ],
+ "categories": [
+  {
+   "id": "MUSIC",
+   "name": "MUSIC"
+  },
+  {
+   "id": "MOVIES",
+   "name": "MOVIES"
+  },
+  {
+   "id": "TV",
+   "name": "TV"
+  }
+ ],
+ "lists": [
+  {
+   "id": "l1",
+   "cat": "MUSIC",
+   "name": "Videos of the year",
+   "type": "video",
+   "cnt": 1,
+   "per": 2,
+   "items": [
+    "v0",
+    "v1",
+    "v2",
+    "v3",
+    "v4",
+    "v5",
+    "v6"
+   ],
+   "pinned": true,
+   "people": [
+    "ada",
+    "tunde"
+   ],
+   "poll": false,
+   "chips": false
+  },
+  {
+   "id": "l2",
+   "cat": "MUSIC",
+   "name": "Summer in Lagos",
+   "type": "song",
+   "src": {
+    "name": "Spotify",
+    "k": "song",
+    "url": "open.spotify.com/playlist/summer-in-lagos"
+   },
+   "cnt": 0,
+   "per": 1,
+   "items": [
+    "s10",
+    "s1",
+    "s0",
+    "s11",
+    "s4"
+   ],
+   "pinned": false,
+   "people": [
+    "zainab"
+   ],
+   "poll": false,
+   "chips": true
+  },
+  {
+   "id": "l3",
+   "cat": "MUSIC",
+   "name": "Albums on repeat",
+   "type": "album",
+   "cnt": 1,
+   "per": 3,
+   "items": [
+    "a0",
+    "a2",
+    "a6",
+    "a8"
+   ],
+   "pinned": false,
+   "people": [],
+   "poll": true,
+   "chips": true
+  },
+  {
+   "id": "l4",
+   "cat": "MUSIC",
+   "name": "Artists to watch",
+   "type": "artist",
+   "cnt": 0,
+   "per": 2,
+   "items": [
+    "r0",
+    "r2",
+    "r3"
+   ],
+   "pinned": false,
+   "people": [],
+   "poll": false,
+   "chips": false
+  },
+  {
+   "id": "m1",
+   "cat": "MOVIES",
+   "name": "Films of 2025",
+   "type": "film",
+   "cnt": 1,
+   "per": 3,
+   "items": [
+    "f0",
+    "f1",
+    "f2",
+    "f4",
+    "f3"
+   ],
+   "pinned": true,
+   "people": [
+    "kemi"
+   ],
+   "poll": false,
+   "chips": false
+  },
+  {
+   "id": "m2",
+   "cat": "MOVIES",
+   "name": "Directors I trust",
+   "type": "director",
+   "cnt": 0,
+   "per": 3,
+   "items": [
+    "d0",
+    "d1",
+    "d2"
+   ],
+   "pinned": false,
+   "people": [],
+   "poll": false,
+   "chips": true
+  },
+  {
+   "id": "t1",
+   "cat": "TV",
+   "name": "Shows to start",
+   "type": "show",
+   "cnt": 0,
+   "per": 1,
+   "items": [
+    "t0",
+    "t1",
+    "t3"
+   ],
+   "pinned": false,
+   "people": [],
+   "poll": false,
+   "chips": false
+  }
+ ],
+ "people": [
+  [
+   "ada",
+   "Ada"
+  ],
+  [
+   "tunde",
+   "Tunde"
+  ],
+  [
+   "zainab",
+   "Zainab"
+  ],
+  [
+   "kemi",
+   "Kemi"
+  ],
+  [
+   "femi",
+   "Femi"
+  ],
+  [
+   "ifeoma",
+   "Ifeoma"
+  ]
+ ],
+ "polls": [
+  {
+   "id": "p1",
+   "cat": "MUSIC",
+   "q": "Video of the year?",
+   "n": 1204,
+   "o": [
+    [
+     "Lonely At The Top",
+     41
+    ],
+    [
+     "Water",
+     27
+    ],
+    [
+     "City Boys",
+     19
+    ],
+    [
+     "Rush",
+     13
+    ]
+   ]
+  },
+  {
+   "id": "p2",
+   "closed": "Oct 20",
+   "voted": 2,
+   "cat": "MOVIES",
+   "q": "Film of the year?",
+   "n": 912,
+   "o": [
+    [
+     "Sinners",
+     44
+    ],
+    [
+     "One Battle After Another",
+     31
+    ],
+    [
+     "Weapons",
+     25
+    ]
+   ]
+  },
+  {
+   "id": "p3",
+   "cat": "TV",
+   "q": "Show to start this weekend?",
+   "n": 230,
+   "o": [
+    [
+     "Severance",
+     36
+    ],
+    [
+     "The Bear",
+     22
+    ],
+    [
+     "Adolescence",
+     42
+    ]
+   ]
+  }
+ ]
+}

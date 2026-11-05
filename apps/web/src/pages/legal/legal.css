@@ -1,0 +1,111 @@
+/* Terms and Privacy: a page to read. One curve; stepping back is slow (900 ms), coming back is quick (260 ms). */
+.lg {
+  min-height: 100dvh;
+  background: var(--see-bg);
+  color: var(--see-text);
+}
+.lg-read {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  z-index: 5;
+  background: var(--see-accent);
+  transform-origin: 0 50%;
+}
+.lg-head {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px var(--gutter, 40px);
+  background: var(--see-bg);
+}
+.lg-other {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.lg-other a {
+  color: var(--see-text-2);
+  text-decoration: none;
+}
+.lg-other a:hover {
+  color: var(--see-text);
+}
+.lg-fades {
+  transition: opacity 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.lg[data-idle] .lg-fades {
+  opacity: 0;
+  transition-duration: 900ms;
+}
+.lg-body {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 680px);
+  gap: 56px;
+  padding: 32px var(--gutter, 40px) 120px;
+}
+.lg-toc {
+  position: sticky;
+  top: 88px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lg-toc a {
+  color: var(--see-text-2);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.lg-toc a:hover {
+  color: var(--see-text);
+}
+.lg-text {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lg-text h1 {
+  font-size: 56px;
+  margin-bottom: 4px;
+}
+.lg-intro {
+  font-size: 18px;
+  line-height: 1.5;
+}
+.lg-text section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 24px;
+  scroll-margin-top: 80px;
+}
+.lg-text p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--see-text-2);
+}
+.lg-text .lg-intro {
+  color: var(--see-text);
+}
+@media (max-width: 839px) {
+  .lg-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding-top: 16px;
+  }
+  .lg-toc {
+    display: none;
+  }
+  .lg-text h1 {
+    font-size: 40px;
+  }
+}

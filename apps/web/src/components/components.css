@@ -1,0 +1,368 @@
+/* Core components, from V3Handoff · 5 (component states) and the prototypes. */
+
+/* ---- Button: 44 tall, slant 10 · sm 36 / slant 8 · lg 58 / slant 13. Hugs its label. ---- */
+.btn {
+  --slant: var(--see-slant-button);
+  height: var(--see-button);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 26px 0 22px;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--see-font-display);
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-decoration: none;
+  clip-path: polygon(var(--slant) 0, 100% 0, calc(100% - var(--slant)) 100%, 0 100%);
+  transition:
+    filter 140ms ease,
+    transform 140ms ease,
+    background-color var(--see-dur-press) ease;
+  background: var(--see-accent);
+  color: var(--see-on-flare);
+}
+.btn:hover {
+  filter: brightness(1.12);
+}
+.btn:active {
+  transform: translateY(1px);
+  filter: brightness(0.94);
+}
+.btn:focus-visible {
+  outline: none;
+  filter: brightness(1.12);
+  box-shadow:
+    inset 0 0 0 2px var(--see-focus),
+    inset 0 0 0 4px var(--see-bg);
+}
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  background: var(--see-disabled-bg);
+  color: var(--see-text-off);
+  cursor: default;
+  filter: none;
+  transform: none;
+}
+.btn--sm {
+  --slant: var(--see-slant-button-sm);
+  height: var(--see-button-sm);
+  font-size: 12px;
+  padding: 0 20px 0 17px;
+}
+.btn--lg {
+  --slant: var(--see-slant-button-lg);
+  height: var(--see-button-lg);
+  font-size: 15px;
+  padding: 0 36px 0 30px;
+  gap: 12px;
+}
+/* Quiet: the second action (Settings, Compare, Done) */
+.btn--quiet {
+  background: var(--see-wash-3);
+  color: var(--see-text);
+}
+.btn--quiet:hover {
+  filter: none;
+  background: rgba(244, 245, 242, 0.16);
+}
+.btn--quiet:active {
+  filter: none;
+  background: rgba(244, 245, 242, 0.2);
+}
+.btn--quiet:disabled {
+  background: rgba(244, 245, 242, 0.05);
+  color: var(--see-text-off);
+}
+/* Ink: the dark button on the orange flood */
+.btn--ink {
+  background: var(--see-bg);
+  color: var(--see-flare);
+}
+
+/* ---- Read-as chip: 26 tall, slant 6. Pressed shows the flare edge: you set it. ---- */
+.read-chip {
+  height: var(--see-read-chip);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 14px;
+  border: 0;
+  font-family: var(--see-font-display);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--see-chip);
+  color: var(--see-text);
+  clip-path: polygon(var(--see-slant-chip) 0, 100% 0, calc(100% - var(--see-slant-chip)) 100%, 0 100%);
+  transition: filter var(--see-dur-press) ease;
+}
+.read-chip:hover {
+  filter: brightness(1.2);
+}
+.read-chip[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 1.5px var(--see-accent);
+}
+.read-chip:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 2px var(--see-focus),
+    inset 0 0 0 4px var(--see-bg);
+}
+.read-chip:disabled {
+  background: #1a201e;
+  color: var(--see-text-off);
+  filter: none;
+  cursor: default;
+}
+
+/* ---- Switch: 44 × 24, slope 0.25. The thumb keeps a 4 px gap, parallel to the track. ---- */
+.switch {
+  width: var(--see-switch-w);
+  height: var(--see-switch-h);
+  flex-shrink: 0;
+  border: 0;
+  padding: 0;
+  position: relative;
+  display: block;
+  cursor: pointer;
+  background: var(--see-rule);
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  transition: background-color var(--see-dur-switch) ease;
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 5.12px;
+  width: 18px;
+  height: 16px;
+  background: var(--see-text-2);
+  clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
+  transition:
+    left var(--see-dur-switch) ease,
+    background-color var(--see-dur-switch) ease;
+}
+.switch[aria-checked='true'] {
+  background: var(--see-accent);
+}
+.switch[aria-checked='true']::after {
+  left: 20.88px;
+  background: var(--see-bg);
+}
+.switch:hover {
+  filter: brightness(1.12);
+}
+.switch:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 2px var(--see-focus),
+    inset 0 0 0 4px var(--see-bg);
+}
+.switch:disabled {
+  opacity: 0.4;
+  cursor: default;
+  filter: none;
+}
+
+/* ---- Field (3A): the arrow sits inside, cut parallel: inner cut = 10 − 6 × (2 − √2) = 6.49 ---- */
+.field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--see-field);
+  padding: 0 52px 0 14px;
+  background: var(--see-wash-2);
+  box-shadow: inset 0 -2px 0 var(--see-rule);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  transition: box-shadow var(--see-dur-press) ease;
+}
+.field:hover {
+  box-shadow: inset 0 -2px 0 var(--see-text-off);
+}
+.field:focus-within {
+  box-shadow: inset 0 -2px 0 var(--see-accent);
+}
+.field[data-error='true'] {
+  box-shadow: inset 0 -2px 0 var(--see-flare-soft);
+}
+.field input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+  color: var(--see-text);
+  font-size: 15px;
+  padding: 0;
+}
+.field input::placeholder {
+  color: var(--see-text-4);
+}
+.field__go {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: calc(var(--see-field) - 12px);
+  height: calc(var(--see-field) - 12px);
+  border: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--see-accent);
+  color: var(--see-on-flare);
+  opacity: 0.4;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6.49px), calc(100% - 6.49px) 100%, 0 100%);
+  transition: opacity var(--see-dur-press) ease;
+}
+.field[data-ready='true'] .field__go {
+  opacity: 1;
+}
+
+/* ---- Toast: chalk on ink (dark), the box's tick beside it ---- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  z-index: var(--see-z-toast);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 46px;
+  padding: 0 18px 0 14px;
+  background: var(--see-toast-bg);
+  color: var(--see-toast-text);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  animation: see-toast-in var(--see-dur-base) var(--see-ease) both;
+  transform: translateX(-50%);
+}
+.toast button {
+  border: 0;
+  background: transparent;
+  padding: 6px 4px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@keyframes see-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ---- The + call to action: a box; near it (or one tap on a phone), its words ---- */
+.pc {
+  position: relative;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-family: var(--see-font-display);
+  color: var(--see-on-flare);
+  text-decoration: none;
+}
+.pc::before {
+  content: '';
+  position: absolute;
+  inset: -28px -40px;
+}
+.pc__in {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
+  background: var(--see-accent);
+  clip-path: polygon(6.4px 0, 100% 0, calc(100% - 6.4px) 100%, 0 100%);
+  transition:
+    padding var(--see-dur-player) var(--see-ease),
+    background-color 260ms ease;
+}
+.pc__label {
+  display: block;
+  max-width: 0;
+  opacity: 0;
+  margin-left: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  transition:
+    max-width var(--see-dur-player) var(--see-ease),
+    margin-left var(--see-dur-player) var(--see-ease),
+    opacity 260ms ease;
+}
+.pc:hover .pc__label,
+.pc:focus-visible .pc__label,
+.pc[data-open='true'] .pc__label {
+  max-width: 240px;
+  opacity: 1;
+  margin-left: 10px;
+}
+.pc:hover .pc__in,
+.pc:focus-visible .pc__in,
+.pc[data-open='true'] .pc__in {
+  padding: 0 18px 0 13px;
+}
+.pc:focus-visible {
+  outline: none;
+}
+.pc:focus-visible .pc__in {
+  box-shadow:
+    inset 0 0 0 2px var(--see-focus),
+    inset 0 0 0 4px var(--see-bg);
+}
+.pc--big .pc__in {
+  height: 56px;
+  padding: 0 18px;
+  clip-path: polygon(9px 0, 100% 0, calc(100% - 9px) 100%, 0 100%);
+}
+.pc--big .pc__label {
+  font-size: 15px;
+}
+.pc--big:hover .pc__in,
+.pc--big:focus-visible .pc__in,
+.pc--big[data-open='true'] .pc__in {
+  padding: 0 28px 0 20px;
+}
+
+/* ---- Icon button: 40 square, a quiet wash on hover ---- */
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--see-text-2);
+  transition: background-color var(--see-dur-press) ease;
+}
+.icon-btn:hover {
+  background: rgba(244, 245, 242, 0.08);
+}
+.icon-btn:focus-visible {
+  outline-offset: -2px;
+}

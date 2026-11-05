@@ -1,0 +1,335 @@
+[
+ {
+  "id": "p1",
+  "q": "Best Afrobeats song of the decade?",
+  "cat": "MUSIC",
+  "mode": "stay",
+  "by": "you",
+  "ends": "2 days left",
+  "items": [
+   [
+    "Water",
+    "Tyla"
+   ],
+   [
+    "Lonely At The Top",
+    "Asake"
+   ],
+   [
+    "Essence",
+    "Wizkid"
+   ],
+   [
+    "Calm Down",
+    "Rema"
+   ],
+   [
+    "Rush",
+    "Ayra Starr"
+   ],
+   [
+    "Unavailable",
+    "Davido"
+   ],
+   [
+    "Soweto",
+    "Victony"
+   ],
+   [
+    "Love Nwantiti",
+    "CKay"
+   ],
+   [
+    "Last Last",
+    "Burna Boy"
+   ],
+   [
+    "Ojuelegba",
+    "Wizkid"
+   ],
+   [
+    "Fall",
+    "Davido"
+   ],
+   [
+    "Ye",
+    "Burna Boy"
+   ],
+   [
+    "Joha",
+    "Asake"
+   ],
+   [
+    "Free Mind",
+    "Tems"
+   ],
+   [
+    "Peru",
+    "Fireboy DML"
+   ],
+   [
+    "Sungba",
+    "Asake"
+   ],
+   [
+    "City Boys",
+    "Burna Boy"
+   ],
+   [
+    "Bandana",
+    "Fireboy DML"
+   ],
+   [
+    "Terminator",
+    "Asake"
+   ],
+   [
+    "Mnike",
+    "Tyler ICU"
+   ],
+   [
+    "Ku Lo Sa",
+    "Oxlade"
+   ],
+   [
+    "Kwaku the Traveller",
+    "Black Sherif"
+   ],
+   [
+    "Sability",
+    "Ayra Starr"
+   ],
+   [
+    "Overloading",
+    "Mavins"
+   ]
+  ]
+ },
+ {
+  "id": "p2",
+  "q": "Snack for a long road trip?",
+  "cat": "FOOD",
+  "mode": "pairs",
+  "by": "kemi",
+  "ends": "5 days left",
+  "items": [
+   [
+    "Plantain chips",
+    ""
+   ],
+   [
+    "Chin chin",
+    ""
+   ],
+   [
+    "Puff-puff",
+    ""
+   ],
+   [
+    "Suya",
+    ""
+   ],
+   [
+    "Meat pie",
+    ""
+   ],
+   [
+    "Groundnuts",
+    ""
+   ],
+   [
+    "Popcorn",
+    ""
+   ],
+   [
+    "Boiled corn",
+    ""
+   ],
+   [
+    "Kuli-kuli",
+    ""
+   ],
+   [
+    "Coconut candy",
+    ""
+   ],
+   [
+    "Gala",
+    ""
+   ],
+   [
+    "Biscuits",
+    ""
+   ],
+   [
+    "Roasted plantain",
+    ""
+   ],
+   [
+    "Fruit",
+    ""
+   ],
+   [
+    "Doughnuts",
+    ""
+   ],
+   [
+    "Cashew nuts",
+    ""
+   ]
+  ]
+ },
+ {
+  "id": "p3",
+  "q": "Book everyone should read once?",
+  "cat": "BOOKS",
+  "mode": "stay",
+  "by": "tunde",
+  "ends": "A week left",
+  "items": [
+   [
+    "Things Fall Apart",
+    "Chinua Achebe"
+   ],
+   [
+    "Half of a Yellow Sun",
+    "Chimamanda Ngozi Adichie"
+   ],
+   [
+    "Purple Hibiscus",
+    "Chimamanda Ngozi Adichie"
+   ],
+   [
+    "The Famished Road",
+    "Ben Okri"
+   ],
+   [
+    "Americanah",
+    "Chimamanda Ngozi Adichie"
+   ],
+   [
+    "Stay With Me",
+    "Ayobami Adebayo"
+   ],
+   [
+    "Homegoing",
+    "Yaa Gyasi"
+   ],
+   [
+    "The Fishermen",
+    "Chigozie Obioma"
+   ],
+   [
+    "Born a Crime",
+    "Trevor Noah"
+   ],
+   [
+    "Weep Not, Child",
+    "Ngũgĩ wa Thiong’o"
+   ],
+   [
+    "So Long a Letter",
+    "Mariama Bâ"
+   ],
+   [
+    "Arrow of God",
+    "Chinua Achebe"
+   ]
+  ]
+ },
+ {
+  "id": "p4",
+  "q": "Film of 2025?",
+  "cat": "MOVIES",
+  "mode": "pairs",
+  "by": "you",
+  "ends": "Ended",
+  "closed": true,
+  "items": [
+   [
+    "Sinners",
+    "Ryan Coogler"
+   ],
+   [
+    "One Battle After Another",
+    "Paul Thomas Anderson"
+   ],
+   [
+    "Weapons",
+    "Zach Cregger"
+   ],
+   [
+    "Superman",
+    "James Gunn"
+   ],
+   [
+    "Frankenstein",
+    "Guillermo del Toro"
+   ],
+   [
+    "Marty Supreme",
+    "Josh Safdie"
+   ],
+   [
+    "Hamnet",
+    "Chloé Zhao"
+   ],
+   [
+    "Bugonia",
+    "Yorgos Lanthimos"
+   ]
+  ]
+ },
+ {
+  "id": "p5",
+  "q": "Sitcom you could watch on repeat?",
+  "cat": "TV",
+  "mode": "stay",
+  "by": "ada",
+  "ends": "Ended",
+  "closed": true,
+  "played": true,
+  "items": [
+   [
+    "The Office",
+    ""
+   ],
+   [
+    "Abbott Elementary",
+    ""
+   ],
+   [
+    "Brooklyn Nine-Nine",
+    ""
+   ],
+   [
+    "Friends",
+    ""
+   ],
+   [
+    "Parks and Recreation",
+    ""
+   ],
+   [
+    "Everybody Hates Chris",
+    ""
+   ],
+   [
+    "The Fresh Prince of Bel-Air",
+    ""
+   ],
+   [
+    "Seinfeld",
+    ""
+   ],
+   [
+    "Schitt’s Creek",
+    ""
+   ],
+   [
+    "Community",
+    ""
+   ]
+  ]
+ }
+]

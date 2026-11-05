@@ -1,0 +1,24 @@
+{
+  "name": "see",
+  "private": true,
+  "version": "0.1.0",
+  "description": "See: rank anything. A web app first; the desktop (Tauri) and iOS/Android (React Native) apps share its packages.",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "integrations/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @see/web",
+    "build": "npm run tokens:check && npm run build -w @see/web",
+    "typecheck": "npm run typecheck -w @see/web",
+    "preview": "npm run preview -w @see/web",
+    "tokens": "npm run build -w @see/tokens",
+    "tokens:check": "npm run check -w @see/tokens",
+    "test": "npm run test -w @see/core && npm run test -w @see/emails && npm run test -w @see/discord && npm run test -w @see/reddit"
+  },
+  "overrides": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  }
+}

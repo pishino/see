@@ -1,0 +1,11 @@
+{
+  "name": "@see/brand",
+  "version": "0.1.0",
+  "private": true,
+  "description": "See brand primitives as SVG path data: display type, wordmark, + box, icons, pictures.",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

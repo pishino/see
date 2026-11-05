@@ -1,0 +1,13 @@
+{
+  "name": "@see/emails",
+  "private": true,
+  "version": "0.1.0",
+  "description": "The six emails See sends (V3Emails), as HTML and plain text. Self-contained: a server imports it to send; scripts/export-emails.mjs writes the handoff files.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "test": "vitest run",
+    "export": "node ../../scripts/export-emails.mjs"
+  }
+}

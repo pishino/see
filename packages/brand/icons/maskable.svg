@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Maskable (Android adaptive, PWA): the box sits inside the 80% safe circle. -->
+  <rect width="512" height="512" fill="#FF4A1C"/>
+  <path transform="translate(148.48 176.77) scale(5.65895)" d="M4.5 0L38 0L33.5 28L0 28ZM17.5 5.5L17.5 12.5L10.5 12.5L10.5 15.5L17.5 15.5L17.5 22.5L20.5 22.5L20.5 15.5L27.5 15.5L27.5 12.5L20.5 12.5L20.5 5.5Z" fill="#0B0F0E"/>
+</svg>

@@ -1,0 +1,19 @@
+{
+  "name": "@see/reddit",
+  "private": true,
+  "version": "0.1.0",
+  "description": "See on Reddit: a post that carries a list; everyone ranks it in the post, locks in, then sees the community's order. A Devvit Web app.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.client.json",
+    "dev": "npx devvit playtest",
+    "upload": "npm run build && npx devvit upload",
+    "test": "vitest run",
+    "local": "node build.mjs && node mock-serve.mjs"
+  },
+  "dependencies": {
+    "@devvit/web": "0.15.2",
+    "@see/core": "0.1.0"
+  }
+}

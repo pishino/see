@@ -1,0 +1,22 @@
+{
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "see-rank",
+  "post": {
+    "dir": "dist/client",
+    "entrypoints": { "default": { "entry": "index.html", "height": "tall" } }
+  },
+  "server": { "dir": "dist/server", "entry": "index.cjs" },
+  "menu": {
+    "items": [
+      {
+        "label": "Post a See list",
+        "description": "A list everyone ranks in the post",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/post-list"
+      }
+    ]
+  },
+  "forms": { "postList": "/internal/form/post-list" },
+  "permissions": { "redis": true, "reddit": { "enable": true, "scope": "user" } }
+}

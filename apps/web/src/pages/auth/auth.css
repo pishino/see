@@ -1,0 +1,543 @@
+/* Sign up and log in, on the orange flood (V3AuthWeb*, V3AuthPhone*). Desktop is centred; phones stack from the top. */
+
+.au {
+  --e: var(--see-ease);
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--see-flare);
+  color: var(--see-on-flare);
+  font-family: var(--see-font-body);
+}
+
+/* the mark: see, and the box that names what you rank */
+.au-mk {
+  position: absolute;
+  left: 40px;
+  top: 34px;
+  display: block;
+  text-decoration: none;
+}
+.au-mk__see {
+  position: absolute;
+  left: 16.66px;
+  top: 11.44px;
+}
+.au-box {
+  position: absolute;
+  left: 103.82px;
+  top: 11.44px;
+  height: 29.12px;
+  background: var(--see-on-flare);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(4.68px 0, 100% 0, calc(100% - 4.68px) 100%, 0 100%);
+  transition: width 320ms var(--e);
+}
+.au-lab {
+  color: var(--see-flare);
+  font-family: var(--see-font-display);
+  font-weight: 900;
+  font-size: 21.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.au-steps {
+  position: absolute;
+  left: 50%;
+  top: 56px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.au-steps li {
+  width: 26px;
+  height: 6px;
+  background: rgba(11, 15, 14, 0.18);
+  clip-path: polygon(1px 0, 100% 0, calc(100% - 1px) 100%, 0 100%);
+}
+.au-steps li[data-on='true'] {
+  background: var(--see-on-flare);
+}
+
+.au-back {
+  position: absolute;
+  right: 36px;
+  top: 36px;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--see-on-flare);
+}
+
+.au-body {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: min(820px, calc(100% - 48px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  text-align: center;
+  animation: see-rise var(--see-dur-rise) var(--e) both;
+}
+
+.au-h {
+  margin: 0;
+  font-family: var(--see-font-display);
+  font-weight: 900;
+  font-size: 60px;
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+}
+.au-s {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: -8px;
+}
+
+.au-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.au-chip {
+  height: 44px;
+  border: 0;
+  padding: 0 18px;
+  background: rgba(11, 15, 14, 0.12);
+  color: var(--see-on-flare);
+  font-family: var(--see-font-display);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  clip-path: polygon(7px 0, 100% 0, calc(100% - 7px) 100%, 0 100%);
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
+}
+.au-chip:hover,
+.au-chip[aria-pressed='true'] {
+  background: var(--see-on-flare);
+  color: var(--see-flare);
+}
+
+/* the field: ink on the flood, the arrow inside */
+.au-f {
+  position: relative;
+  height: 58px;
+  width: 460px;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 70px 0 18px;
+  background: var(--see-on-flare);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+.au-f input {
+  flex-grow: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--see-flare);
+  caret-color: var(--see-flare);
+  outline: none;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+}
+.au-f input::placeholder {
+  color: rgba(255, 74, 28, 0.62);
+}
+.au-f:focus-within {
+  box-shadow: inset 0 -3px 0 var(--see-flare);
+}
+.au-go {
+  position: absolute;
+  right: 7px;
+  top: 7px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  padding: 0;
+  background: var(--see-flare);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5.9px), calc(100% - 5.9px) 100%, 0 100%);
+}
+.au-go:focus-visible,
+.au-chip:focus-visible,
+.au-pill:focus-visible,
+.au-link:focus-visible,
+.au-btn:focus-visible,
+.au-me:focus-visible,
+.au-dg:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 2px var(--see-on-flare),
+    inset 0 0 0 4px var(--see-flare);
+}
+.au-chip[aria-pressed='true']:focus-visible,
+.au-btn:focus-visible,
+.au-me:focus-visible {
+  box-shadow:
+    inset 0 0 0 2px var(--see-flare),
+    inset 0 0 0 4px var(--see-on-flare);
+}
+
+.au-alt {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.au-pill {
+  height: 40px;
+  border: 0;
+  padding: 0 16px 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(11, 15, 14, 0.12);
+  color: var(--see-on-flare);
+  font-size: 14px;
+  font-weight: 700;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%);
+}
+.au-pill:hover {
+  background: rgba(11, 15, 14, 0.2);
+}
+.au-lg {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.au-lg img {
+  max-width: 100%;
+  max-height: 100%;
+}
+/* a slot where a supplied logo goes */
+.au-slot {
+  width: 18px;
+  height: 18px;
+  box-shadow: inset 0 0 0 1.5px rgba(11, 15, 14, 0.5);
+  background-image: repeating-linear-gradient(45deg, transparent 0 3px, rgba(11, 15, 14, 0.18) 3px 4px);
+  flex-shrink: 0;
+}
+.au-sw {
+  height: 40px;
+  border: 0;
+  padding: 0 6px;
+  background: transparent;
+  color: var(--see-on-flare);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.au-legal {
+  margin: 0;
+  font-size: 12px;
+  color: #2a100a;
+  position: absolute;
+  left: 50%;
+  bottom: -120px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* the code */
+.au-code {
+  display: flex;
+  gap: 8px;
+}
+.au-dg {
+  width: 52px;
+  height: 64px;
+  border: 0;
+  padding: 0;
+  background: var(--see-on-flare);
+  color: var(--see-flare);
+  caret-color: var(--see-flare);
+  text-align: center;
+  font-family: var(--see-font-display);
+  font-weight: 900;
+  font-size: 30px;
+  outline: none;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+.au-dg:focus {
+  box-shadow: inset 0 -3px 0 var(--see-flare);
+}
+
+/* link what you use */
+.au-rows {
+  display: flex;
+  flex-direction: column;
+  width: 460px;
+  max-width: 100%;
+}
+.au-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  box-shadow: inset 0 -1px 0 rgba(11, 15, 14, 0.18);
+  text-align: left;
+}
+.au-row .n {
+  flex: 1 1 auto;
+  font-size: 15px;
+  font-weight: 700;
+}
+.au-row .au-lg,
+.au-row .au-slot {
+  width: 22px;
+  height: 22px;
+}
+.au-link {
+  height: 36px;
+  border: 0;
+  padding: 0 14px;
+  background: rgba(11, 15, 14, 0.12);
+  color: var(--see-on-flare);
+  font-family: var(--see-font-display);
+  font-weight: 800;
+  font-size: 12.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+.au-link[aria-pressed='true'] {
+  background: var(--see-on-flare);
+  color: var(--see-flare);
+}
+.au-next {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.au-btn {
+  height: 52px;
+  border: 0;
+  padding: 0 26px;
+  background: var(--see-on-flare);
+  color: var(--see-flare);
+  font-family: var(--see-font-display);
+  font-weight: 800;
+  font-size: 14.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  clip-path: polygon(11px 0, 100% 0, calc(100% - 11px) 100%, 0 100%);
+}
+.au-btn:hover {
+  filter: brightness(1.4);
+}
+
+/* your first list */
+.au-find {
+  padding-left: 64px;
+}
+.au-no {
+  position: absolute;
+  left: 18px;
+  font-family: var(--see-font-display);
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--see-flare);
+}
+.au-find[data-done='true'] input {
+  font-weight: 800;
+}
+.au-sugs {
+  display: flex;
+  flex-direction: column;
+  width: 460px;
+  max-width: 100%;
+}
+.au-sug {
+  height: 52px;
+  border: 0;
+  padding: 0 4px;
+  background: transparent;
+  color: var(--see-on-flare);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  box-shadow: inset 0 -1px 0 rgba(11, 15, 14, 0.18);
+  text-align: left;
+}
+.au-sug b {
+  font-family: var(--see-font-display);
+  font-weight: 800;
+  font-size: 15px;
+}
+.au-sug span {
+  font-size: 13px;
+  color: #2a100a;
+}
+.au-sug:hover {
+  background: rgba(11, 15, 14, 0.08);
+}
+
+/* log in: the account last used on this device */
+.au-me {
+  height: 64px;
+  width: 460px;
+  max-width: 100%;
+  border: 0;
+  padding: 0 8px 0 10px;
+  background: var(--see-on-flare);
+  color: var(--see-flare);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+.au-me .t {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.au-me .t b {
+  font-family: var(--see-font-display);
+  font-weight: 800;
+  font-size: 15px;
+}
+.au-me .t span {
+  font-size: 12.5px;
+  color: rgba(255, 74, 28, 0.75);
+}
+.au-mego {
+  width: 44px;
+  height: 44px;
+  background: var(--see-flare);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5.9px), calc(100% - 5.9px) 100%, 0 100%);
+}
+
+.au-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 64px;
+  transform: translate(-50%, 10px);
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 16px;
+  background: var(--see-on-flare);
+  color: var(--see-flare);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+  pointer-events: none;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+.au-toast[data-on='true'] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---- phones: the mark stacks, the body starts high and runs to the gutters ---- */
+@media (max-width: 839px) {
+  .au-mk {
+    left: 22px;
+    top: 20px;
+  }
+  .au-mk__see {
+    left: 12.81px;
+    top: 8.8px;
+  }
+  .au-box {
+    left: 12.81px;
+    top: 37.02px;
+    height: 17.92px;
+    clip-path: polygon(2.88px 0, 100% 0, calc(100% - 2.88px) 100%, 0 100%);
+  }
+  .au-lab {
+    font-size: 13.3px;
+  }
+  .au-steps {
+    left: auto;
+    right: 70px;
+    top: 36px;
+    transform: none;
+  }
+  .au-back {
+    right: 12px;
+    top: 16px;
+  }
+  .au-body {
+    position: relative;
+    left: auto;
+    top: auto;
+    translate: none;
+    width: auto;
+    margin: 0 24px;
+    padding: 124px 0 48px;
+    align-items: stretch;
+    text-align: left;
+  }
+  .au-h {
+    font-size: 40px;
+  }
+  .au-chips,
+  .au-alt {
+    justify-content: flex-start;
+  }
+  .au-f,
+  .au-rows,
+  .au-sugs,
+  .au-me {
+    width: 100%;
+  }
+  .au-dg {
+    width: 47px;
+    height: 58px;
+  }
+  .au-legal {
+    position: static;
+    transform: none;
+    white-space: normal;
+    margin-top: 8px;
+  }
+}
+.au-legal a {
+  color: inherit;
+  text-decoration: underline;
+}
