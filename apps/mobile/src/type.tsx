@@ -4,6 +4,7 @@
  */
 import { Text, StyleSheet, type TextProps } from 'react-native';
 import { useFonts } from 'expo-font';
+import { useSettings } from '@see/core/react';
 import { Archivo_700Bold } from '@expo-google-fonts/archivo/700Bold';
 import { Archivo_800ExtraBold } from '@expo-google-fonts/archivo/800ExtraBold';
 import { Archivo_900Black } from '@expo-google-fonts/archivo/900Black';
@@ -24,8 +25,12 @@ function familyFor(weight: string | number | undefined): string {
   return 'InstrumentSans_400Regular';
 }
 
-/** Text in the brand faces: the weight in the style chooses the face. */
+const SCALE = { Default: 1, Larger: 1.1, Largest: 1.2 } as const;
+
+/** Text in the brand faces: the weight in the style chooses the face; Settings › Display sets the size. */
 export function Txt({ style, ...rest }: TextProps) {
+  const k = SCALE[useSettings().settings.text] ?? 1;
   const flat = StyleSheet.flatten(style) ?? {};
-  return <Text {...rest} style={[flat, { fontFamily: familyFor(flat.fontWeight), fontWeight: 'normal' }]} />;
+  const sized = k === 1 ? null : { fontSize: (flat.fontSize ?? 14) * k, ...(flat.lineHeight ? { lineHeight: flat.lineHeight * k } : null) };
+  return <Text {...rest} style={[flat, sized, { fontFamily: familyFor(flat.fontWeight), fontWeight: 'normal' }]} />;
 }

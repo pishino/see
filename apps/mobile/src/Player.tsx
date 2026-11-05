@@ -99,7 +99,9 @@ export function PlayerSheet({ c, say, onOpenList }: { c: C; say: (t: string) => 
   const [source, setSource] = useState<string | null>(null);
 
   useEffect(() => {
-    Animated.timing(rise, { toValue: 0, duration: motion.sheet, easing: EASE, useNativeDriver: true }).start();
+    // reduce motion: it is simply there
+    Animated.timing(rise, { toValue: 0, duration: settings.reduceMotion ? 1 : motion.sheet, easing: EASE, useNativeDriver: true }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rise]);
   useEffect(() => {
     setTab('about');
@@ -198,7 +200,7 @@ export function PlayerSheet({ c, say, onOpenList }: { c: C; say: (t: string) => 
               </View>
             </Pressable>
           )}
-          <Pressable onPress={() => setAdding((a) => !a)} style={[s.btn, { backgroundColor: c['surface-2'] }]} accessibilityState={{ expanded: adding }}>
+          <Pressable onPress={() => setAdding((a) => !a)} style={[s.btn, { backgroundColor: c['surface-2'] }]} aria-expanded={adding}>
             <View style={s.btnIn}>
               <PlusBox height={14} color={c.flare} />
               <Txt style={[s.btnText, { color: c.text }]}>Add</Txt>
@@ -215,7 +217,7 @@ export function PlayerSheet({ c, say, onOpenList }: { c: C; say: (t: string) => 
               ['more', 'More'],
             ] as const
           ).map(([id, label]) => (
-            <Pressable key={id} onPress={() => setTab(id)} accessibilityRole="tab" accessibilityState={{ selected: tab === id }} style={{ paddingVertical: 12, borderBottomWidth: 2, borderBottomColor: tab === id ? c.flare : 'transparent', marginBottom: -1 }}>
+            <Pressable key={id} onPress={() => setTab(id)} accessibilityRole="tab" aria-selected={tab === id} style={{ paddingVertical: 12, borderBottomWidth: 2, borderBottomColor: tab === id ? c.flare : 'transparent', marginBottom: -1 }}>
               <Txt style={{ color: tab === id ? c.text : c['text-3'], fontWeight: '600', fontSize: 14 }}>{label}</Txt>
             </Pressable>
           ))}
@@ -266,7 +268,7 @@ export function PlayerSheet({ c, say, onOpenList }: { c: C; say: (t: string) => 
               <Pressable
                 key={n}
                 style={[s.line, { borderBottomColor: c['surface-1'] }]}
-                accessibilityState={{ selected: from === n }}
+                aria-selected={from === n}
                 onPress={() => {
                   setSource(n);
                   say(`Plays from ${n}`);

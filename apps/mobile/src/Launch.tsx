@@ -5,9 +5,9 @@ import { LOGOBOX, logoBoxFrame } from '@see/brand';
 
 /*
  * Launch (V3LogoBox C), the same frames as the web: see in the box holds, squeezes to the + box in eight 55 ms
- * steps, then fades as the app takes over. Reduced motion skips it.
+ * steps, then fades as the app takes over. Reduced motion (the phone's, or Settings › Display) skips it.
  */
-export function Launch({ bg, flare }: { bg: string; flare: string }) {
+export function Launch({ bg, flare, reduce = false }: { bg: string; flare: string; reduce?: boolean }) {
   const [frame, setFrame] = useState(0);
   const [gone, setGone] = useState(false);
   const fade = useRef(new Animated.Value(1)).current;
@@ -16,9 +16,9 @@ export function Launch({ bg, flare }: { bg: string; flare: string }) {
   useEffect(() => {
     let live = true;
     const ts: ReturnType<typeof setTimeout>[] = [];
-    AccessibilityInfo.isReduceMotionEnabled().then((reduce) => {
+    AccessibilityInfo.isReduceMotionEnabled().then((osReduce) => {
       if (!live) return;
-      if (reduce) return setGone(true);
+      if (osReduce || reduce) return setGone(true);
       for (let i = 1; i < LOGOBOX.steps; i++) ts.push(setTimeout(() => setFrame(i), LOGOBOX.hold + i * LOGOBOX.beat));
       ts.push(
         setTimeout(() => {
@@ -30,6 +30,8 @@ export function Launch({ bg, flare }: { bg: string; flare: string }) {
       live = false;
       ts.forEach(clearTimeout);
     };
+    // the launch plays once, when the app opens
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fade]);
 
   if (gone) return null;

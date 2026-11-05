@@ -50,8 +50,13 @@ rows between make room and show the numbers they'll take, and letting go saves i
 passed; screen readers get Move up and Move down on the grip). Tap a row for the player sheet: the picture, then
 rank first, the kicker, title and maker, Play and Add, and About, Watch or Listen, More. Minimised, it is a bar
 above the tabs that keeps playing; Android's back minimises it. Polls show results after you vote, Find adds
-anything (or your own item), and You plays your No. 1 in the bar. Lists and settings live in AsyncStorage under
-the web's keys.
+anything (or your own item), and You plays your No. 1 in the bar. Settings has the web's ten sections in the
+same groups, from the same definitions in `@see/core` (each line says what it is set to now; no Save button):
+your picture's colour, name, handle and bio; ways to sign in (at least one stays) and devices; connected
+services; privacy and who you blocked; notifications by push and email, and quiet hours; how new lists start;
+playback order and autoplay; appearance, reduce motion and text size, which apply across the app; ads; and help,
+with Terms and Privacy in the same words as the web. Your picture and the Settings line on You are the doors;
+Android's back steps out one level. Lists and settings live in AsyncStorage under the web's keys.
 
 - The player's state (`PlayerProvider`, `usePlayer`) is in `@see/core/react`, so the clock, autoplay and "nothing
   plays from a removed source" are the web's own. The pictures are the web's flat-tone scenes from `@see/brand`
@@ -66,7 +71,8 @@ the web's keys.
 - App icon: `packages/brand/icons/png/app-store-1024.png` (iOS) and `google-play-512.png` (Android adaptive
   foreground), set in `app.json`.
 
-Next for the phones, in order: Settings; the open slot's type-to-find; scrolling while you drag near an edge;
+Next for the phones, in order: asking the phone for push permission when a push switch goes on
+(expo-notifications); the open slot's type-to-find; scrolling while you drag near an edge;
 push with the copy in `@see/core` (`compose`, `NOTIFICATIONS`), each opening its
 `see://` link through `routeOf`; the Plus field as a Skia canvas. Reduced motion: the OS setting and
 Settings › Display both drop every duration to 1 ms, as on the web.

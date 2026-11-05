@@ -3,8 +3,8 @@
  * masthead, your lists by category, a list you can rank, polls you can vote in, Find, and your page. Everything it
  * knows comes from @see/core, so it says and does what the web app does.
  */
-import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View, type TextStyle } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { BackHandler, Platform, Pressable, ScrollView, StyleSheet, TextInput, View, type TextStyle } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { BY_ID, POLLS, PEOPLE, addToList, filledCount, listSummary, makerOf, search, slotsOf, type List } from '@see/core';
@@ -17,6 +17,8 @@ import { Launch } from './Launch';
 import { ListScreen } from './ListScreen';
 import { MiniPlayer, PlayerSheet } from './Player';
 import { useColors, type C } from './theme';
+import { ProfilePicture } from './ProfilePicture';
+import { SettingsScreen, type SettingsPage } from './Settings';
 
 type Tab = 'charts' | 'polls' | 'find' | 'you';
 
@@ -37,9 +39,27 @@ export default function App() {
 function Shell() {
   const fonts = useBrandFonts();
   const { c, dark } = useColors();
+  const { settings } = useSettings();
   const player = usePlayer();
   const [tab, setTab] = useState<Tab>('charts');
   const [open, setOpen] = useState<string | null>(null);
+  const [page, setPage] = useState<SettingsPage | null>(null);
+  // Android's back steps out one level: a legal page to Help, a section to Settings, Settings or a list to the tabs
+  const here = useRef({ open, page });
+  here.current = { open, page };
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      const { open: o, page: pg } = here.current;
+      if (o) setOpen(null);
+      else if (pg === 'terms' || pg === 'privacy') setPage('help');
+      else if (pg && pg !== 'home') setPage('home');
+      else if (pg) setPage(null);
+      else return false;
+      return true;
+    });
+    return () => sub.remove();
+  }, []);
   const [note, setNote] = useState('');
   const say = (t: string) => {
     setNote(t);
@@ -55,6 +75,8 @@ function Shell() {
       <View style={{ flex: 1 }}>
         {open ? (
           <ListScreen id={open} c={c} onBack={() => setOpen(null)} />
+        ) : page ? (
+          <SettingsScreen page={page} go={setPage} onClose={() => setPage(null)} c={c} say={say} />
         ) : tab === 'charts' ? (
           <Charts c={c} onOpen={setOpen} />
         ) : tab === 'polls' ? (
@@ -62,7 +84,7 @@ function Shell() {
         ) : tab === 'find' ? (
           <Find c={c} say={say} />
         ) : (
-          <You c={c} />
+          <You c={c} onSettings={() => setPage('home')} />
         )}
       </View>
       {!!note && (
@@ -88,10 +110,11 @@ function Shell() {
               onPress={() => {
                 setTab(k);
                 setOpen(null);
+                setPage(null);
               }}
               style={s.tab}
               accessibilityRole="tab"
-              accessibilityState={{ selected: on }}
+              aria-selected={on}
               accessibilityLabel={label}
             >
               <View style={{ height: 2, alignSelf: 'stretch', marginHorizontal: 18, backgroundColor: on ? accent : 'transparent' }} />
@@ -110,7 +133,7 @@ function Shell() {
           }}
         />
       )}
-      <Launch bg={c.bg} flare={c.flare} />
+      <Launch bg={c.bg} flare={c.flare} reduce={settings.reduceMotion} />
     </SafeAreaView>
   );
 }
@@ -175,7 +198,7 @@ function Polls({ c }: { c: C }) {
                 disabled={!!p.closed}
                 onPress={() => setVotes((v) => ({ ...v, [p.id]: i }))}
                 style={[s.row, { borderBottomColor: c['surface-2'] }]}
-                accessibilityState={{ selected: mine === i }}
+                aria-selected={mine === i}
               >
                 <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: voted ? `${share}%` : 0, backgroundColor: c['surface-2'] }} />
                 <Txt style={{ flex: 1, color: mine === i ? c['violet-text'] : c.text, fontWeight: '700', fontSize: 14 }}>{label}</Txt>
@@ -254,7 +277,7 @@ function Find({ c, say }: { c: C; say: (t: string) => void }) {
 }
 
 /** You: at a glance, your No. 1, your people, and every list. */
-function You({ c }: { c: C }) {
+function You({ c, onSettings }: { c: C; onSettings: () => void }) {
   const store = useStore();
   const player = usePlayer();
   const { settings } = useSettings();
@@ -263,10 +286,23 @@ function You({ c }: { c: C }) {
   const no1 = top ? BY_ID[slotsOf(top)[0]!] : undefined;
   return (
     <ScrollView contentContainerStyle={[s.page, { gap: 18 }]}>
-      <View>
-        <Txt style={[s.hero, { color: c.text, fontSize: 30 }]}>{settings.name}</Txt>
-        <Txt style={{ color: c['text-3'], fontSize: 12 }}>{settings.handle}</Txt>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+        <Pressable onPress={onSettings} accessibilityRole="button" accessibilityLabel="Your picture: edit your profile">
+          <ProfilePicture size={64} />
+          <View style={[s.edit, { backgroundColor: c.flare }]}>
+            <Txt style={{ color: c['on-flare'], fontSize: 8.5, fontWeight: '900', letterSpacing: 0.5 }}>EDIT</Txt>
+          </View>
+        </Pressable>
+        <View style={{ flex: 1 }}>
+          <Txt style={[s.hero, { color: c.text, fontSize: 26 }]}>{settings.name}</Txt>
+          <Txt style={{ color: c['text-3'], fontSize: 12 }}>{settings.handle}</Txt>
+          {!!settings.bio && <Txt style={{ color: c['text-2'], fontSize: 13 }}>{settings.bio}</Txt>}
+        </View>
       </View>
+      <Pressable onPress={onSettings} accessibilityRole="button" style={[s.row, { borderBottomColor: c['surface-1'], borderTopWidth: 1, borderTopColor: c['surface-1'] }]}>
+        <Txt style={{ flex: 1, color: c.text, fontSize: 14, fontWeight: '600' }}>Settings</Txt>
+        <Icon name="chev" size={14} color={c['text-3']} />
+      </Pressable>
       <View style={{ flexDirection: 'row', gap: 8 }}>
         {(
           [
@@ -324,6 +360,7 @@ const s = StyleSheet.create({
   btnText: { fontWeight: '800', fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.6, transform: [{ skewX: '12deg' }] },
   field: { height: size.field, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, borderWidth: 1, marginBottom: 6 },
   stat: { flex: 1, padding: 14, gap: 2 },
+  edit: { position: 'absolute', left: -2, bottom: -6, height: 14, paddingHorizontal: 5, justifyContent: 'center', transform: [{ skewX: '-9deg' }] },
   toast: { position: 'absolute', left: 20, right: 20, bottom: 150, zIndex: 5, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
   bar: { flexDirection: 'row', borderTopWidth: 1 },
   tab: { flex: 1, height: 64, alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8 },
