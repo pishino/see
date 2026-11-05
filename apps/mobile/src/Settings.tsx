@@ -365,7 +365,7 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
     case 'display':
       return (
         <>
-          {choose('appearance', 'Appearance', ['Dark', 'Light', 'Match device'], 'Dark by default. Every colour works both ways.')}
+          {choose('appearance', 'Appearance', ['Dark', 'Light', 'Flare', 'Match device'], 'Dark by default. Every colour works every way.')}
           {toggle('reduceMotion', 'Reduce motion', 'The launch, the player and the sheets switch without moving.')}
           {toggle('field', 'The field behind the page', 'The moving + signs at the top. Off: plain ink.')}
           {choose('text', 'Text size', ['Default', 'Larger', 'Largest'], 'This page shows it as you choose.')}

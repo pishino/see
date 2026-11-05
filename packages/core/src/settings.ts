@@ -5,7 +5,7 @@
 import { NOTIFICATIONS, QUIET_HOURS, type NotificationKind } from './notifications';
 
 export type SectionId = 'profile' | 'account' | 'services' | 'privacy' | 'notif' | 'lists' | 'playback' | 'display' | 'ads' | 'help';
-export type Appearance = 'Dark' | 'Light' | 'Match device';
+export type Appearance = 'Dark' | 'Light' | 'Flare' | 'Match device';
 
 export interface Settings {
   colour: string;
@@ -125,7 +125,8 @@ export const DEFAULT_SETTINGS: Settings = {
   text: 'Default',
   rings: false,
   adTopics: { 'Music launches': true, 'Films and cinema': true, TV: true, 'Live events': true, 'Tech and audio': false },
-  rankAds: true,
+  // personal ads are off until you turn them on (V3Legal)
+  rankAds: false,
   blocked: [],
   following: [],
   savedLists: [],

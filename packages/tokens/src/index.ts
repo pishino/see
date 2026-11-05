@@ -4,7 +4,7 @@
  */
 import raw from '../tokens.json';
 
-export type Scheme = 'dark' | 'light';
+export type Scheme = 'dark' | 'light' | 'flare';
 export type ColorRole = keyof typeof raw.color;
 export type Shell = 'bottom' | 'rail' | 'side';
 

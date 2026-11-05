@@ -8,6 +8,7 @@ export type C = Record<ColorRole, string>;
 export function useColors(): { c: C; dark: boolean } {
   const { settings } = useSettings();
   const device = useColorScheme();
+  if (settings.appearance === 'Flare') return { c: colors('flare'), dark: false };
   const dark = settings.appearance === 'Match device' ? device !== 'light' : settings.appearance !== 'Light';
   return { c: colors(dark ? 'dark' : 'light'), dark };
 }

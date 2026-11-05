@@ -29,7 +29,7 @@ export const webSettingsStorage: SettingsStorage = {
 /** Apply what Settings changes about the whole page: appearance, motion, focus rings, text size. */
 export function applyToDocument(s: Settings) {
   const el = document.documentElement;
-  el.dataset.theme = s.appearance === 'Light' ? 'light' : s.appearance === 'Match device' ? 'system' : 'dark';
+  el.dataset.theme = s.appearance === 'Light' ? 'light' : s.appearance === 'Flare' ? 'flare' : s.appearance === 'Match device' ? 'system' : 'dark';
   el.dataset.motion = s.reduceMotion ? 'reduce' : '';
   el.dataset.rings = s.rings ? 'always' : '';
   el.dataset.text = s.text === 'Default' ? '' : s.text.toLowerCase();

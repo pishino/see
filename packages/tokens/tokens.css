@@ -1,6 +1,7 @@
 /*
  * See design tokens. GENERATED from tokens.json by scripts/build.mjs: edit tokens.json, then run `npm run tokens`.
- * Dark by default. Light under [data-theme="light"], and under [data-theme="system"] when the device asks for it.
+ * Dark by default. Light under [data-theme="light"], flare under [data-theme="flare"] (V3FlareMode), and light
+ * under [data-theme="system"] when the device asks for it.
  */
 
 :root,
@@ -66,6 +67,38 @@
   --see-wash-3: rgba(11, 15, 14, 0.1);
   --see-disabled-bg: #d6d3ca;
   --see-placeholder: #c9c6bc;
+}
+
+[data-theme='flare'] {
+  color-scheme: light;
+  --see-bg: #ff4a1c;
+  --see-surface-1: #ff5e37;
+  --see-surface-2: #ff7151;
+  --see-panel: #ff5530;
+  --see-chip: #ff7f62;
+  --see-rule: #d63e18;
+  --see-slot: #c23a17;
+  --see-text: #0b0f0e;
+  --see-text-2: #0b0f0e;
+  --see-text-3: #2a100a;
+  --see-text-4: #2a100a;
+  --see-text-off: #8c2c12;
+  --see-flare: #0b0f0e;
+  --see-flare-text: #0b0f0e;
+  --see-flare-soft: #0b0f0e;
+  --see-violet: #b9afff;
+  --see-violet-text: #1b0e3d;
+  --see-up: #0b0f0e;
+  --see-on-flare: #ff4a1c;
+  --see-on-violet: #0b0f0e;
+  --see-focus: #0b0f0e;
+  --see-toast-bg: #0b0f0e;
+  --see-toast-text: #ff4a1c;
+  --see-wash-1: rgba(11, 15, 14, 0.03);
+  --see-wash-2: rgba(11, 15, 14, 0.06);
+  --see-wash-3: rgba(11, 15, 14, 0.1);
+  --see-disabled-bg: #e2471f;
+  --see-placeholder: #d63e18;
 }
 
 @media (prefers-color-scheme: light) {

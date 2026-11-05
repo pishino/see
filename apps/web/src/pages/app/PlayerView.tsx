@@ -11,6 +11,7 @@ import { useStore } from '../../data/store';
 import { usePhone } from '../../lib/useMediaQuery';
 import { silent, usePlayer } from './player';
 import { MakerLink } from './PersonLink';
+import { BuyLine } from '../../components/Ads';
 import './player.css';
 
 
@@ -273,6 +274,7 @@ export function PlayerSheet() {
         {tab === 'about' && (
           <div className="pl-body" role="tabpanel">
             <p>{aboutOf(x)}</p>
+            <BuyLine xid={x.id} />
             <h2 className="t-label">{word.what}</h2>
             <button type="button" className="pl-line" onClick={p.toggle}>
               <Icon name="play" size={10} color="var(--see-accent)" />

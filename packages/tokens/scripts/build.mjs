@@ -23,12 +23,14 @@ const DURATIONS = ['press', 'switch', 'quick', 'base', 'rise', 'guard', 'sheet',
 const lines = [];
 lines.push('/*');
 lines.push(' * See design tokens. GENERATED from tokens.json by scripts/build.mjs: edit tokens.json, then run `npm run tokens`.');
-lines.push(' * Dark by default. Light under [data-theme="light"], and under [data-theme="system"] when the device asks for it.');
+lines.push(' * Dark by default. Light under [data-theme="light"], flare under [data-theme="flare"] (V3FlareMode), and light\n * under [data-theme="system"] when the device asks for it.');
 lines.push(' */');
 lines.push('');
 lines.push(":root,\n[data-theme='dark'] {\n  color-scheme: dark;\n" + colorBlock('dark', '  ') + '\n}');
 lines.push('');
 lines.push("[data-theme='light'] {\n  color-scheme: light;\n" + colorBlock('light', '  ') + '\n}');
+lines.push('');
+lines.push("[data-theme='flare'] {\n  color-scheme: light;\n" + colorBlock('flare', '  ') + '\n}');
 lines.push('');
 lines.push("@media (prefers-color-scheme: light) {\n  [data-theme='system'] {\n    color-scheme: light;\n" + colorBlock('light', '    ') + '\n  }\n}');
 lines.push('');

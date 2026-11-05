@@ -1,6 +1,7 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { Icon } from '../../brand/Icon';
 import { PlusBox } from '../../brand/marks';
+import { SponsorLine, VideoAd } from '../../components/Ads';
 import { PlusField } from '../../brand/PlusField';
 import { useStore } from '../../data/store';
 import { BY_ID, KIND_PL, PERIODS, kindOf, pad2 } from '@see/core';
@@ -31,6 +32,8 @@ export function CategoryView({ onNewList }: { onNewList: () => void }) {
           </button>
         </div>
       </div>
+      {/* one ad on a screen at most: the video band on desktop, the sponsor line otherwise */}
+      <div style={{ padding: '10px var(--gutter) 0', display: 'flex', justifyContent: phone ? 'flex-start' : 'flex-end' }}>{phone ? <SponsorLine cat={c.id} /> : <VideoAd cat={c.id} />}</div>
 
       {lists.length === 0 ? (
         <div style={{ padding: '24px var(--gutter) 60px', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'flex-start' }}>

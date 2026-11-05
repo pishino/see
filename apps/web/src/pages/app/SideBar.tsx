@@ -30,13 +30,33 @@ export function SideBar({ category, onCreate, shell }: { category: string; onCre
   const navigate = useNavigate();
   const loc = useLocation();
   const [choice, setChoice] = useState(readChoice);
-  const pinned = choice ? choice === 'open' : shell === 'side';
+  // C, chosen: folded by default at every width; the pin (or "[") keeps it open
+  const pinned = choice === 'open';
+  void shell;
   const [peek, setPeek] = useState(false);
   const [youOpen, setYouOpen] = useState(false);
   const peekT = useRef(0);
   const mode = pinned ? 'open' : peek ? 'peek' : 'rail';
   const listId = useMatch('/app/l/:id')?.params.id;
   const ui = useUi();
+  // with many categories the folded tags scroll; the column fades, and +N says how many are below
+  const cats = useRef<HTMLDivElement>(null);
+  const [below, setBelow] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  const measure = () => {
+    const el = cats.current;
+    if (!el) return;
+    const bottom = el.getBoundingClientRect().bottom;
+    setBelow([...el.querySelectorAll('.side-vtag')].filter((t) => t.getBoundingClientRect().top > bottom - 8).length);
+    setScrolled(el.scrollTop > 4);
+  };
+  useEffect(() => {
+    measure();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    if (cats.current && ro) ro.observe(cats.current);
+    return () => ro?.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store.categories.length, mode]);
 
   const pinnedRef = useRef(pinned);
   pinnedRef.current = pinned;
@@ -76,10 +96,11 @@ export function SideBar({ category, onCreate, shell }: { category: string; onCre
       className="side"
       data-mode={mode}
       aria-label="Side bar"
-      onPointerEnter={(e) => {
-        if (pinned || e.pointerType === 'touch') return;
+      onPointerMove={(e) => {
+        // rest on the bar for a beat and it opens over the page; moving (or scrolling) never opens it
+        if (pinned || peek || e.pointerType === 'touch') return;
         window.clearTimeout(peekT.current);
-        peekT.current = window.setTimeout(() => setPeek(true), 120);
+        peekT.current = window.setTimeout(() => setPeek(true), 450);
       }}
       onPointerLeave={() => {
         window.clearTimeout(peekT.current);
@@ -119,7 +140,13 @@ export function SideBar({ category, onCreate, shell }: { category: string; onCre
         ))}
       </nav>
 
-      <div className="side-cats no-scrollbar">
+      <div
+        className="side-cats no-scrollbar"
+        ref={cats}
+        onScroll={measure}
+        data-faded-top={scrolled || undefined}
+        data-faded-bottom={below > 0 || undefined}
+      >
         <div className="side-cats__head rl-hide">
           <span className="t-label">Categories</span>
           <button type="button" className="bb fadeh" onClick={onCreate} aria-label="New category" style={{ opacity: 0.5, width: 44, height: 32 }}>
@@ -143,6 +170,16 @@ export function SideBar({ category, onCreate, shell }: { category: string; onCre
           <button type="button" className="side-vtag" onClick={onCreate} aria-label="New category">
             <PlusBox height={22} />
           </button>
+          {below > 0 && mode === 'rail' && (
+            <button
+              type="button"
+              className="side-more"
+              onClick={() => cats.current?.scrollBy({ top: cats.current.clientHeight * 0.8, behavior: 'smooth' })}
+              aria-label={`${below} more ${below === 1 ? 'category' : 'categories'} below`}
+            >
+              +{below}
+            </button>
+          )}
         </div>
 
         {store.categories.map((c) => {

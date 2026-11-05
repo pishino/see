@@ -3,6 +3,7 @@ import { useMatch, useSearchParams } from 'react-router-dom';
 import { Icon } from '../../brand/Icon';
 import { PlusBox } from '../../brand/marks';
 import { Button } from '../../components/Button';
+import { SearchAd } from '../../components/Ads';
 import { useToast } from '../../components/Toast';
 import { useStore } from '../../data/store';
 import { usePlayer } from './player';
@@ -125,6 +126,7 @@ export function FindPill() {
               }}
             />
           )}
+          {q.trim() && results.length > 0 && <SearchAd q={q} />}
           <span className="t-foot" style={{ paddingTop: 4 }}>
             <b style={{ color: 'var(--see-text)', fontWeight: 600 }}>{q ? 'Results' : 'Ideas'}</b> · + {L ? `adds to ${L.name}` : 'picks a list for it'}
           </span>

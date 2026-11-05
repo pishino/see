@@ -17,3 +17,4 @@ export * from './share';
 export * from './connections';
 export * from './polls';
 export * from './pages';
+export * from './ads';

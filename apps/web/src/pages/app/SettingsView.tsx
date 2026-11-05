@@ -509,7 +509,7 @@ function SectionBody({ id }: { id: SectionId }) {
     case 'display':
       return (
         <>
-          <Seg k="appearance" label="Appearance" options={['Dark', 'Light', 'Match device']} sub="Dark by default. Every colour works both ways." />
+          <Seg k="appearance" label="Appearance" options={['Dark', 'Light', 'Flare', 'Match device']} sub="Dark by default. Every colour works every way." />
           <Toggle k="reduceMotion" label="Reduce motion" sub="The masthead, polls and players switch without moving." />
           <Toggle k="field" label="The field behind the page" sub="The moving + signs at the top. Off: plain ink." />
           <Seg k="text" label="Text size" options={['Default', 'Larger', 'Largest']} sub="This page shows it as you choose." />

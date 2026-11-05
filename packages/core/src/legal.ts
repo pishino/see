@@ -6,52 +6,31 @@ export interface LegalDoc {
   title: string;
   updated: string;
   intro: string;
+  /** the short version, before the full text */
+  short?: string[];
   sections: { id: string; h: string; p: string[] }[];
 }
 
 export const TERMS: LegalDoc = {
   title: 'Terms',
-  updated: '1 November 2026',
-  intro: 'See is for ranking what you love: songs, films, shows, artists, teams, anything. These are the rules for using it, written to be read.',
+  updated: '1 October 2026',
+  intro: 'See is a place to rank anything. These terms are between you and See. Draft words, for legal review.',
+  short: [
+    'Your lists are yours. Export or delete them any time.',
+    'Be decent: no hate, no harassment, nothing illegal.',
+    'Ads pay for See. You choose whether they follow you.',
+    'We keep only what we need to run See, and we say what that is.',
+    'If these terms change, we tell you before they apply.',
+  ],
   sections: [
-    {
-      id: 'account',
-      h: 'Your account',
-      p: [
-        'You need an account to make lists. Keep your login to yourself; what happens on your account is yours.',
-        'You can change your name, handle and picture in Settings, and delete your account there at any time. Your lists, polls, votes and picture go; lists you share stay with the people on them.',
-      ],
-    },
-    {
-      id: 'lists',
-      h: 'What you make',
-      p: [
-        'Your lists, polls and ranks are yours. You let See show them to the people you choose, and nowhere else.',
-        'See never posts anything for you, anywhere. Sharing is always something you press.',
-      ],
-    },
-    {
-      id: 'sources',
-      h: 'Where things play from',
-      p: [
-        'See never hosts music, films or video. Everything plays from its source, under that source’s own terms.',
-        'When something is removed at its source, it stays on your list with a note, and you choose what happens to it.',
-      ],
-    },
-    {
-      id: 'people',
-      h: 'Other people',
-      p: [
-        'Be decent. No hate, harassment, threats, impersonation, spam or anything that puts someone at risk.',
-        'You can report a person, a list or a poll in one tap, and block anyone. They are never told who reported them.',
-        'We may hide what breaks these rules, and close accounts that keep breaking them.',
-      ],
-    },
-    {
-      id: 'changes',
-      h: 'When these change',
-      p: ['We tell you in the app before a change takes effect, and it waits in Settings until you have read it.'],
-    },
+    { id: 'who', h: 'Who we are', p: ['See is a place to rank anything. These terms are between you and See.'] },
+    { id: 'account', h: 'Your account', p: ['You sign in with a code sent to your email or with Apple or Google. Keep that inbox safe.'] },
+    { id: 'lists', h: 'Your lists', p: ['What you make is yours. You let See show it to the people you share it with.'] },
+    { id: 'rules', h: 'Rules for everyone', p: ['No hate, harassment, spam or anything illegal. We can remove things that break these rules.'] },
+    { id: 'ads', h: 'Ads', p: ['Ads pay for See. Personal ads are off until you turn them on.'] },
+    { id: 'leaving', h: 'Leaving', p: ['Delete your account in Settings. You have 14 days to change your mind.'] },
+    { id: 'changes', h: 'Changes', p: ['We tell you before new terms apply, in the app and by email.'] },
+    { id: 'contact', h: 'Contact', p: ['Write to us from Help. A person reads it.'] },
   ],
 };
 
@@ -95,7 +74,7 @@ export const PRIVACY: LegalDoc = {
     {
       id: 'ads',
       h: 'Ads',
-      p: ['Ads pay for one See for everyone. You choose in Settings › Ads whether they use what you rank; off, they follow the page you are on, not you.'],
+      p: ['Ads pay for one See for everyone. Personal ads are off until you turn them on in Settings › Ads; off, ads follow the page you are on, not you.'],
     },
     {
       id: 'yours',

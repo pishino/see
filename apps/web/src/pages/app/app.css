@@ -1392,3 +1392,34 @@
   font-size: 9.5px;
   letter-spacing: 0.06em;
 }
+
+/* Side bar C (V3SideNav): folded, the tags scroll; the column fades at the ends, and +N sits on the fade */
+.side[data-mode='rail'] .side-cats[data-faded-bottom] {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent);
+}
+.side[data-mode='rail'] .side-cats[data-faded-top][data-faded-bottom] {
+  mask-image: linear-gradient(to bottom, transparent, #000 40px, #000 calc(100% - 64px), transparent);
+}
+.side[data-mode='rail'] .side-cats[data-faded-top]:not([data-faded-bottom]) {
+  mask-image: linear-gradient(to bottom, transparent, #000 40px);
+}
+.side-more {
+  position: sticky;
+  bottom: 10px;
+  z-index: 2;
+  min-width: 44px;
+  height: 26px;
+  border: 0;
+  background: var(--see-chip);
+  color: var(--see-text);
+  font-family: var(--see-font-display);
+  font-weight: 800;
+  font-size: 12px;
+  mask-image: none;
+}
+.side {
+  transition: width 500ms var(--see-ease);
+}
+.side .rl-hide {
+  transition: opacity 250ms var(--see-ease);
+}
