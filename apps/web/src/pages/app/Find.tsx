@@ -4,6 +4,7 @@ import { Icon } from '../../brand/Icon';
 import { PlusBox } from '../../brand/marks';
 import { useToast } from '../../components/Toast';
 import { useStore } from '../../data/store';
+import { usePlayer } from './player';
 import { KIND_WORD, addToList, kindOf, search, type Entry, type List } from '@see/core';
 
 function useAddTo() {
@@ -25,15 +26,16 @@ function useAddTo() {
 }
 
 function Result({ x, onAdd }: { x: Entry; onAdd: () => void }) {
+  const player = usePlayer();
   return (
     <div className="find__item">
       <span className="find__thumb" aria-hidden="true" />
-      <span className="find__text">
+      <button type="button" className="find__text" style={{ border: 0, background: 'transparent', padding: 0, textAlign: 'left', color: 'inherit' }} onClick={() => player.play(x.id, { listId: null, view: 'sheet' })} aria-label={`Open ${x.t}`}>
         <span className="t-row">{x.t}</span>
         <span className="t-meta">
           {KIND_WORD[x.k]} · {x.m} · {x.y}
         </span>
-      </span>
+      </button>
       <button type="button" className="bb" onClick={onAdd} aria-label={`Add ${x.t}`} style={{ width: 44, height: 44 }}>
         <PlusBox height={20} />
       </button>

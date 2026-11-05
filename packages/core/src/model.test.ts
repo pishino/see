@@ -102,3 +102,30 @@ describe('store', () => {
     expect(s.categories.filter((c) => c.id === 'MUSIC')).toHaveLength(1);
   });
 });
+
+import { aboutOf, clock, durationOf, makerLine, nextInList, sourcesOf, whereItRanks } from './details';
+import { BY_ID } from './seed';
+
+describe('player details', () => {
+  it('ranks an entry in your lists, best first', () => {
+    const lists = seedLists();
+    expect(whereItRanks('v0', lists)[0]).toMatchObject({ listId: 'l1', rank: 1 });
+  });
+  it('writes what it knows, nothing more', () => {
+    expect(makerLine(BY_ID.v0)).toBe('By Asake · from Work Of Art');
+    expect(aboutOf(BY_ID.v0)).toBe('A music video by Asake, from Work Of Art, 2023. Afrobeats.');
+  });
+  it('keeps the same length for the same entry, and formats it', () => {
+    expect(durationOf(BY_ID.v0)).toBe(durationOf(BY_ID.v0));
+    expect(clock(150)).toBe('2:30');
+  });
+  it('plays from your first choice when it has the item', () => {
+    expect(sourcesOf(BY_ID.v0, ['Spotify', 'YouTube'])[0]).toBe('Spotify');
+    expect(sourcesOf(BY_ID.v0, ['Netflix'])[0]).toBe('YouTube');
+  });
+  it('finds what plays next', () => {
+    const l1 = seedLists().find((L) => L.id === 'l1')!;
+    expect(nextInList(l1, 'v0')).toBe('v1');
+    expect(nextInList(l1, 'v6')).toBeNull();
+  });
+});

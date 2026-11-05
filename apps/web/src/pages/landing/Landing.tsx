@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CategoryTag, PLUS_12, CHECK_12, Wordmark } from '../../brand/marks';
 import { useToast } from '../../components/Toast';
 import { usePhone } from '../../lib/useMediaQuery';
-import { ITEMS, buildWall, paint, type ArtKind } from './art';
+import { ITEMS, buildWall, paint, type ArtKind } from '../../brand/art';
 import { FLAGS } from './flags';
 import './landing.css';
 

@@ -15,6 +15,8 @@ import { YouView } from './YouView';
 import { SettingsView } from './SettingsView';
 import { ActivityList, ActivityView } from './ActivityView';
 import { UiProvider } from './ui';
+import { PlayerProvider, usePlayer } from './player';
+import { MiniPlayer, PlayerSheet } from './PlayerView';
 import { CreateDrawer } from './CreateDrawer';
 import './app.css';
 
@@ -53,6 +55,7 @@ export default function AppShell() {
 
   return (
     <UiProvider onCreate={openCreate} onActivity={openActivity}>
+    <PlayerProvider>
     <div className="app" data-accent={polls ? 'violet' : undefined} data-shell={shell} data-short={short || undefined}>
       {!phone && <SideBar category={cat} shell={shell} onCreate={openCreate} />}
       <main className="app-main">
@@ -77,9 +80,18 @@ export default function AppShell() {
       </main>
       {creating && <CreateDrawer defaultCategory={cat} onClose={() => setCreating(false)} />}
       {activity && <ActivityDrawer onClose={() => setActivity(false)} />}
+      <PlayerLayer />
     </div>
+    </PlayerProvider>
     </UiProvider>
   );
+}
+
+/** The player: the sheet over everything, or minimised; nothing when nothing plays. */
+function PlayerLayer() {
+  const p = usePlayer();
+  if (!p.xid) return null;
+  return p.view === 'sheet' ? <PlayerSheet /> : <MiniPlayer />;
 }
 
 /** Wide screens: Activity is a panel from the right; close it and you are back. */

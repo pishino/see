@@ -260,3 +260,11 @@ export function buildWall(th: number, width: number, scale: number) {
   }
   return { cv, w: width, h: hh, tiles, rowH: th + gap };
 }
+
+/** A picture for any catalogue entry: one of the flat-tone scenes, the same every time for the same id. */
+const SCENES = ITEMS.filter((it) => it.k !== 'BOOK');
+export function artFor(id: string): ArtItem {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 16777619);
+  return SCENES[(h >>> 0) % SCENES.length];
+}

@@ -9,6 +9,7 @@ import { useToast } from '../../components/Toast';
 import { useStore } from '../../data/store';
 import { BY_ID, COLS, KIND_PL, PEOPLE, PERIODS, belowTheLine, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, removeAt, search, slotsOf, titleOf, type Entry, type List } from '@see/core';
 import { usePhone } from '../../lib/useMediaQuery';
+import { usePlayer } from './player';
 
 const ROW = 56;
 const MOVE_INK = { up: 'var(--see-up)', down: 'var(--see-flare-soft)', same: 'var(--see-text-off)', new: 'var(--see-text-2)', none: 'var(--see-text-off)' };
@@ -53,7 +54,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
   const filled = slots.filter(Boolean).length;
   const firstOpen = slots.indexOf(null);
   const [focus, setFocus] = useState(0);
-  const [playing, setPlaying] = useState<string | null>(null);
+  const player = usePlayer();
   const [menu, setMenu] = useState(false);
   const [sizeOpen, setSizeOpen] = useState(false);
   // the full table, then with the album dropped, then with the maker folded into the title's second line
@@ -231,7 +232,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
           const x = BY_ID[xid];
           const mv = moveOf(L, xid, ix);
           const isDrag = drag?.from === ix;
-          const isPlaying = playing === xid;
+          const isPlaying = player.xid === xid && player.playing;
           const rink = ix === focus ? 'var(--see-accent-text)' : ix < 3 ? 'var(--see-text)' : 'var(--see-text-4)';
           return (
             <div
@@ -255,7 +256,15 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
               <span className="t-move" aria-label={mv.aria} style={{ color: MOVE_INK[mv.tone] }}>
                 {mv.t}
               </span>
-              <button type="button" className="lv-name" onClick={() => setFocus(ix)} aria-label={`No. ${ix + 1}: ${x.t}, ${makerOf(x)}`}>
+              <button
+                type="button"
+                className="lv-name"
+                onClick={() => {
+                  setFocus(ix);
+                  player.play(xid, { listId: L.id, view: 'sheet' });
+                }}
+                aria-label={`No. ${ix + 1}: ${x.t}, ${makerOf(x)}. Open`}
+              >
                 <span className="t-row">{x.t}</span>
                 <span className="t-meta lv-second">{makerOf(x)}</span>
               </button>
@@ -269,7 +278,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
                 className="icon-btn lv-play"
                 aria-pressed={isPlaying}
                 aria-label={`${isPlaying ? 'Pause' : 'Play'} ${x.t}`}
-                onClick={() => setPlaying(isPlaying ? null : xid)}
+                onClick={() => (player.xid === xid ? player.toggle() : player.play(xid, { listId: L.id, view: 'mini' }))}
               >
                 <Icon name={isPlaying ? 'pause' : 'play'} size={16} color={isPlaying ? 'var(--see-accent)' : 'var(--see-text-2)'} />
               </button>
