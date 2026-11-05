@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { tokens } from '@see/tokens';
 import { PlusBox } from '../brand/marks';
 
 interface ToastMsg {
@@ -9,7 +10,7 @@ interface ToastMsg {
 
 const ToastCtx = createContext<(text: string, undo?: () => void) => void>(() => {});
 
-/** One toast at a time. It holds 2 s, or 3.6 s when it has Undo; the box ticks beside it. */
+/** One toast at a time. It holds 4 s, or 6 s when it has Undo (the toast-hold tokens); the box ticks beside it. */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [msg, setMsg] = useState<ToastMsg | null>(null);
   const [frame, setFrame] = useState(0);
@@ -17,7 +18,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const show = useCallback((text: string, undo?: () => void) => {
     window.clearTimeout(timer.current);
     setMsg({ id: Date.now(), text, undo });
-    timer.current = window.setTimeout(() => setMsg(null), undo ? 6000 : 4000);
+    timer.current = window.setTimeout(() => setMsg(null), undo ? tokens.motion['toast-hold-undo'] : tokens.motion['toast-hold']);
   }, []);
 
   // the box turns its plus into a tick: six frames, 45 ms apart

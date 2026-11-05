@@ -135,8 +135,8 @@
   --see-dur-player: 420ms;
   --see-dur-exit: 220ms;
   --see-dur-slot-frame: 45ms;
-  --see-toast-hold: 2000ms;
-  --see-toast-hold-undo: 3600ms;
+  --see-toast-hold: 4000ms;
+  --see-toast-hold-undo: 6000ms;
 
   /* Sizes */
   --see-hit-min: 44px;
