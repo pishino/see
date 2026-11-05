@@ -7,3 +7,33 @@ export const PICTURE_LAYERS = {
   r2: "M8 8h6v1h-6zM15 8h1v1h-1zM9 9h1v1h-1zM11 9h6v1h-6zM8 10h1v1h-1zM10 10h4v1h-4zM15 10h1v1h-1zM17 10h1v1h-1zM9 11h1v1h-1zM11 11h4v1h-4zM16 11h1v1h-1zM8 12h6v1h-6zM15 12h1v1h-1zM9 13h1v1h-1zM11 13h6v1h-6zM10 14h4v1h-4zM15 14h1v1h-1zM11 15h3v1h-3zM11 16h1v1h-1zM13 16h1v1h-1zM8 17h1v1h-1zM10 17h3v1h-3zM7 18h1v1h-1zM9 18h1v1h-1zM5 19h2v1h-2zM8 19h1v1h-1zM10 19h1v1h-1zM12 19h1v1h-1zM5 20h1v1h-1zM7 20h1v1h-1zM3 21h4v1h-4zM8 21h1v1h-1zM10 21h1v1h-1zM12 21h1v1h-1zM3 22h3v1h-3zM7 22h1v1h-1zM9 22h1v1h-1zM2 23h5v1h-5zM8 23h1v1h-1zM10 23h1v1h-1zM12 23h1v1h-1z",
   r3: "M7 9h2v1h-2zM10 9h1v1h-1zM7 10h1v1h-1zM9 10h1v1h-1zM7 11h2v1h-2zM10 11h1v1h-1zM7 12h1v1h-1zM8 13h1v1h-1zM10 13h1v1h-1zM9 14h1v1h-1z",
 } as const;
+
+/*
+ * Your photo, pixelated in your colour (V3ProfilePicture): 24 × 24 cells, four tones. `pixelate` turns brightness
+ * (0 to 1, row by row) into one digit per cell; `photoLayers` turns those digits back into the three paths a
+ * picture draws over its darkest tone, the same shape as PICTURE_LAYERS.
+ */
+export const PHOTO_CELLS = 24;
+
+export function pixelate(lum: number[]): string {
+  const sorted = lum.slice().sort((a, b) => a - b);
+  // spread the four tones by the photo's own range, so dark and bright photos both read
+  const cut = [0.3, 0.58, 0.82].map((q) => sorted[Math.floor(q * (sorted.length - 1))]);
+  return lum.map((v) => String(v < cut[0] ? 0 : v < cut[1] ? 1 : v < cut[2] ? 2 : 3)).join('');
+}
+
+export function photoLayers(levels: string): { r1: string; r2: string; r3: string } {
+  const out = { r1: '', r2: '', r3: '' };
+  const N = PHOTO_CELLS;
+  for (let y = 0; y < N; y++) {
+    let x = 0;
+    while (x < N) {
+      const v = levels[y * N + x];
+      let run = 1;
+      while (x + run < N && levels[y * N + x + run] === v) run++;
+      if (v === '1' || v === '2' || v === '3') out[`r${v}` as 'r1' | 'r2' | 'r3'] += `M${x} ${y}h${run}v1h-${run}z`;
+      x += run;
+    }
+  }
+  return out;
+}

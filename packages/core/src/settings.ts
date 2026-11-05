@@ -10,6 +10,8 @@ export type Appearance = 'Dark' | 'Light' | 'Match device';
 export interface Settings {
   colour: string;
   uploaded: boolean;
+  /** your photo as 24 × 24 tones (one digit each), or null for the made-up picture */
+  photo: string | null;
   name: string;
   handle: string;
   bio: string;
@@ -88,6 +90,7 @@ export const DEVICES: [string, string, boolean][] = [
 export const DEFAULT_SETTINGS: Settings = {
   colour: '#FF4A1C',
   uploaded: false,
+  photo: null,
   name: 'Joey',
   handle: '@joey',
   bio: 'Ranks music, films and TV',

@@ -24,6 +24,8 @@ export interface Entry {
   gone?: string;
   /** your own item: See doesn't have it yet, so nothing plays until a source is linked */
   own?: boolean;
+  /** its preview can't play where you are (a source key); its rank is untouched */
+  notHere?: string;
 }
 
 export interface Category {

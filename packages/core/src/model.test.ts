@@ -166,3 +166,27 @@ describe('your own items', () => {
     expect(kindFor(empty, 'MUSIC')).toBe('song');
   });
 });
+
+describe('access, invites and the vote pause', () => {
+  it('says why a list cannot be opened, and joins an invite once', async () => {
+    const { accessOf, INVITES, joinInvite, ACCESS_SAYS } = await import('./access');
+    expect(accessOf('best-of-wizkid')?.k).toBe('gone');
+    expect(accessOf('lagos-nights')?.k).toBe('private');
+    expect(accessOf('l1')).toBeNull();
+    expect(ACCESS_SAYS.expired(INVITES['ada-roadtrip'])).toContain('last 7 days');
+    const first = joinInvite(INVITES['ada-afrobeats'], []);
+    expect(first.fresh).toBe(true);
+    expect(first.list.people).toEqual(['ada']);
+    expect(joinInvite(INVITES['ada-afrobeats'], [first.list]).fresh).toBe(false);
+  });
+
+  it('pauses a fast run of votes, then opens again', async () => {
+    const { votePause, VOTE_SAYS } = await import('./votes');
+    const t0 = 1_000_000;
+    const run = Array.from({ length: 8 }, (_, i) => t0 + i * 1000);
+    expect(votePause(run.slice(0, 7), t0 + 7000)).toBe(0);
+    expect(votePause(run, t0 + 7000)).toBe(42);
+    expect(votePause(run, t0 + 7000 + 42_000)).toBe(0);
+    expect(VOTE_SAYS(42)).toContain('0:42');
+  });
+});

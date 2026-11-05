@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PlusBox } from '../../brand/marks';
 import { Button } from '../../components/Button';
 import { useStore } from '../../data/store';
 import { usePlayer } from './player';
-import { BY_ID, CATALOG, POLLS, type List } from '@see/core';
+import './safety.css';
+import { BY_ID, CATALOG, POLLS, VOTE_SAYS, votePause, type List } from '@see/core';
 
 interface Card {
   id: string;
@@ -40,6 +41,22 @@ export function PollsView({ category, onNew }: { category: string; onNew: (name?
   ]);
   const [votes, setVotes] = useState<Record<string, number>>({});
   const player = usePlayer();
+  // too many tries (O2): a fast run of votes pauses for a moment; the countdown is the whole instruction
+  const [times, setTimes] = useState<number[]>([]);
+  const [now, setNow] = useState(() => Date.now());
+  const wait = votePause(times, now);
+  useEffect(() => {
+    if (!wait) return;
+    const t = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(t);
+  }, [wait]);
+  const vote = (id: string, i: number) => {
+    const t = Date.now();
+    if (votePause(times, t)) return;
+    setTimes((ts) => [...ts.slice(-20), t]);
+    setNow(t);
+    setVotes((v) => ({ ...v, [id]: i }));
+  };
 
   return (
     <div className="polls">
@@ -59,6 +76,11 @@ export function PollsView({ category, onNew }: { category: string; onNew: (name?
           <p className="st-sub" style={{ fontSize: 14 }}>
             Any list can become a poll: open its menu and choose Make it a poll. People vote; your list stays yours.
           </p>
+        </div>
+      )}
+      {wait > 0 && (
+        <div className="ps-banner" role="status" style={{ margin: 0, ['--bar' as string]: 'var(--see-violet)' }}>
+          {VOTE_SAYS(wait)}
         </div>
       )}
       <div className="home__grid2" style={{ alignItems: 'start' }}>
@@ -85,8 +107,9 @@ export function PollsView({ category, onNew }: { category: string; onNew: (name?
                     type="button"
                     className="poll-opt pb"
                     aria-pressed={mine === i}
-                    disabled={!!p.closed}
-                    onClick={() => setVotes((v) => ({ ...v, [p.id]: i }))}
+                    disabled={!!p.closed || wait > 0}
+                    style={wait > 0 && !p.closed ? { opacity: 0.45 } : undefined}
+                    onClick={() => vote(p.id, i)}
                   >
                     <span className="poll-opt__bar" style={{ width: voted ? `${share}%` : 0 }} />
                     <span style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}>

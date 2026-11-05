@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
   COLOURS,
@@ -20,9 +20,12 @@ import { ProfilePicture } from '../../brand/ProfilePicture';
 import { Button } from '../../components/Button';
 import { Switch } from '../../components/controls';
 import { usePushPermission } from '../../lib/usePushPermission';
+import { pixelate, PHOTO_CELLS } from '@see/brand';
+import { Dialog } from './PersonView';
 import { useToast } from '../../components/Toast';
 import { usePhone } from '../../lib/useMediaQuery';
 import './you.css';
+import './safety.css';
 
 import spotify from '../../assets/logos/spotify.png';
 import youtube from '../../assets/logos/youtube.png';
@@ -247,6 +250,8 @@ function SectionBody({ id }: { id: SectionId }) {
   const [del, setDel] = useState<'closed' | 'confirm' | 'done'>('closed');
   const [typed, setTyped] = useState('');
   const [push, askPush] = usePushPermission();
+  const [asking, setAsking] = useState<string | null>(null);
+  const [failed, setFailed] = useState<string | null>(null);
 
   switch (id) {
     case 'profile':
@@ -256,17 +261,7 @@ function SectionBody({ id }: { id: SectionId }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
               <ProfilePicture size={88} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-start' }}>
-                <Button
-                  variant="quiet"
-                  size="sm"
-                  onClick={() => {
-                    set('uploaded', true);
-                    toast('Photo uploaded');
-                  }}
-                >
-                  {settings.uploaded ? 'Photo uploaded · change it' : 'Upload a new photo'}
-                </Button>
-                <span className="st-sub">Your photo, pixelated in your colour. No two are the same.</span>
+                <PhotoUpload />
               </div>
             </div>
             <b id="colour-l">Your colour</b>
@@ -408,9 +403,12 @@ function SectionBody({ id }: { id: SectionId }) {
                       className="st-chip"
                       aria-pressed={on}
                       aria-label={`${on ? 'Disconnect' : 'Connect'} ${n}`}
+                      data-failed={failed === n || undefined}
                       onClick={() => {
-                        set('conn', { ...settings.conn, [n]: !on });
-                        set('lastConn', n);
+                        if (on) {
+                          set('conn', { ...settings.conn, [n]: false });
+                          set('lastConn', n);
+                        } else setAsking(n);
                       }}
                     >
                       {LOGOS[n] ? <img src={LOGOS[n]} alt="" /> : <span className="slot" aria-hidden="true" />}
@@ -421,6 +419,34 @@ function SectionBody({ id }: { id: SectionId }) {
               </div>
             </div>
           ))}
+          {asking && (
+            <Dialog label={`Connect ${asking}`} onClose={() => {
+              // closing the sign-in before it finishes: nothing changes, and it says so
+              setFailed(asking);
+              setAsking(null);
+            }}>
+              <span className="t-label">Connected services</span>
+              <h2 className="t-hero dlg-h">Connect {asking}?</h2>
+              <p className="dlg-p">See will read {READS[asking]}, to suggest what to rank. It never posts for you, and you can disconnect it here any time.</p>
+              <div className="dlg-acts">
+                <Button variant="quiet" size="sm" onClick={() => { setFailed(asking); setAsking(null); }}>Cancel</Button>
+                <Button size="sm" onClick={() => {
+                  set('conn', { ...settings.conn, [asking]: true });
+                  set('lastConn', asking);
+                  setFailed(null);
+                  setAsking(null);
+                }}>Connect</Button>
+              </div>
+            </Dialog>
+          )}
+          {failed && !settings.conn[failed] ? (
+            <div className="ps-banner" role="status" style={{ margin: '12px 0 0', ['--bar' as string]: 'var(--see-flare-soft)', flexWrap: 'wrap' }}>
+              <span style={{ flex: '1 1 260px' }}>
+                <b>{failed} didn’t connect.</b> The sign-in closed before it finished. Nothing was changed. Try again, or skip it for now.
+              </span>
+              <Button size="sm" variant="quiet" onClick={() => setAsking(failed)}>Try again</Button>
+            </div>
+          ) : (
           <p className="st-sub" role="status" style={{ paddingTop: 12, color: last ? 'var(--see-text-2)' : undefined }}>
             {last
               ? settings.conn[last]
@@ -428,6 +454,7 @@ function SectionBody({ id }: { id: SectionId }) {
                 : `${last} is disconnected. What it filled stays in your lists.`
               : 'Tap a name to connect or disconnect it. See reads; it never posts for you.'}
           </p>
+          )}
         </>
       );
     }
@@ -605,4 +632,81 @@ function SectionBody({ id }: { id: SectionId }) {
         </>
       );
   }
+}
+
+/**
+ * Your photo, pixelated in your colour (V3ProblemStates O3): JPG, PNG or HEIC under 10 MB. Too big, it names the
+ * file and the limit; the old picture stays until a new one works. Nothing leaves this device: the photo becomes
+ * 24 × 24 tones here.
+ */
+function PhotoUpload() {
+  const { settings, set } = useSettings();
+  const toast = useToast();
+  const input = useRef<HTMLInputElement>(null);
+  const [problem, setProblem] = useState<{ title: string; line: string } | null>(null);
+  const take = (f: File) => {
+    if (f.size > 10 * 1024 * 1024) {
+      setProblem({ title: 'That picture is too big', line: `${f.name} is ${Math.round(f.size / 1024 / 1024)} MB. Use one under 10 MB: JPG, PNG or HEIC.` });
+      return;
+    }
+    const url = URL.createObjectURL(f);
+    const img = new Image();
+    img.onload = () => {
+      const N = PHOTO_CELLS;
+      const cv = document.createElement('canvas');
+      cv.width = N;
+      cv.height = N;
+      const c = cv.getContext('2d');
+      if (!c) return;
+      const side = Math.min(img.width, img.height); // the middle square, like any profile picture
+      c.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, N, N);
+      const d = c.getImageData(0, 0, N, N).data;
+      const lum: number[] = [];
+      for (let i = 0; i < d.length; i += 4) lum.push((0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255);
+      set('photo', pixelate(lum));
+      set('uploaded', true);
+      setProblem(null);
+      URL.revokeObjectURL(url);
+      toast('Your new picture is in');
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      setProblem({ title: 'That picture didn’t open', line: `${f.name} couldn’t be read here. Try a JPG or PNG.` });
+    };
+    img.src = url;
+  };
+  return (
+    <>
+      <input
+        ref={input}
+        type="file"
+        accept="image/jpeg,image/png,image/heic,image/heif"
+        hidden
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) take(f);
+          e.target.value = '';
+        }}
+      />
+      <Button variant="quiet" size="sm" onClick={() => input.current?.click()}>
+        {settings.photo ? 'Change your photo' : 'Upload a new photo'}
+      </Button>
+      {settings.photo && (
+        <button type="button" className="st-link" onClick={() => set('photo', null)} style={{ border: 0, background: 'transparent', padding: 0, color: 'var(--see-text-3)', fontSize: 12, textDecoration: 'underline' }}>
+          Use the made-up one
+        </button>
+      )}
+      <span className="st-sub">Your photo, pixelated in your colour. No two are the same.</span>
+      {problem && (
+        <div className="ps-banner" role="alert" style={{ margin: 0, ['--bar' as string]: 'var(--see-flare-soft)', flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
+          <b>{problem.title}</b>
+          <span>{problem.line}</span>
+          <span style={{ display: 'flex', gap: 8 }}>
+            <Button size="sm" onClick={() => input.current?.click()}>Choose another</Button>
+            <Button size="sm" variant="quiet" onClick={() => setProblem(null)}>Keep the old one</Button>
+          </span>
+        </div>
+      )}
+    </>
+  );
 }

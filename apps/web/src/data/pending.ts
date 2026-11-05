@@ -7,10 +7,11 @@ import { slotsOf, type State } from '@see/core';
  */
 let waiting = new Map<string, Set<string>>();
 let changes = 0;
-let snap = { waiting, changes };
+let saveFailed = false;
+let snap = { waiting, changes, saveFailed };
 const subs = new Set<() => void>();
 const emit = () => {
-  snap = { waiting, changes };
+  snap = { waiting, changes, saveFailed };
   subs.forEach((f) => f());
 };
 
@@ -47,4 +48,11 @@ export function usePending() {
     },
     () => snap,
   );
+}
+
+/** A save this device couldn't make (storage full or blocked): the row keeps its place; it retries on its own. */
+export function setSaveFailed(v: boolean) {
+  if (saveFailed === v) return;
+  saveFailed = v;
+  emit();
 }

@@ -24,6 +24,35 @@ export function goneLine(x: Entry, rank?: number): string | null {
   return `Removed from ${SOURCE[x.gone] ?? x.gone}.${rank ? ` It keeps No. ${rank};` : ''} play is off.`;
 }
 
+/** A preview that can't play where you are (V3ProblemStates S5): said in one line where the picture would be. */
+export function notHereLine(x: Entry): string | null {
+  return x.notHere ? 'This preview isn’t available in your country.' : null;
+}
+
+/** The entry on its source's own site, for "Open on YouTube" and the like. */
+export function sourceUrl(x: Entry, source: string): string {
+  const q = encodeURIComponent(`${x.t} ${x.m}`.trim());
+  switch (source) {
+    case 'YouTube':
+      return `https://www.youtube.com/results?search_query=${q}`;
+    case 'Spotify':
+      return `https://open.spotify.com/search/${q}`;
+    case 'Apple Music':
+      return `https://music.apple.com/search?term=${q}`;
+    case 'Netflix':
+      return `https://www.netflix.com/search?q=${q}`;
+    case 'Letterboxd':
+      return `https://letterboxd.com/search/${q}/`;
+    default:
+      return `https://www.google.com/search?q=${q}`;
+  }
+}
+
+/** The name of the source a key stands for (yt → YouTube). */
+export function sourceName(key: string): string {
+  return SOURCE[key] ?? key;
+}
+
 /** "MUSIC VIDEO · 2023 · AFROBEATS" */
 export function kickerOf(x: Entry): string {
   return [KIND_WORD[x.k], x.y, x.g].filter(Boolean).join(' · ');

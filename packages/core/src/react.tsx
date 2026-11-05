@@ -8,6 +8,8 @@ import { ownEntry, registerOwn, type Category, type Entry, type Kind, type List 
 import { DEFAULT_SETTINGS, withDefaults, type Settings } from './settings';
 
 export interface Store extends State {
+  /** false until an async adapter (the phones') has loaded what you saved: show the shape, not the seed */
+  ready: boolean;
   dispatch: (a: Action) => void;
   list: (id: string) => List | undefined;
   listsIn: (cat: string) => List[];
@@ -36,14 +38,22 @@ export function StoreProvider({ storage, children }: { storage: StorageAdapter; 
     return seedState();
   });
   const loaded = useRef(false);
+  const [ready, setReady] = useState(() => !(storage.load() instanceof Promise));
 
   useEffect(() => {
     const v = storage.load();
     if (v instanceof Promise) {
-      v.then((s) => {
-        if (validState(s)) dispatch({ type: 'load', state: s });
-        loaded.current = true;
-      });
+      v.then(
+        (s) => {
+          if (validState(s)) dispatch({ type: 'load', state: s });
+          loaded.current = true;
+          setReady(true);
+        },
+        () => {
+          loaded.current = true;
+          setReady(true);
+        },
+      );
     } else loaded.current = true;
   }, [storage]);
 
@@ -54,6 +64,7 @@ export function StoreProvider({ storage, children }: { storage: StorageAdapter; 
   const value = useMemo<Store>(
     () => ({
       ...state,
+      ready,
       dispatch,
       list: (id) => state.lists.find((L) => L.id === id),
       listsIn: (cat) => state.lists.filter((L) => L.cat === cat),
@@ -80,7 +91,7 @@ export function StoreProvider({ storage, children }: { storage: StorageAdapter; 
       },
       reset: () => dispatch({ type: 'reset' }),
     }),
-    [state],
+    [state, ready],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
@@ -143,4 +154,4 @@ export function useSettings(): SettingsCtx {
   return s;
 }
 
-export { PlayerProvider, usePlayer, type Player, type PlayerView } from './player';
+export { PlayerProvider, silent, usePlayer, type Player, type PlayerView } from './player';

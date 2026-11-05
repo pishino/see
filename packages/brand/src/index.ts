@@ -6,6 +6,6 @@
 export * from './glyphs';
 export * from './type';
 export * from './avatar';
-export { PICTURE_LAYERS } from './picture';
+export { PHOTO_CELLS, PICTURE_LAYERS, photoLayers, pixelate } from './picture';
 export * from './logobox';
 export * from './art';

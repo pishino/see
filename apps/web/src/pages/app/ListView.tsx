@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ButtonLink } from '../../components/Button';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Button, ButtonLink } from '../../components/Button';
+import { PlusCta } from '../../components/controls';
 import './safety.css';
 import { Avatar } from '../../brand/Avatar';
 import { Icon } from '../../brand/Icon';
@@ -10,7 +11,7 @@ import { ReadChip } from '../../components/controls';
 import { useToast } from '../../components/Toast';
 import { usePending } from '../../data/pending';
 import { useStore } from '../../data/store';
-import { BY_ID, COLS, KIND_PL, PEOPLE, PERIODS, belowTheLine, goneLine, kindFor, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, removeAt, search, slotsOf, titleOf, type Entry, type Kind, type List } from '@see/core';
+import { ACCESS_SAYS, INVITES, accessOf, joinInvite, BY_ID, COLS, KIND_PL, PEOPLE, PERIODS, belowTheLine, goneLine, kindFor, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, removeAt, search, slotsOf, titleOf, type Entry, type Kind, type List } from '@see/core';
 import { usePhone } from '../../lib/useMediaQuery';
 import { usePlayer } from './player';
 
@@ -42,17 +43,7 @@ export function ListView({ onNewList }: { onNewList: () => void }) {
   const { id = '' } = useParams();
   const store = useStore();
   const L = store.list(id);
-  if (!L) {
-    return (
-      <div className="ps-full">
-        <h1 className="t-hero" style={{ fontSize: 44 }}>
-          This list isn’t here
-        </h1>
-        <p className="dlg-p">It may have been deleted, or the link is wrong. Your lists are fine.</p>
-        <ButtonLink to="/app">Back to Charts</ButtonLink>
-      </div>
-    );
-  }
+  if (!L) return <NoList id={id} />;
   return <ListBody key={L.id} L={L} onNewList={onNewList} />;
 }
 
@@ -299,7 +290,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
                 className="icon-btn lv-play"
                 aria-pressed={isPlaying}
                 aria-label={x.gone ? `Play is off: ${goneLine(x)}` : x.own ? `${x.t} is your own: nothing to play yet` : `${isPlaying ? 'Pause' : 'Play'} ${x.t}`}
-                disabled={!!x.gone || !!x.own}
+                disabled={!!x.gone || !!x.own || !!x.notHere}
                 onClick={() => (player.xid === xid ? player.toggle() : player.play(xid, { listId: L.id, view: 'mini' }))}
               >
                 <Icon name={isPlaying ? 'pause' : 'play'} size={16} color={isPlaying ? 'var(--see-accent)' : 'var(--see-text-2)'} />
@@ -439,5 +430,136 @@ function Slot({ ix, first, kind, ownKind, taken, onPick }: { ix: number; first: 
         </div>
       )}
     </label>
+  );
+}
+
+/** Why a list can't be opened (V3ProblemStates A2, A3): who removed it and when, or whose it is and the one way in. */
+function NoList({ id }: { id: string }) {
+  const toast = useToast();
+  const [asked, setAsked] = useState(false);
+  const a = accessOf(id);
+  if (a?.k === 'gone') {
+    return (
+      <div className="ps-full">
+        <h1 className="t-hero" style={{ fontSize: 44 }}>
+          This list is gone
+        </h1>
+        <p className="dlg-p">{ACCESS_SAYS.gone(a.list)}</p>
+        <ButtonLink to="/app">Back to your charts</ButtonLink>
+        <span className="t-meta">Link: see.app/{a.list.by}/{a.id}</span>
+      </div>
+    );
+  }
+  if (a?.k === 'private') {
+    return (
+      <div className="ps-full">
+        <h1 className="t-hero" style={{ fontSize: 44 }}>
+          This list is private
+        </h1>
+        <p className="dlg-p">{ACCESS_SAYS.private(a.list)}</p>
+        {asked ? (
+          <p className="dlg-p" role="status">
+            Asked. @{a.list.owner} will see your request; nothing else about the list is shown until they say yes.
+          </p>
+        ) : (
+          <span style={{ display: 'flex', gap: 8 }}>
+            <Button
+              onClick={() => {
+                setAsked(true);
+                toast(`Request sent to @${a.list.owner}`);
+              }}
+            >
+              Ask to join
+            </Button>
+            <ButtonLink to="/app" variant="quiet">
+              Not now
+            </ButtonLink>
+          </span>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div className="ps-full">
+      <h1 className="t-hero" style={{ fontSize: 44 }}>
+        This list isn’t here
+      </h1>
+      <p className="dlg-p">It may have been deleted, or the link is wrong. Your lists are fine.</p>
+      <ButtonLink to="/app">Back to Charts</ButtonLink>
+    </div>
+  );
+}
+
+/** An invite to a list (see://join/…): join it with one +, or, if it expired, ask for a new one (A4). */
+export function JoinView() {
+  const { code = '' } = useParams();
+  const store = useStore();
+  const toast = useToast();
+  const navigate = useNavigate();
+  const [asked, setAsked] = useState(false);
+  const inv = INVITES[code];
+  if (!inv) {
+    return (
+      <div className="ps-full">
+        <h1 className="t-hero" style={{ fontSize: 44 }}>
+          This invite isn’t here
+        </h1>
+        <p className="dlg-p">The link may be cut short. Ask whoever sent it for a new one.</p>
+        <ButtonLink to="/app">Back to Charts</ButtonLink>
+      </div>
+    );
+  }
+  if (inv.expired) {
+    return (
+      <div className="ps-full">
+        <h1 className="t-hero" style={{ fontSize: 44 }}>
+          This invite expired
+        </h1>
+        <p className="dlg-p">{ACCESS_SAYS.expired(inv)}</p>
+        {asked ? (
+          <p className="dlg-p" role="status">
+            Asked. When @{inv.from} sends a new one, it opens here.
+          </p>
+        ) : (
+          <Button
+            onClick={() => {
+              setAsked(true);
+              toast(`Asked @${inv.from} for a new invite`);
+            }}
+          >
+            Ask @{inv.from} again
+          </Button>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div className="ps-full">
+      <span className="t-label">Invite · {inv.sent}</span>
+      <h1 className="t-hero" style={{ fontSize: 44 }}>
+        {inv.list.name}
+      </h1>
+      <p className="dlg-p">{ACCESS_SAYS.invite(inv)}</p>
+      <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {inv.list.items.slice(0, 3).map((x, i) => (
+          <li key={x} className="t-row-sm">
+            <span className="t-rank" style={{ color: i === 0 ? 'var(--see-accent)' : 'var(--see-text-3)', marginRight: 12 }}>
+              {pad2(i + 1)}
+            </span>
+            {titleOf(x)}
+          </li>
+        ))}
+      </ol>
+      <PlusCta
+        big
+        label="Join this list"
+        onClick={() => {
+          const r = joinInvite(inv, store.lists);
+          if (r.fresh) store.dispatch({ type: 'addList', list: r.list });
+          toast(r.fresh ? `You’re on ${inv.list.name} with @${inv.from}` : `You’re already on ${inv.list.name}`);
+          navigate(`/app/l/${r.list.id}`);
+        }}
+      />
+    </div>
   );
 }

@@ -11,3 +11,5 @@ export * from './details';
 export * from './people';
 export * from './legal';
 export * from './push';
+export * from './access';
+export * from './votes';

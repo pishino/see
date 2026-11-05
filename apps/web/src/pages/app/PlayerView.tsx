@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { aboutOf, addToList, clock, isVideo, kickerOf, kindOf, makerLine, moreLikeIt, playWord, sourcesOf, whereItRanks, type Entry } from '@see/core';
+import { aboutOf, addToList, clock, isVideo, kickerOf, kindOf, makerLine, moreLikeIt, nextInList, notHereLine, playWord, sourceName, sourceUrl, sourcesOf, whereItRanks, type Entry } from '@see/core';
 import { useSettings } from '@see/core/react';
 import { artFor, paint } from '../../brand/art';
 import { Icon } from '../../brand/Icon';
@@ -9,7 +9,7 @@ import { PlusBox } from '../../brand/marks';
 import { useToast } from '../../components/Toast';
 import { useStore } from '../../data/store';
 import { usePhone } from '../../lib/useMediaQuery';
-import { usePlayer } from './player';
+import { silent, usePlayer } from './player';
 import './player.css';
 
 
@@ -143,6 +143,7 @@ export function PlayerSheet() {
   const from = source ?? sources[0];
   const word = playWord(x);
   const more = moreLikeIt(x);
+  const next = p.listId ? nextInList(store.list(p.listId), x.id) : null;
 
   return (
     <div className="pl" role="dialog" aria-modal="true" aria-label={`${x.t}: player`} data-idle={idle} onPointerMove={wake}>
@@ -157,10 +158,26 @@ export function PlayerSheet() {
             <PlayGlyph playing={p.playing} size={phone ? 18 : 22} />
           </button>
           <Progress className="pl-prog--pic" />
-          {!isVideo(x) && (
+          {!isVideo(x) && !x.notHere && (
             <span className="pl-audio" aria-hidden="true">
               {word.what} · {from}
             </span>
+          )}
+          {x.notHere && (
+            <div className="pl-nothere" role="status">
+              <span className="t-label">Preview · {sourceName(x.notHere)}</span>
+              <b>{notHereLine(x)}</b>
+              <span style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+                {next && (
+                  <button type="button" className="btn btn--sm" onClick={() => p.play(next, { listId: p.listId })}>
+                    Play No. {(places.find((pl) => pl.listId === p.listId)?.rank ?? 0) + 1}
+                  </button>
+                )}
+                <a className="btn btn--sm btn--quiet" href={sourceUrl(x, sourceName(x.notHere))} target="_blank" rel="noreferrer">
+                  Open on {sourceName(x.notHere)}
+                </a>
+              </span>
+            </div>
           )}
         </div>
       </div>
@@ -223,10 +240,12 @@ export function PlayerSheet() {
         </span>
 
         <div className="pl-acts">
-          <button type="button" className="btn btn--sm" onClick={p.toggle}>
-            <PlayGlyph playing={p.playing} size={12} />
-            {p.playing ? 'Pause' : 'Play'}
-          </button>
+          {!silent(x.id) && (
+            <button type="button" className="btn btn--sm" onClick={p.toggle}>
+              <PlayGlyph playing={p.playing} size={12} />
+              {p.playing ? 'Pause' : 'Play'}
+            </button>
+          )}
           <span style={{ position: 'relative' }}>
             <button type="button" className="btn btn--sm btn--quiet" aria-haspopup="menu" aria-expanded={adding} onClick={() => setAdding((a) => !a)}>
               <PlusBox height={14} />

@@ -8,7 +8,7 @@ import { useStore } from '../../data/store';
 import { SideBar } from './SideBar';
 import { Home } from './Home';
 import { CategoryView } from './CategoryView';
-import { ListView } from './ListView';
+import { JoinView, ListView } from './ListView';
 import { PollsView } from './PollsView';
 import { FindPill, FindView } from './Find';
 import { YouView } from './YouView';
@@ -21,6 +21,7 @@ import { PersonDrawer, PersonView } from './PersonView';
 import { overOf } from './PersonLink';
 import { OurSide } from '../../components/OurSide';
 import { Launch } from '../../components/Launch';
+import { TabSync } from './TabSync';
 import { flushPending, usePending } from '../../data/pending';
 import { useOnline } from '../../lib/useOnline';
 import { useToast } from '../../components/Toast';
@@ -108,6 +109,7 @@ export default function AppShell() {
             <Route path="settings/:section" element={<SettingsView />} />
             <Route path="activity" element={<ActivityView />} />
             <Route path="u/:handle" element={<PersonView />} />
+            <Route path="join/:code" element={<JoinView />} />
           </Routes>
           </OurSide>
           </div>
@@ -120,6 +122,7 @@ export default function AppShell() {
       {overHandle && <PersonDrawer handle={overHandle} onClose={() => navigate(-1)} />}
       <PlayerLayer />
       <Launch />
+      <TabSync />
     </div>
     </PlayerProvider>
     </UiProvider>

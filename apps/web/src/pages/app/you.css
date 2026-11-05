@@ -513,3 +513,7 @@
   background: var(--see-wash-2, var(--see-surface-2));
   filter: brightness(1.15);
 }
+.st-chip[data-failed] {
+  box-shadow: inset 0 0 0 1px var(--see-flare-soft);
+  color: var(--see-flare-soft);
+}
