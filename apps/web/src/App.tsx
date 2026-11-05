@@ -9,6 +9,7 @@ import { isDesktopShell } from './lib/platform';
 import { Legal } from './pages/legal/Legal';
 import { EmbedPage, TemplatePage } from './pages/share/RankYours';
 import { ConnectReturn } from './pages/ConnectReturn';
+import { EmailsPreview } from './pages/EmailsPreview';
 
 const Landing = lazy(() => import('./pages/landing/Landing'));
 const SignUp = lazy(() => import('./pages/auth/SignUp'));
@@ -43,6 +44,7 @@ export default function App() {
               <Route path="/app/*" element={<AppShell />} />
               <Route path="/open" element={<OpenLink />} />
               <Route path="/t/:code" element={<TemplatePage />} />
+              <Route path="/emails" element={<EmailsPreview />} />
               <Route path="/connect/:service" element={<ConnectReturn />} />
               <Route path="/embed/:code" element={<EmbedPage />} />
               <Route path="/terms" element={<Legal doc="terms" />} />

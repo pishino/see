@@ -11,12 +11,13 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "react-router-dom": "^7.18.5",
     "@see/brand": "0.1.0",
     "@see/core": "0.1.0",
-    "@see/tokens": "0.1.0"
+    "@see/emails": "0.1.0",
+    "@see/tokens": "0.1.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",

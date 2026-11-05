@@ -15,7 +15,7 @@
     "preview": "npm run preview -w @see/web",
     "tokens": "npm run build -w @see/tokens",
     "tokens:check": "npm run check -w @see/tokens",
-    "test": "npm run test -w @see/core && npm run test -w @see/discord && npm run test -w @see/reddit"
+    "test": "npm run test -w @see/core && npm run test -w @see/emails && npm run test -w @see/discord && npm run test -w @see/reddit"
   },
   "overrides": {
     "react": "19.3.0",

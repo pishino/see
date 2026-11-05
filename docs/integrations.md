@@ -237,6 +237,22 @@ one by hand. Sending automatically needs See's server.
 
 ---
 
+## 6b. Emails
+
+`packages/emails` makes the six emails See sends (V3Emails): the sign-in code, welcome, someone joins or edits
+your list, the weekly recap, a poll result, and account deletion. Each comes as `{ subject, preheader, html, text }`:
+600 px tables with inline styles, dark (the meta tags ask clients not to invert it), square buttons that hug their
+label, the wordmark as `email/see@2x.png` from the site, and a footer that says why it came, how to stop that kind,
+and the postal address. The sign-in code and account emails can't be turned off.
+
+- See them: `/emails` on the web app.
+- The handoff pack: `node scripts/export-emails.mjs` writes every email as HTML and text to
+  `packages/emails/out/` (`SEE_SITE` and `SEE_ADDRESS` set the links and the address).
+- Sending needs See's server and a mail service (Postmark, Resend, SES or any SMTP): call
+  `signInCode(…)`, `listActivity(…)` and the rest with the person's data, and send `html` and `text` together.
+  When to send each is on the preview page and in `EMAILS`: list activity at most once per list every 30 minutes,
+  the recap on Sunday at 18:00 in their time zone and only if something moved.
+
 ## 7. Links
 
 Every link opens the right place: `routeOf` in `@see/core` on the web and desktop, and the phone's link handler.
