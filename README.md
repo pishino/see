@@ -9,6 +9,9 @@ source of truth.
 
 ## Try it without cloning
 
+Never done this before? Follow [docs/how-to-test.md](docs/how-to-test.md): it covers the live site, a no-install way
+to run it in your browser, and running it on your own computer.
+
 Every push to `main` publishes the web app and a browser preview of the phone app to GitHub Pages:
 
 - Web app: https://pishino.github.io/see/ (straight in: https://pishino.github.io/see/app)
