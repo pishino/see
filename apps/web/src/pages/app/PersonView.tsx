@@ -122,6 +122,35 @@ function BlockDialog({ handle, onClose, onBlock }: { handle: string; onClose: ()
 /** Every name is a page: their picture, their lists by category, the lists you share, and the ··· menu. */
 export function PersonView() {
   const { handle = '' } = useParams();
+  return <PersonPage handle={handle} />;
+}
+
+/** Wide screens: a person opens over the page you were on, from the right, 460 wide. Close goes back. */
+export function PersonDrawer({ handle, onClose }: { handle: string; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && !document.querySelector('.dlg') && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  return (
+    <>
+      <div className="scrim" onClick={onClose} aria-hidden="true" />
+      <div role="dialog" aria-modal="true" aria-label={`@${handle}`} className="drawer" style={{ width: 460 }}>
+        <div className="drawer__head">
+          <span className="t-label">Member</span>
+          <button type="button" className="icon-btn" onClick={onClose} aria-label="Close" autoFocus>
+            <Icon name="close" size={20} color="var(--see-text)" />
+          </button>
+        </div>
+        <div className="drawer__body" style={{ paddingTop: 8 }}>
+          <PersonPage handle={handle} inDrawer />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function PersonPage({ handle, inDrawer = false }: { handle: string; inDrawer?: boolean }) {
   const store = useStore();
   const { settings, set } = useSettings();
   const toast = useToast();
@@ -129,7 +158,7 @@ export function PersonView() {
   const [menu, setMenu] = useState(false);
   const [dialog, setDialog] = useState<'report' | 'block' | null>(null);
   const person = personOf(handle);
-  if (!person) return <Navigate to="/app/you" replace />;
+  if (!person) return inDrawer ? <p className="dlg-p">Nobody on See goes by @{handle}.</p> : <Navigate to="/app/you" replace />;
   const h = person.handle;
   const blocked = settings.blocked.includes(h);
   const following = settings.following.includes(h);
@@ -143,11 +172,11 @@ export function PersonView() {
 
   if (blocked) {
     return (
-      <div className="yp">
+      <div className={inDrawer ? 'yp yp--over' : 'yp'}>
         <div className="yp-head">
-          <Avatar handle={h} size={phone ? 54 : 72} ring={false} />
+          <Avatar handle={h} size={phone || inDrawer ? 54 : 72} ring={false} />
           <div className="yp-who">
-            <h1 className="t-hero" style={{ fontSize: phone ? 22 : 36 }}>
+            <h1 className="t-hero" style={{ fontSize: phone ? 22 : inDrawer ? 30 : 36 }}>
               @{h}
             </h1>
             <span className="t-meta">Blocked</span>
@@ -172,11 +201,11 @@ export function PersonView() {
   }
 
   return (
-    <div className="yp">
+    <div className={inDrawer ? 'yp yp--over' : 'yp'}>
       <div className="yp-head">
-        <Avatar handle={h} size={phone ? 54 : 72} ring={false} />
+        <Avatar handle={h} size={phone || inDrawer ? 54 : 72} ring={false} />
         <div className="yp-who">
-          <h1 className="t-hero" style={{ fontSize: phone ? 22 : 36 }}>
+          <h1 className="t-hero" style={{ fontSize: phone ? 22 : inDrawer ? 30 : 36 }}>
             {person.name}
           </h1>
           <span className="t-meta">@{h} · Member</span>

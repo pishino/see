@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, NavLink, Route, Routes, useLocation, useMatch, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Route, Routes, matchPath, useLocation, useMatch, useNavigate } from 'react-router-dom';
 import { Icon } from '../../brand/Icon';
 import { Lockup, PlusBox } from '../../brand/marks';
 import { PlusField } from '../../brand/PlusField';
@@ -17,7 +17,8 @@ import { ActivityList, ActivityView } from './ActivityView';
 import { UiProvider } from './ui';
 import { PlayerProvider, usePlayer } from './player';
 import { MiniPlayer, PlayerSheet } from './PlayerView';
-import { PersonView } from './PersonView';
+import { PersonDrawer, PersonView } from './PersonView';
+import { overOf } from './PersonLink';
 import { useOnline } from '../../lib/useOnline';
 import { useToast } from '../../components/Toast';
 import { useRef } from 'react';
@@ -39,7 +40,11 @@ export default function AppShell() {
   const phone = shell === 'bottom';
   const short = useShort();
   const loc = useLocation();
-  const polls = loc.pathname.startsWith('/app/polls');
+  // a person opened from a page opens over it on wide screens; the page under it keeps its place
+  const over = phone ? undefined : overOf(loc.state);
+  const page = over ?? loc;
+  const overHandle = over ? matchPath('/app/u/:handle', loc.pathname)?.params.handle : undefined;
+  const polls = page.pathname.startsWith('/app/polls');
   const cat = useCurrentCategory();
   const [creating, setCreating] = useState<string | false>(false);
   const [activity, setActivity] = useState(false);
@@ -61,7 +66,7 @@ export default function AppShell() {
   // a fresh page starts at the top
   useEffect(() => {
     document.querySelector('.app-scroll')?.scrollTo({ top: 0 });
-  }, [loc.pathname]);
+  }, [page.pathname]);
 
   const store = useStore();
   const catName = store.categories.find((c) => c.id === cat)?.name ?? '';
@@ -72,7 +77,7 @@ export default function AppShell() {
     <div className="app" data-accent={polls ? 'violet' : undefined} data-shell={shell} data-short={short || undefined}>
       {!phone && <SideBar category={cat} shell={shell} onCreate={newBlank} />}
       <main className="app-main">
-        {phone && <PhoneMasthead category={catName} inline={short} home={loc.pathname === '/app' || loc.pathname === '/app/'} polls={polls} />}
+        {phone && <PhoneMasthead category={catName} inline={short} home={page.pathname === '/app' || page.pathname === '/app/'} polls={polls} />}
         {!online && (
           <div className="ps-banner" role="status">
             You’re offline. Every list you’ve opened still opens, ranks and plays what’s saved; changes stay on this device until you’re back.
@@ -80,7 +85,7 @@ export default function AppShell() {
         )}
         <div className="app-scroll no-scrollbar">
           <div className="app-page">
-          <Routes>
+          <Routes location={page}>
             <Route index element={<Home onNewCategory={openCreate} />} />
             <Route path="c/:cat" element={<CategoryView onNewList={newBlank} />} />
             <Route path="l/:id" element={<ListView onNewList={newBlank} />} />
@@ -99,6 +104,7 @@ export default function AppShell() {
       </main>
       {creating !== false && <CreateDrawer defaultCategory={cat} initialName={creating} onClose={() => setCreating(false)} />}
       {activity && <ActivityDrawer onClose={() => setActivity(false)} />}
+      {overHandle && <PersonDrawer handle={overHandle} onClose={() => navigate(-1)} />}
       <PlayerLayer />
     </div>
     </PlayerProvider>

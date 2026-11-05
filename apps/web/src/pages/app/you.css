@@ -431,3 +431,85 @@
     display: block;
   }
 }
+
+/* You at a glance (V3ProfileWeb): two columns on a desk, one on a phone */
+.yp-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+.yp-col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.yp-col > h2 {
+  margin-bottom: -12px;
+}
+.yp-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.yp-stat {
+  background: var(--see-surface-1);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+.yp-stat .t-hero {
+  font-size: 28px;
+}
+.yp-no1 {
+  background: var(--see-surface-1);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 0;
+  text-align: left;
+  color: var(--see-text);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+.yp-no1:hover {
+  background: var(--see-surface-2);
+}
+.yp-conn {
+  min-height: 30px;
+  padding: 0 10px;
+  background: var(--see-wash-1);
+}
+.yp-conn img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+.yp-conn i {
+  width: 18px;
+  height: 18px;
+  border: 1px dashed var(--see-text-off);
+}
+@container main (max-width: 720px) {
+  .yp-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+/* someone else's page, opened over yours */
+.yp--over {
+  padding: 0;
+  gap: 22px;
+}
+.yp--over .yp-head {
+  flex-wrap: wrap;
+}
+.yp--over .yp-chip {
+  background: var(--see-surface-2);
+}
+.yp--over a.yp-chip:hover {
+  background: var(--see-wash-2, var(--see-surface-2));
+  filter: brightness(1.15);
+}

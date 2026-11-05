@@ -4,6 +4,7 @@ import { aboutOf, addToList, clock, isVideo, kickerOf, kindOf, makerLine, moreLi
 import { useSettings } from '@see/core/react';
 import { artFor, paint } from '../../brand/art';
 import { Icon } from '../../brand/Icon';
+import { LOGOS } from '../../brand/logos';
 import { PlusBox } from '../../brand/marks';
 import { useToast } from '../../components/Toast';
 import { useStore } from '../../data/store';
@@ -11,15 +12,9 @@ import { usePhone } from '../../lib/useMediaQuery';
 import { usePlayer } from './player';
 import './player.css';
 
-import spotify from '../../assets/logos/spotify.png';
-import youtube from '../../assets/logos/youtube.png';
-import netflix from '../../assets/logos/netflix.png';
-import letterboxd from '../../assets/logos/letterboxd.png';
-
-const LOGOS: Record<string, string> = { Spotify: spotify, YouTube: youtube, Netflix: netflix, Letterboxd: letterboxd };
 
 /** The entry's picture, drawn at the size it is shown. */
-function Picture({ xid, className }: { xid: string; className?: string }) {
+export function Picture({ xid, className }: { xid: string; className?: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const cv = ref.current;
@@ -33,7 +28,7 @@ function Picture({ xid, className }: { xid: string; className?: string }) {
   return <canvas ref={ref} className={className} aria-hidden="true" />;
 }
 
-function PlayGlyph({ playing, size = 16, color = 'var(--see-on-flare)' }: { playing: boolean; size?: number; color?: string }) {
+export function PlayGlyph({ playing, size = 16, color = 'var(--see-on-flare)' }: { playing: boolean; size?: number; color?: string }) {
   return <Icon name={playing ? 'pause' : 'play'} size={size} color={color} />;
 }
 
@@ -326,32 +321,47 @@ export function PlayerSheet() {
   );
 }
 
-/** Minimised: a card bottom right on wide screens, a bar above the tabs on phones. It keeps playing. */
+/**
+ * Minimised: a card bottom right on wide screens, a bar above the tabs on phones. It keeps playing.
+ * A video adds its picture on top of the bar, 16:9, so you keep ranking while it plays; click it (or ↗) to grow.
+ */
 export function MiniPlayer() {
   const p = usePlayer();
+  const phone = usePhone();
   const x = p.entry;
   if (!x) return null;
   const pct = p.duration ? (p.t / p.duration) * 100 : 0;
+  const pic = isVideo(x) && !phone;
   return (
-    <div className="pl-mini" role="region" aria-label="Now playing">
-      <button type="button" className="pl-mini__open" onClick={() => p.setView('sheet')} aria-label={`Open ${x.t}`}>
-        <Picture xid={x.id} className="pl-mini__art" />
-        <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-          <b className="t-row-sm" style={{ textTransform: 'uppercase' }}>
-            {x.t}
-          </b>
-          <span className="t-meta">{makerLine(x)}</span>
+    <div className="pl-dock" role="region" aria-label="Now playing">
+      {pic && (
+        <button type="button" className="pl-dock__pic" onClick={() => p.setView('sheet')} aria-label={`Make ${x.t} bigger`}>
+          <Picture xid={x.id} className="pl-dock__img" />
+          <span className="pl-dock__grow" aria-hidden="true">
+            ↗
+          </span>
+        </button>
+      )}
+      <div className="pl-mini">
+        <button type="button" className="pl-mini__open" onClick={() => p.setView('sheet')} aria-label={`Open ${x.t}`}>
+          {!pic && <Picture xid={x.id} className="pl-mini__art" />}
+          <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, paddingLeft: pic ? 14 : 0 }}>
+            <b className="t-row-sm" style={{ textTransform: 'uppercase' }}>
+              {x.t}
+            </b>
+            <span className="t-meta">{makerLine(x)}</span>
+          </span>
+        </button>
+        <button type="button" className="icon-btn" onClick={p.toggle} aria-label={p.playing ? 'Pause' : 'Play'}>
+          <PlayGlyph playing={p.playing} size={16} color="var(--see-text)" />
+        </button>
+        <button type="button" className="icon-btn" onClick={p.close} aria-label="Stop and close">
+          <Icon name="close" size={14} color="var(--see-text-3)" />
+        </button>
+        <span className="pl-mini__bar" aria-hidden="true">
+          <i style={{ width: `${pct}%` }} />
         </span>
-      </button>
-      <button type="button" className="icon-btn" onClick={p.toggle} aria-label={p.playing ? 'Pause' : 'Play'}>
-        <PlayGlyph playing={p.playing} size={16} color="var(--see-text)" />
-      </button>
-      <button type="button" className="icon-btn" onClick={p.close} aria-label="Stop and close">
-        <Icon name="close" size={14} color="var(--see-text-3)" />
-      </button>
-      <span className="pl-mini__bar" aria-hidden="true">
-        <i style={{ width: `${pct}%` }} />
-      </span>
+      </div>
     </div>
   );
 }
