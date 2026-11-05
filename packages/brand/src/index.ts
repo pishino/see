@@ -7,3 +7,4 @@ export * from './glyphs';
 export * from './type';
 export * from './avatar';
 export { PICTURE_LAYERS } from './picture';
+export * from './logobox';

@@ -20,6 +20,7 @@ import { MiniPlayer, PlayerSheet } from './PlayerView';
 import { PersonDrawer, PersonView } from './PersonView';
 import { overOf } from './PersonLink';
 import { OurSide } from '../../components/OurSide';
+import { Launch } from '../../components/Launch';
 import { flushPending, usePending } from '../../data/pending';
 import { useOnline } from '../../lib/useOnline';
 import { useToast } from '../../components/Toast';
@@ -118,6 +119,7 @@ export default function AppShell() {
       {activity && <ActivityDrawer onClose={() => setActivity(false)} />}
       {overHandle && <PersonDrawer handle={overHandle} onClose={() => navigate(-1)} />}
       <PlayerLayer />
+      <Launch />
     </div>
     </PlayerProvider>
     </UiProvider>
