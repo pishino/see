@@ -13,6 +13,7 @@ import { colors, size, type ColorRole } from '@see/tokens';
 import { CategoryTag, Icon, PlusBox, Wordmark, type IconName } from './marks';
 import { nativeSettings, nativeStorage } from './storage';
 import { Txt, useBrandFonts } from './type';
+import { Launch } from './Launch';
 
 type C = Record<ColorRole, string>;
 type Tab = 'charts' | 'polls' | 'find' | 'you';
@@ -101,6 +102,7 @@ function Shell() {
           );
         })}
       </SafeAreaView>
+      <Launch bg={c.bg} flare={c.flare} />
     </SafeAreaView>
   );
 }
