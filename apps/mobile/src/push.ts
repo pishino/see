@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AppState, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import { registerPush } from './notify';
 
 /*
  * Push permission (V3ProblemStates O4). The phone is asked the first time a push switch goes on, never before.
@@ -24,7 +25,10 @@ export function usePushPermission(): [PushPerm, () => void] {
   }, [check]);
   const ask = useCallback(() => {
     if (Platform.OS === 'web') return;
-    Notifications.requestPermissionsAsync().then((r) => setPerm(read(r)), () => {});
+    Notifications.requestPermissionsAsync().then((r) => {
+      setPerm(read(r));
+      if (r.granted) void registerPush(); // allowed just now: this phone can be reached from here on
+    }, () => {});
   }, []);
   return [perm, ask];
 }

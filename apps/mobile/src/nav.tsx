@@ -12,6 +12,8 @@ export interface Nav {
   create: (name?: string, cat?: string) => void;
   say: (t: string) => void;
   signOut: () => void;
+  /** A sheet is open: toasts move to the top so they never cover it. Returns the undo. */
+  cover: () => () => void;
 }
 
 export const NavCtx = createContext<Nav | null>(null);

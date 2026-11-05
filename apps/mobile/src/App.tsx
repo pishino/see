@@ -8,7 +8,7 @@ import { BackHandler, Platform, Pressable, ScrollView, StyleSheet, TextInput, Vi
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNetInfo } from '@react-native-community/netinfo';
 import * as Linking from 'expo-linking';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { BY_ID, POLLS, PEOPLE, SEED_ACTIVITY, addToList, filledCount, listSummary, makerOf, search, slotsOf, type List } from '@see/core';
 import { PlayerProvider, SettingsProvider, StoreProvider, usePlayer, useSettings, useStore } from '@see/core/react';
@@ -23,6 +23,7 @@ import { useColors, type C } from './theme';
 import { ProfilePicture } from './ProfilePicture';
 import { SettingsScreen } from './Settings';
 import { Auth } from './Auth';
+import { usePushDelivery } from './notify';
 import { NavCtx, useNav, type Nav, type Route, type Tab } from './nav';
 import { ActivityScreen, Button, CategoryScreen, CreateSheet, PersonScreen, useFollowLink } from './Screens';
 
@@ -81,6 +82,8 @@ function Shell({ onSignOut }: { onSignOut: () => void }) {
   const [creating, setCreating] = useState<{ name: string; cat?: string } | null>(null);
   const [seen, setSeen] = useState(true);
   const [note, setNote] = useState('');
+  const [covers, setCovers] = useState(0);
+  const insets = useSafeAreaInsets();
   const top = stack[stack.length - 1];
   const say = (t: string) => {
     setNote(t);
@@ -107,6 +110,10 @@ function Shell({ onSignOut }: { onSignOut: () => void }) {
       create: (name = '', cat) => setCreating({ name, cat }),
       say,
       signOut: onSignOut,
+      cover: () => {
+        setCovers((n) => n + 1);
+        return () => setCovers((n) => n - 1);
+      },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [onSignOut],
@@ -131,6 +138,8 @@ function Shell({ onSignOut }: { onSignOut: () => void }) {
   // see:// links (a notification, a shared list, someone's page) open where they point
   const url = Linking.useLinkingURL();
   const followLink = useRef<(l: string) => void>(() => {});
+  // push: register this phone, and a tapped notification opens where it points
+  usePushDelivery((l) => followLink.current(l));
   useEffect(() => {
     if (url && url.startsWith('see://')) followLink.current(url);
   }, [url]);
@@ -181,12 +190,6 @@ function Shell({ onSignOut }: { onSignOut: () => void }) {
             <You c={c} unread={unread} />
           )}
         </View>
-        {!!note && (
-          <View style={[s.toast, { backgroundColor: c['toast-bg'] }]} accessibilityLiveRegion="polite">
-            <PlusBox height={16} color={c['toast-text']} />
-            <Txt style={{ color: c['toast-text'], fontWeight: '600', fontSize: 13, flexShrink: 1 }}>{note}</Txt>
-          </View>
-        )}
         {player.xid && player.view === 'mini' && <MiniPlayer c={c} />}
         <SafeAreaView edges={['bottom']} style={[s.bar, { backgroundColor: c.bg, borderTopColor: c['surface-1'] }]}>
           {(
@@ -219,6 +222,21 @@ function Shell({ onSignOut }: { onSignOut: () => void }) {
         </SafeAreaView>
         {player.xid && player.view === 'sheet' && <PlayerSheet c={c} say={say} onOpenList={(id) => nav.push({ k: 'list', id })} />}
         {creating && <CreateSheet c={c} initialName={creating.name} initialCat={creating.cat} onClose={() => setCreating(null)} />}
+        {/* above the tabs (and the bar that plays); with a sheet or the player open, at the top, so it never covers them */}
+        {!!note && (
+          <View
+            style={[
+              s.toast,
+              { backgroundColor: c['toast-bg'] },
+              covers > 0 || (player.xid && player.view === 'sheet') ? { top: insets.top + 8 } : { bottom: (player.xid && player.view === 'mini' ? 136 : 80) + insets.bottom },
+            ]}
+            accessibilityLiveRegion="polite"
+            pointerEvents="none"
+          >
+            <PlusBox height={16} color={c['toast-text']} />
+            <Txt style={{ color: c['toast-text'], fontWeight: '600', fontSize: 13, flexShrink: 1 }}>{note}</Txt>
+          </View>
+        )}
       </SafeAreaView>
     </NavCtx.Provider>
   );
@@ -484,7 +502,7 @@ const s = StyleSheet.create({
   stat: { flex: 1, padding: 14, gap: 2 },
   edit: { position: 'absolute', left: -2, bottom: -6, height: 14, paddingHorizontal: 5, justifyContent: 'center', transform: [{ skewX: '-9deg' }] },
   banner: { marginHorizontal: 20, marginTop: 8, padding: 12, borderLeftWidth: 3 },
-  toast: { position: 'absolute', left: 20, right: 20, bottom: 150, zIndex: 5, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
+  toast: { position: 'absolute', left: 20, right: 20, zIndex: 60, elevation: 12, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
   bar: { flexDirection: 'row', borderTopWidth: 1 },
   tab: { flex: 1, height: 64, alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8 },
 });

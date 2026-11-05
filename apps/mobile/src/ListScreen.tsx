@@ -4,7 +4,7 @@
  * tap play for the bar. Screen readers get Move up and Move down on the grip.
  */
 import { useEffect, useRef, useState } from 'react';
-import { PanResponder, Pressable, ScrollView, Share, StyleSheet, TextInput, View } from 'react-native';
+import { PanResponder, Pressable, ScrollView, Share, StyleSheet, TextInput, View, type HostInstance, type ScrollViewInstance } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { BY_ID, SIZE_STOPS, belowTheLine, filledCount, goneLine, kindFor, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, search, slotsOf, type List } from '@see/core';
 import { usePlayer, useStore } from '@see/core/react';
@@ -24,7 +24,7 @@ const tick = (kind: 'pick' | 'pass' | 'drop') => {
 };
 
 /** The grip: its gesture is created once and reads the latest handlers, so a re-render never drops a drag. */
-function Grip({ label, c, onStart, onMove, onEnd, onStep }: { label: string; c: C; onStart: () => void; onMove: (dy: number) => void; onEnd: (dy: number) => void; onStep: (d: -1 | 1) => void }) {
+function Grip({ label, c, onStart, onMove, onEnd, onStep }: { label: string; c: C; onStart: () => void; onMove: (dy: number, y: number) => void; onEnd: () => void; onStep: (d: -1 | 1) => void }) {
   const cb = useRef({ onStart, onMove, onEnd });
   cb.current = { onStart, onMove, onEnd };
   const pr = useRef(
@@ -34,9 +34,9 @@ function Grip({ label, c, onStart, onMove, onEnd, onStep }: { label: string; c: 
       onPanResponderTerminationRequest: () => false,
       onShouldBlockNativeResponder: () => true,
       onPanResponderGrant: () => cb.current.onStart(),
-      onPanResponderMove: (_, g) => cb.current.onMove(g.dy),
-      onPanResponderRelease: (_, g) => cb.current.onEnd(g.dy),
-      onPanResponderTerminate: () => cb.current.onEnd(0),
+      onPanResponderMove: (_, g) => cb.current.onMove(g.dy, g.moveY),
+      onPanResponderRelease: () => cb.current.onEnd(),
+      onPanResponderTerminate: () => cb.current.onEnd(),
     }),
   ).current;
   return (
@@ -65,6 +65,33 @@ export function ListScreen({ id, c }: { id: string; c: C }) {
   const player = usePlayer();
   const L = store.list(id);
   const [drag, setDrag] = useState<{ from: number; dy: number } | null>(null);
+  // autoscroll: near the top or bottom edge while dragging, the list scrolls (faster the closer you are) and the
+  // lifted row stays under your finger, so a long list can be reordered end to end in one drag
+  const scroller = useRef<ScrollViewInstance>(null);
+  const frame = useRef<HostInstance>(null);
+  const view = useRef({ y: 0, top: 0, h: 0, content: 0 });
+  const live = useRef({ gesture: 0, start: 0, finger: 0, raf: 0 });
+  const total = () => live.current.gesture + view.current.y - live.current.start;
+  const follow = () => {
+    const v = view.current;
+    const g = live.current;
+    const EDGE = 72;
+    let speed = 0;
+    if (g.finger) {
+      const above = g.finger - v.top;
+      const below = v.top + v.h - g.finger;
+      if (above < EDGE) speed = -Math.min(14, Math.ceil((EDGE - above) / 5));
+      else if (below < EDGE) speed = Math.min(14, Math.ceil((EDGE - below) / 5));
+    }
+    const next = Math.max(0, Math.min(Math.max(0, v.content - v.h), v.y + speed));
+    if (next !== v.y) {
+      v.y = next;
+      scroller.current?.scrollTo({ y: next, animated: false });
+      setDrag((cur) => (cur ? { ...cur, dy: total() } : cur));
+    }
+    g.raf = requestAnimationFrame(follow);
+  };
+  useEffect(() => () => cancelAnimationFrame(live.current.raf), []);
   const slots = L ? slotsOf(L) : [];
   const filled = slots.filter(Boolean).length;
   const target = drag ? Math.max(0, Math.min(filled - 1, drag.from + Math.round(drag.dy / ROW))) : -1;
@@ -100,8 +127,23 @@ export function ListScreen({ id, c }: { id: string; c: C }) {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-    <ScrollView scrollEnabled={!drag} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingTop: 12, paddingBottom: 40 }}>
+    <View
+      ref={frame}
+      style={{ flex: 1 }}
+      onLayout={(e) => {
+        view.current.h = e.nativeEvent.layout.height;
+        frame.current?.measureInWindow((_x, y) => (view.current.top = y));
+      }}
+    >
+    <ScrollView
+      ref={scroller}
+      scrollEnabled={!drag}
+      keyboardShouldPersistTaps="handled"
+      scrollEventThrottle={16}
+      onScroll={(e) => (view.current.y = e.nativeEvent.contentOffset.y)}
+      onContentSizeChange={(_w, h) => (view.current.content = h)}
+      contentContainerStyle={{ paddingTop: 12, paddingBottom: 40 }}
+    >
       <View style={{ paddingHorizontal: size['gutter-phone'], gap: 10, paddingBottom: 14 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel="Back" style={{ width: 44, height: 44, justifyContent: 'center' }}>
@@ -180,11 +222,17 @@ export function ListScreen({ id, c }: { id: string; c: C }) {
                 label={`Move ${x.t}, No. ${ix + 1}`}
                 onStart={() => {
                   tick('pick');
+                  live.current = { gesture: 0, start: view.current.y, finger: 0, raf: requestAnimationFrame(follow) };
                   setDrag({ from: ix, dy: 0 });
                 }}
-                onMove={(d) => setDrag((cur) => (cur ? { ...cur, dy: d } : cur))}
-                onEnd={(d) => {
-                  const to = Math.max(0, Math.min(filled - 1, ix + Math.round(d / ROW)));
+                onMove={(d, y) => {
+                  live.current.gesture = d;
+                  live.current.finger = y;
+                  setDrag((cur) => (cur ? { ...cur, dy: total() } : cur));
+                }}
+                onEnd={() => {
+                  cancelAnimationFrame(live.current.raf);
+                  const to = Math.max(0, Math.min(filled - 1, ix + Math.round(total() / ROW)));
                   if (to !== ix) {
                     store.replaceList(moveEntry(L, ix, to));
                     tick('drop');

@@ -77,6 +77,23 @@ bell; every person's page with Follow, report and block; a list's ··· (pin, s
 first open place; push permission asked the first time a push switch goes on, with Open settings if the phone
 said no; `see://` links; and the offline banner.
 
-Next for the phones: scrolling while you drag near an edge, and real push delivery (a token sent to a server).
+Dragging near the top or bottom edge scrolls the list under your finger, so a long list reorders end to end in one
+drag. Toasts sit above the tabs, and move to the top whenever a sheet or the player is open.
+
+### Push delivery
+
+- **Who gets what, and when** is `deliver()` in `@see/core` (push.ts): nothing whose push switch is off (a report's
+  answer always goes), never anything about someone blocked, and inside quiet hours it waits for their end.
+  `expoMessage()` builds what Expo's push service takes; polls go on their own Android channel.
+- **The phone** (`apps/mobile/src/notify.ts`) registers with Expo's push service when the app opens, and again the
+  moment you allow notifications, and logs its token. A tapped notification opens its `see://` link, also when the
+  tap is what opened See. Until there is a server the token stays on the phone (`pushRegistry`); a server's
+  adapter sends it there instead.
+- **To get a token:** set `expo.extra.eas.projectId` in `apps/mobile/app.json` (from `npx eas init`). Push tokens
+  need a real device; Expo Go on Android doesn't receive remote push, so use a development build there.
+- **To send one by hand:** `node scripts/send-push.mjs 'ExponentPushToken[…]' poll-results` (any kind; `--dry`
+  prints the payload, `--quiet "22:00 to 08:00"` shows the hold). Behind a proxy, add `NODE_USE_ENV_PROXY=1`.
+
+Next for the phones: a server that keeps tokens and settings and sends with `deliver()` and `sendExpo()`.
 Reduced motion: the OS setting and
 Settings › Display both drop every duration to 1 ms, as on the web.
