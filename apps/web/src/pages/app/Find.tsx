@@ -91,7 +91,13 @@ export function FindPill() {
   const [open, setOpen] = useState(false);
   const addTo = useAddTo();
   const addOwn = useAddOwn();
-  const results = useMemo(() => search(q, L ? kindOf(L) : ''), [q, L]);
+  // nothing typed yet: what your connected services found comes first
+  const results = useMemo(() => {
+    if (q.trim()) return search(q, L ? kindOf(L) : '');
+    const k = L ? kindOf(L) : '';
+    const found = (store.own ?? []).filter((x) => x.src.length && (!k || k === 'mixed' || x.k === k)).slice(-6).reverse();
+    return [...found, ...search('', k)].slice(0, 6);
+  }, [q, L, store.own]);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;

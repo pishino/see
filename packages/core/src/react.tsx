@@ -22,6 +22,8 @@ export interface Store extends State {
   addList: (cat: string, name: string, n?: number) => List;
   /** something See doesn't have, as your own item; it can be ranked at once */
   addOwn: (title: string, kind: Kind) => Entry;
+  /** what a connected service filled */
+  addFound: (entries: Entry[]) => void;
   reset: () => void;
 }
 
@@ -88,6 +90,10 @@ export function StoreProvider({ storage, children }: { storage: StorageAdapter; 
         registerOwn([x]); // findable before the next render
         dispatch({ type: 'addOwn', entry: x });
         return x;
+      },
+      addFound: (entries) => {
+        registerOwn(entries); // findable before the next render
+        dispatch({ type: 'addFound', entries });
       },
       reset: () => dispatch({ type: 'reset' }),
     }),

@@ -1,6 +1,8 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import {
+  IMPORTERS,
+  connectionOf,
   COLOURS,
   DEVICES,
   NOTIFICATIONS,
@@ -20,6 +22,8 @@ import { ProfilePicture } from '../../brand/ProfilePicture';
 import { Button } from '../../components/Button';
 import { Switch } from '../../components/controls';
 import { usePushPermission } from '../../lib/usePushPermission';
+import { linked, startConnect } from '../../lib/connect';
+import { useStore } from '../../data/store';
 import { pixelate, PHOTO_CELLS } from '@see/brand';
 import { Dialog } from './PersonView';
 import { useToast } from '../../components/Toast';
@@ -250,8 +254,6 @@ function SectionBody({ id }: { id: SectionId }) {
   const [del, setDel] = useState<'closed' | 'confirm' | 'done'>('closed');
   const [typed, setTyped] = useState('');
   const [push, askPush] = usePushPermission();
-  const [asking, setAsking] = useState<string | null>(null);
-  const [failed, setFailed] = useState<string | null>(null);
 
   switch (id) {
     case 'profile':
@@ -291,7 +293,7 @@ function SectionBody({ id }: { id: SectionId }) {
       return (
         <>
           <Label>Signing in</Label>
-          <LinkRow label="Email" value="joey@example.com" sub="Where your sign-in codes go" />
+          <LinkRow label="Email" value={settings.email} sub="Where your sign-in codes go" />
           <div className="st-item">
             <b>Ways to sign in</b>
             <div className="st-chips">
@@ -383,81 +385,8 @@ function SectionBody({ id }: { id: SectionId }) {
       );
     }
 
-    case 'services': {
-      const last = settings.lastConn;
-      return (
-        <>
-          {SERVICES.map((g) => (
-            <div key={g.name} className="st-item">
-              <div className="st-line">
-                <b>{g.name}</b>
-                <span className="st-sub">{g.feeds}</span>
-              </div>
-              <div className="st-chips">
-                {g.services.map((n) => {
-                  const on = !!settings.conn[n];
-                  return (
-                    <button
-                      key={n}
-                      type="button"
-                      className="st-chip"
-                      aria-pressed={on}
-                      aria-label={`${on ? 'Disconnect' : 'Connect'} ${n}`}
-                      data-failed={failed === n || undefined}
-                      onClick={() => {
-                        if (on) {
-                          set('conn', { ...settings.conn, [n]: false });
-                          set('lastConn', n);
-                        } else setAsking(n);
-                      }}
-                    >
-                      {LOGOS[n] ? <img src={LOGOS[n]} alt="" /> : <span className="slot" aria-hidden="true" />}
-                      {n}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-          {asking && (
-            <Dialog label={`Connect ${asking}`} onClose={() => {
-              // closing the sign-in before it finishes: nothing changes, and it says so
-              setFailed(asking);
-              setAsking(null);
-            }}>
-              <span className="t-label">Connected services</span>
-              <h2 className="t-hero dlg-h">Connect {asking}?</h2>
-              <p className="dlg-p">See will read {READS[asking]}, to suggest what to rank. It never posts for you, and you can disconnect it here any time.</p>
-              <div className="dlg-acts">
-                <Button variant="quiet" size="sm" onClick={() => { setFailed(asking); setAsking(null); }}>Cancel</Button>
-                <Button size="sm" onClick={() => {
-                  set('conn', { ...settings.conn, [asking]: true });
-                  set('lastConn', asking);
-                  setFailed(null);
-                  setAsking(null);
-                }}>Connect</Button>
-              </div>
-            </Dialog>
-          )}
-          {failed && !settings.conn[failed] ? (
-            <div className="ps-banner" role="status" style={{ margin: '12px 0 0', ['--bar' as string]: 'var(--see-flare-soft)', flexWrap: 'wrap' }}>
-              <span style={{ flex: '1 1 260px' }}>
-                <b>{failed} didn’t connect.</b> The sign-in closed before it finished. Nothing was changed. Try again, or skip it for now.
-              </span>
-              <Button size="sm" variant="quiet" onClick={() => setAsking(failed)}>Try again</Button>
-            </div>
-          ) : (
-          <p className="st-sub" role="status" style={{ paddingTop: 12, color: last ? 'var(--see-text-2)' : undefined }}>
-            {last
-              ? settings.conn[last]
-                ? `${last} is connected: See reads ${READS[last]}.`
-                : `${last} is disconnected. What it filled stays in your lists.`
-              : 'Tap a name to connect or disconnect it. See reads; it never posts for you.'}
-          </p>
-          )}
-        </>
-      );
-    }
+    case 'services':
+      return <Services />;
 
     case 'privacy':
       return (
@@ -706,6 +635,178 @@ function PhotoUpload() {
             <Button size="sm" variant="quiet" onClick={() => setProblem(null)}>Keep the old one</Button>
           </span>
         </div>
+      )}
+    </>
+  );
+}
+
+/**
+ * Connected services, honestly: a real sign-in where the service allows one (and this build has its key), a file
+ * from the service where that's the only door, and a plain reason where it can't be connected yet. See only reads.
+ */
+function Services() {
+  const { settings, set } = useSettings();
+  const store = useStore();
+  const toast = useToast();
+  const [asking, setAsking] = useState<string | null>(null);
+  const [failed, setFailed] = useState<{ name: string; why: string } | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const files = useRef<HTMLInputElement>(null);
+  const importing = useRef<string | null>(null);
+  const count = (key: string) => (store.own ?? []).filter((x) => x.src[0] === key).length;
+  const connected = (n: string, entries: { length: number }) => {
+    set('conn', { ...settings.conn, [n]: true });
+    set('lastConn', n);
+    setFailed(null);
+    toast(entries.length ? `${n} is connected · ${entries.length} found to rank` : `${n} is connected · nothing to rank from it yet`);
+  };
+  const connect = async (n: string) => {
+    if (!linked(n)) return setAsking(n); // this build has no key: the demo, said plainly
+    setBusy(n);
+    try {
+      const r = await startConnect(n);
+      if (r !== 'redirect') {
+        store.addFound(r);
+        connected(n, r);
+      }
+    } catch (e) {
+      setFailed({ name: n, why: (e as Error).message });
+    } finally {
+      setBusy(null);
+    }
+  };
+  return (
+    <>
+      <input
+        ref={files}
+        type="file"
+        accept=".csv,text/csv"
+        hidden
+        onChange={async (e) => {
+          const f = e.target.files?.[0];
+          const n = importing.current;
+          e.target.value = '';
+          if (!f || !n) return;
+          const entries = IMPORTERS[n]?.(await f.text()) ?? [];
+          if (!entries.length) return setFailed({ name: n, why: `${f.name} doesn’t look like ${n}’s file. Nothing was changed.` });
+          store.addFound(entries);
+          connected(n, entries);
+        }}
+      />
+      {SERVICES.map((g) => (
+        <div key={g.name}>
+          <Label>
+            {g.name} · {g.feeds}
+          </Label>
+          {g.services.map((n) => {
+            const c = connectionOf(n);
+            const on = !!settings.conn[n];
+            const k = c ? count(c.key) : 0;
+            const sub = !c
+              ? ''
+              : on
+                ? `Reads ${c.reads}${k ? ` · ${k} found to rank` : ''}`
+                : c.how === 'import'
+                  ? c.file
+                  : c.how === 'oauth'
+                    ? linked(n)
+                      ? `Reads ${c.reads}`
+                      : `Reads ${c.reads}. This build isn’t linked to ${n} yet, so connecting here is a demo.`
+                    : c.why;
+            return (
+              <div key={n} className="st-item" data-failed={failed?.name === n || undefined}>
+                <div className="st-line">
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    {LOGOS[n] ? <img src={LOGOS[n]} alt="" width={18} height={18} style={{ objectFit: 'contain' }} /> : <span className="slot" aria-hidden="true" style={{ width: 18, height: 18 }} />}
+                    <span>
+                      <b>{n}</b>
+                      {sub && <div className="st-sub">{sub}</div>}
+                    </span>
+                  </span>
+                  <span style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                    {on ? (
+                      <Button
+                        size="sm"
+                        variant="quiet"
+                        onClick={() => {
+                          set('conn', { ...settings.conn, [n]: false });
+                          set('lastConn', n);
+                          toast(`${n} is disconnected. What it filled stays in your lists.`);
+                        }}
+                      >
+                        Disconnect
+                      </Button>
+                    ) : c?.how === 'oauth' ? (
+                      <Button size="sm" disabled={busy === n} onClick={() => connect(n)}>
+                        {busy === n ? 'Connecting…' : 'Connect'}
+                      </Button>
+                    ) : c?.how === 'import' ? (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          importing.current = n;
+                          files.current?.click();
+                        }}
+                      >
+                        Choose the file
+                      </Button>
+                    ) : (
+                      <span className="t-meta">Not yet</span>
+                    )}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
+      {failed && !settings.conn[failed.name] && (
+        <div className="ps-banner" role="status" style={{ margin: '12px 0 0', ['--bar' as string]: 'var(--see-flare-soft)', flexWrap: 'wrap' }}>
+          <span style={{ flex: '1 1 260px' }}>{failed.why}</span>
+          {connectionOf(failed.name)?.how === 'oauth' && (
+            <Button size="sm" variant="quiet" onClick={() => connect(failed.name)}>
+              Try again
+            </Button>
+          )}
+        </div>
+      )}
+      {asking && (
+        <Dialog
+          label={`Connect ${asking}`}
+          onClose={() => {
+            setFailed({ name: asking, why: `${asking} didn’t connect. The sign-in closed before it finished. Nothing was changed. Try again, or skip it for now.` });
+            setAsking(null);
+          }}
+        >
+          <span className="t-label">Connected services · demo</span>
+          <h2 className="t-hero dlg-h">Connect {asking}?</h2>
+          <p className="dlg-p">
+            See will read {READS[asking]}, to suggest what to rank. It never posts for you. This build isn’t linked to {asking} yet, so this connection is pretend: nothing is read.
+          </p>
+          <div className="dlg-acts">
+            <Button
+              variant="quiet"
+              size="sm"
+              onClick={() => {
+                setFailed({ name: asking, why: `${asking} didn’t connect. The sign-in closed before it finished. Nothing was changed. Try again, or skip it for now.` });
+                setAsking(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                set('conn', { ...settings.conn, [asking]: true });
+                set('lastConn', asking);
+                setFailed(null);
+                setAsking(null);
+              }}
+            >
+              Connect (demo)
+            </Button>
+          </div>
+        </Dialog>
       )}
     </>
   );

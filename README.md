@@ -48,11 +48,12 @@ npm run start -w @see/mobile
 apps/web         the web app: landing, sign up and log in, the app        React, Vite
 apps/desktop     the desktop shell: a native window around apps/web     Tauri 2
 apps/mobile      iOS and Android: the phone shell on the shared packages Expo, React Native
+integrations/    discord (a Cloudflare Worker bot) and reddit (a Devvit Web app)
 packages/tokens  design tokens: tokens.json → tokens.css and TS          every platform
 packages/brand   type engine, wordmark, + box, icons, pictures, app icons every platform
 packages/core    data model, list operations, store, settings, notification copy   every platform
 scripts/         exporting the app icons from their SVG masters
-docs/            platforms.md: how each platform uses the packages
+docs/            platforms.md: how each platform uses the packages; integrations.md: sign-in, services, sharing, Reddit, Discord
 ```
 
 | In `apps/web/src` | What it is | Built from |

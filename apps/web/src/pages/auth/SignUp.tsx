@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useSignIn } from '../../lib/useSignIn';
 import { AuthFrame, GoArrow, useAuthToast } from './AuthFrame';
 import spotify from '../../assets/logos/spotify.png';
 import youtube from '../../assets/logos/youtube.png';
@@ -31,6 +32,7 @@ export default function SignUp() {
   const [hover, setHover] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [toast, toastNode] = useAuthToast();
+  const signIn = useSignIn(toast);
 
   const lastPicked = picked[picked.length - 1] ?? null;
   const word = step === 1 ? hover ?? lastPicked ?? '+' : lastPicked ?? 'MUSIC';
@@ -75,11 +77,11 @@ export default function SignUp() {
             </button>
           </form>
           <div className="au-alt">
-            <button type="button" className="au-pill" onClick={() => setStep(3)}>
+            <button type="button" className="au-pill" onClick={() => signIn('Apple', () => setStep(3))}>
               <span className="au-slot" aria-hidden="true" />
               Apple
             </button>
-            <button type="button" className="au-pill" onClick={() => setStep(3)}>
+            <button type="button" className="au-pill" onClick={() => signIn('Google', () => setStep(3))}>
               <span className="au-lg">
                 <img src={google} alt="" />
               </span>

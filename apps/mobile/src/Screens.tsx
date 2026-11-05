@@ -3,7 +3,7 @@
  * Words and rules come from @see/core, so they say what the web says.
  */
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Share, TextInput, View } from 'react-native';
+import { Linking, Pressable, ScrollView, Share, TextInput, View } from 'react-native';
 import {
   BLOCK_SAYS,
   REPORT_REASONS,
@@ -143,6 +143,8 @@ export function useFollowLink() {
     if (p.startsWith('list/')) nav.push({ k: 'list', id: p.slice(5).split('/')[0] });
     else if (p.startsWith('u/')) nav.push({ k: 'person', h: p.slice(2).split('/')[0] });
     else if (p.startsWith('join/')) nav.push({ k: 'join', code: p.slice(5).split('/')[0] });
+    // a shared list to rank opens See on the web for now (the phone's Rank yours screen comes next)
+    else if (p.startsWith('t/')) Linking.openURL(`https://pishino.github.io/see/${p}`).catch(() => {});
     else if (p.startsWith('poll/')) nav.tab('polls');
     else if (p.startsWith('you/activity')) nav.push({ k: 'activity' });
     else if (p.startsWith('you')) nav.tab('you');

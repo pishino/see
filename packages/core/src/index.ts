@@ -14,3 +14,4 @@ export * from './push';
 export * from './access';
 export * from './votes';
 export * from './share';
+export * from './connections';

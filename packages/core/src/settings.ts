@@ -14,6 +14,8 @@ export interface Settings {
   photo: string | null;
   name: string;
   handle: string;
+  /** where sign-in codes go; from Google or Apple when you sign in with them */
+  email: string;
   bio: string;
   topcats: boolean;
   signIn: Record<string, boolean>;
@@ -93,11 +95,12 @@ export const DEFAULT_SETTINGS: Settings = {
   photo: null,
   name: 'Joey',
   handle: '@joey',
+  email: 'joey@example.com',
   bio: 'Ranks music, films and TV',
   topcats: true,
   signIn: { Google: true, 'Email code': true, Apple: false },
   devicesSignedOut: [],
-  conn: { Spotify: true, YouTube: true, Letterboxd: true },
+  conn: {},
   lastConn: null,
   lists: 'Your people',
   profile: 'Public',
@@ -164,7 +167,7 @@ export function sectionSummary(id: SectionId, s: Settings): string {
     case 'profile':
       return `${s.handle} · ${colourName(s.colour)} picture`;
     case 'account':
-      return `joey@example.com · ${devices} ${devices === 1 ? 'device' : 'devices'}`;
+      return `${s.email} · ${devices} ${devices === 1 ? 'device' : 'devices'}`;
     case 'services':
       return `${connected} connected`;
     case 'privacy':

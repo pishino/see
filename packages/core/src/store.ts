@@ -24,6 +24,7 @@ export type Action =
   | { type: 'removeList'; id: string }
   | { type: 'removePerson'; handle: string }
   | { type: 'addOwn'; entry: Entry }
+  | { type: 'addFound'; entries: Entry[] }
   | { type: 'load'; state: State }
   | { type: 'reset' };
 
@@ -55,6 +56,13 @@ export function reduce(s: State, a: Action): State {
       return { ...s, lists: s.lists.filter((L) => L.id !== a.id) };
     case 'removePerson':
       return { ...s, lists: withoutPerson(s.lists, a.handle) };
+    case 'addFound': {
+      // what a connected service filled: it joins the catalogue on this device, once
+      const have = new Set((s.own ?? []).map((x) => x.id));
+      const fresh = a.entries.filter((x) => !have.has(x.id));
+      registerOwn(fresh);
+      return fresh.length ? { ...s, own: [...(s.own ?? []), ...fresh] } : s;
+    }
     case 'addOwn':
       registerOwn([a.entry]);
       return { ...s, own: [...(s.own ?? []), a.entry] };

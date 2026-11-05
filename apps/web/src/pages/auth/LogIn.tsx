@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthFrame, GoArrow, useAuthToast } from './AuthFrame';
+import { useSignIn } from '../../lib/useSignIn';
 import google from '../../assets/logos/google.png';
 
 /** The figure on the last-used account, on the 8-cell grid. */
@@ -11,6 +12,7 @@ export default function LogIn() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [toast, toastNode] = useAuthToast();
+  const signIn = useSignIn(toast);
   const go = () => {
     toast('Signed in');
     window.setTimeout(() => navigate('/app'), 500);
@@ -53,11 +55,11 @@ export default function LogIn() {
           </button>
         </form>
         <div className="au-alt">
-          <button type="button" className="au-pill" onClick={go}>
+          <button type="button" className="au-pill" onClick={() => signIn('Apple', go)}>
             <span className="au-slot" aria-hidden="true" />
             Apple
           </button>
-          <button type="button" className="au-pill" onClick={go}>
+          <button type="button" className="au-pill" onClick={() => signIn('Google', go)}>
             <span className="au-lg">
               <img src={google} alt="" />
             </span>

@@ -32,6 +32,13 @@ jobs:
         run: npm run build
         env:
           SEE_BASE: /${{ github.event.repository.name }}/
+          # app keys for real connections and sign-in (public client ids): Settings › Secrets and variables › Actions › Variables
+          VITE_SPOTIFY_CLIENT_ID: ${{ vars.VITE_SPOTIFY_CLIENT_ID }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          VITE_REDDIT_CLIENT_ID: ${{ vars.VITE_REDDIT_CLIENT_ID }}
+          VITE_APPLE_MUSIC_TOKEN: ${{ vars.VITE_APPLE_MUSIC_TOKEN }}
+          VITE_APPLE_SERVICES_ID: ${{ vars.VITE_APPLE_SERVICES_ID }}
+          VITE_DISCORD_APP_ID: ${{ vars.VITE_DISCORD_APP_ID }}
       - name: Phone app, as a web preview
         working-directory: apps/mobile
         run: npx expo export --platform web --output-dir ../web/dist/phone

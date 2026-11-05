@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { Linking, Pressable, ScrollView, TextInput, View } from 'react-native';
 import {
   COLOURS,
+  IMPORTERS,
+  connectionOf,
   DEVICES,
   NOTIFICATIONS,
   PRIVACY,
@@ -20,7 +22,8 @@ import {
   type SectionId,
   type Settings,
 } from '@see/core';
-import { useSettings } from '@see/core/react';
+import { useSettings, useStore } from '@see/core/react';
+import * as DocumentPicker from 'expo-document-picker';
 import { size } from '@see/tokens';
 import { Choices, Label, LinkRow, QuietButton, Row, Switch, SwitchRow } from './controls';
 import { Icon } from './marks';
@@ -106,8 +109,6 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
   const [typed, setTyped] = useState('');
   const [push, askPush] = usePushPermission();
   const nav = useNav();
-  const [asking, setAsking] = useState<string | null>(null);
-  const [failed, setFailed] = useState<string | null>(null);
   const toggle = <K extends keyof Settings>(k: K, title: string, sub?: string) => (
     <SwitchRow title={title} sub={sub} on={!!settings[k]} onChange={(v) => set(k, v as Settings[K])} c={c} />
   );
@@ -159,7 +160,7 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
       return (
         <>
           <Label c={c}>Signing in</Label>
-          <Row title="Email" sub="Where your sign-in codes go" c={c} end={<Txt style={{ color: c['text-3'], fontSize: 12 }}>joey@example.com</Txt>} />
+          <Row title="Email" sub="Where your sign-in codes go" c={c} end={<Txt style={{ color: c['text-3'], fontSize: 12 }}>{settings.email}</Txt>} />
           <Row title="Ways to sign in" sub="Keep at least one. A code by email always works." c={c}>
             <View style={{ gap: 2, paddingTop: 6 }}>
               {Object.entries(settings.signIn).map(([name, on]) => (
@@ -238,87 +239,8 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
       );
     }
 
-    case 'services': {
-      const last = settings.lastConn;
-      return (
-        <>
-          {SERVICES.map((g) => (
-            <View key={g.name}>
-              <Label c={c}>{`${g.name} · ${g.feeds}`}</Label>
-              {g.services.map((n) => {
-                const on = !!settings.conn[n];
-                return (
-                  <SwitchRow
-                    key={n}
-                    title={n}
-                    sub={on ? `Reads ${READS[n]}` : undefined}
-                    on={on}
-                    c={c}
-                    onChange={() => {
-                      if (!on) return setAsking(n);
-                      set('conn', { ...settings.conn, [n]: false });
-                      set('lastConn', n);
-                    }}
-                  />
-                );
-              })}
-            </View>
-          ))}
-          {failed && !settings.conn[failed] && (
-            <View style={{ backgroundColor: c['surface-2'], borderLeftWidth: 3, borderLeftColor: c['flare-soft'], padding: 14, gap: 10, marginTop: 14 }} accessibilityRole="alert">
-              <Txt style={{ color: c.text, fontSize: 13, lineHeight: 19 }}>
-                {failed} didn’t connect. The sign-in closed before it finished. Nothing was changed. Try again, or skip it for now.
-              </Txt>
-              <QuietButton label="Try again" c={c} onPress={() => setAsking(failed)} />
-            </View>
-          )}
-          {asking && (
-            <Sheet
-              modal
-              c={c}
-              label={`Connect ${asking}`}
-              onClose={() => {
-                setFailed(asking);
-                setAsking(null);
-              }}
-            >
-              <Txt style={{ color: c.text, fontSize: 24, fontWeight: '900', textTransform: 'uppercase' }}>Connect {asking}?</Txt>
-              <Txt style={{ color: c['text-2'], fontSize: 14, lineHeight: 21 }}>
-                See will read {READS[asking]}, to suggest what to rank. It never posts for you, and you can disconnect it here any time.
-              </Txt>
-              <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>
-                <QuietButton
-                  label="Cancel"
-                  c={c}
-                  onPress={() => {
-                    setFailed(asking);
-                    setAsking(null);
-                  }}
-                />
-                <QuietButton
-                  label="Connect"
-                  tone={c.flare}
-                  c={c}
-                  onPress={() => {
-                    set('conn', { ...settings.conn, [asking]: true });
-                    set('lastConn', asking);
-                    setFailed(null);
-                    setAsking(null);
-                  }}
-                />
-              </View>
-            </Sheet>
-          )}
-          <Txt style={{ color: last ? c['text-2'] : c['text-3'], fontSize: 12, lineHeight: 17, paddingTop: 14 }} accessibilityLiveRegion="polite">
-            {last
-              ? settings.conn[last]
-                ? `${last} is connected: See reads ${READS[last]}.`
-                : `${last} is disconnected. What it filled stays in your lists.`
-              : 'Connect or disconnect any of them. See reads; it never posts for you.'}
-          </Txt>
-        </>
-      );
-    }
+    case 'services':
+      return <Services c={c} say={say} />;
 
     case 'privacy':
       return (
@@ -504,5 +426,72 @@ export function Legal({ doc, c, onBack, back = 'Help and legal' }: { doc: 'terms
         </View>
       ))}
     </ScrollView>
+  );
+}
+
+/**
+ * Connected services on the phone, honestly: files from Netflix, Letterboxd and IMDb come in through the phone's
+ * file picker; the sign-ins that need a phone app key (Spotify, Reddit, YouTube, Apple Music) are a demo here until
+ * they're linked; the rest say why they can't connect yet. See only reads.
+ */
+function Services({ c, say }: { c: C; say: (t: string) => void }) {
+  const { settings, set } = useSettings();
+  const store = useStore();
+  const [asking, setAsking] = useState<string | null>(null);
+  const [failed, setFailed] = useState<{ name: string; why: string } | null>(null);
+  const count = (key: string) => (store.own ?? []).filter((x) => x.src[0] === key).length;
+  const importFile = async (n: string) => {
+    const r = await DocumentPicker.getDocumentAsync({ type: ['text/csv', 'text/comma-separated-values', 'text/plain', '*/*'], copyToCacheDirectory: true });
+    if (r.canceled || !r.assets?.[0]) return;
+    const text = await (await fetch(r.assets[0].uri)).text();
+    const entries = IMPORTERS[n]?.(text) ?? [];
+    if (!entries.length) return setFailed({ name: n, why: `${r.assets[0].name} doesn’t look like ${n}’s file. Nothing was changed.` });
+    store.addFound(entries);
+    set('conn', { ...settings.conn, [n]: true });
+    set('lastConn', n);
+    setFailed(null);
+    say(`${n} is connected · ${entries.length} found to rank`);
+  };
+  return (
+    <>
+      {SERVICES.map((g) => (
+        <View key={g.name}>
+          <Label c={c}>{`${g.name} · ${g.feeds}`}</Label>
+          {g.services.map((n) => {
+            const k = connectionOf(n);
+            const on = !!settings.conn[n];
+            const found = k ? count(k.key) : 0;
+            const sub = !k ? '' : on ? `Reads ${k.reads}${found ? ` · ${found} found to rank` : ''}` : k.how === 'import' ? k.file : k.how === 'oauth' ? `Reads ${k.reads}. Not linked on this phone yet, so connecting is a demo.` : k.why;
+            const end = on ? (
+              <QuietButton label="Disconnect" c={c} onPress={() => (set('conn', { ...settings.conn, [n]: false }), set('lastConn', n), say(`${n} is disconnected. What it filled stays in your lists.`))} />
+            ) : k?.how === 'import' ? (
+              <QuietButton label="Choose file" tone={c.flare} c={c} onPress={() => importFile(n).catch(() => say('That file couldn’t be read.'))} />
+            ) : k?.how === 'oauth' ? (
+              <QuietButton label="Connect" tone={c.flare} c={c} onPress={() => setAsking(n)} />
+            ) : (
+              <Txt style={{ color: c['text-3'], fontSize: 12 }}>Not yet</Txt>
+            );
+            return <Row key={n} title={n} sub={sub} c={c} end={end} />;
+          })}
+        </View>
+      ))}
+      {failed && !settings.conn[failed.name] && (
+        <View style={{ backgroundColor: c['surface-2'], borderLeftWidth: 3, borderLeftColor: c['flare-soft'], padding: 14, gap: 10, marginTop: 14 }} accessibilityRole="alert">
+          <Txt style={{ color: c.text, fontSize: 13, lineHeight: 19 }}>{failed.why}</Txt>
+        </View>
+      )}
+      {asking && (
+        <Sheet modal c={c} label={`Connect ${asking}`} onClose={() => (setFailed({ name: asking, why: `${asking} didn’t connect. The sign-in closed before it finished. Nothing was changed. Try again, or skip it for now.` }), setAsking(null))}>
+          <Txt style={{ color: c.text, fontSize: 24, fontWeight: '900', textTransform: 'uppercase' }}>Connect {asking}?</Txt>
+          <Txt style={{ color: c['text-2'], fontSize: 14, lineHeight: 21 }}>
+            See will read {READS[asking]}, to suggest what to rank. It never posts for you. This phone app isn’t linked to {asking} yet, so this connection is pretend: nothing is read.
+          </Txt>
+          <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>
+            <QuietButton label="Cancel" c={c} onPress={() => (setFailed({ name: asking, why: `${asking} didn’t connect. The sign-in closed before it finished. Nothing was changed. Try again, or skip it for now.` }), setAsking(null))} />
+            <QuietButton label="Connect (demo)" tone={c.flare} c={c} onPress={() => (set('conn', { ...settings.conn, [asking]: true }), set('lastConn', asking), setFailed(null), setAsking(null))} />
+          </View>
+        </Sheet>
+      )}
+    </>
   );
 }
