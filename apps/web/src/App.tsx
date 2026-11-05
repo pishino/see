@@ -7,6 +7,7 @@ import { applyToDocument, webSettingsStorage } from './data/settings';
 import { ToastProvider } from './components/Toast';
 import { isDesktopShell } from './lib/platform';
 import { Legal } from './pages/legal/Legal';
+import { EmbedPage, TemplatePage } from './pages/share/RankYours';
 
 const Landing = lazy(() => import('./pages/landing/Landing'));
 const SignUp = lazy(() => import('./pages/auth/SignUp'));
@@ -40,6 +41,8 @@ export default function App() {
               <Route path="/login" element={<LogIn />} />
               <Route path="/app/*" element={<AppShell />} />
               <Route path="/open" element={<OpenLink />} />
+              <Route path="/t/:code" element={<TemplatePage />} />
+              <Route path="/embed/:code" element={<EmbedPage />} />
               <Route path="/terms" element={<Legal doc="terms" />} />
               <Route path="/privacy" element={<Legal doc="privacy" />} />
               <Route path="*" element={<Navigate to="/" replace />} />

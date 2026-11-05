@@ -1,0 +1,113 @@
+/* Out in the world: the template page, the embed, the share sheet (V3IntMap, V3IntReddit, V3IntEmbed, V3IntCards) */
+.tp {
+  min-height: 100dvh;
+  background: var(--see-bg);
+  color: var(--see-text);
+  padding: 24px var(--gutter, 20px) 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.tp--embed {
+  min-height: 0;
+  padding: 20px;
+  max-width: none;
+}
+.tp-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tp-chip {
+  min-height: 40px;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4px 12px;
+  background: var(--see-surface-1);
+  border: 0;
+  color: var(--see-text);
+  text-align: left;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%);
+}
+button.tp-chip:hover {
+  background: var(--see-surface-2);
+}
+.tp-chip b {
+  font-family: var(--see-font-display);
+  font-weight: 800;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+.tp-chip span {
+  font-size: 11.5px;
+  color: var(--see-text-3);
+}
+.tp-row {
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  border-bottom: 1px solid var(--see-surface-1);
+  background: transparent;
+  color: var(--see-text);
+  text-align: left;
+  padding: 0;
+}
+button.tp-row:hover {
+  background: var(--see-wash-1);
+}
+.tp-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.tp-crowd {
+  color: var(--see-violet-text);
+}
+.sh-places {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+}
+.sh-place {
+  min-height: 44px;
+  border: 0;
+  background: var(--see-surface-2);
+  color: var(--see-text);
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%);
+}
+.sh-place:hover {
+  background: var(--see-chip);
+}
+.sh-card {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: var(--see-surface-2);
+}
+.sh-code {
+  width: 100%;
+  min-height: 70px;
+  font: 12px/1.45 ui-monospace, Menlo, monospace;
+  background: var(--see-bg);
+  color: var(--see-text-2);
+  border: 1px solid var(--see-rule);
+  padding: 10px;
+  resize: vertical;
+}
+@media (max-width: 600px) {
+  .tp-cols {
+    grid-template-columns: 1fr;
+  }
+}

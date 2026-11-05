@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboa
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button, ButtonLink } from '../../components/Button';
 import { PlusCta } from '../../components/controls';
+import { ShareSheet } from '../share/ShareSheet';
 import './safety.css';
 import { Avatar } from '../../brand/Avatar';
 import { Icon } from '../../brand/Icon';
@@ -62,6 +63,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
   const waiting = usePending().waiting.get(L.id);
   const [menu, setMenu] = useState(false);
   const [sizeOpen, setSizeOpen] = useState(false);
+  const [sharing, setSharing] = useState(false);
   // the full table, then with the album dropped, then with the maker folded into the title's second line
   const gridOf = (n: number) => `48px 56px minmax(0, 1.3fr) ${Array.from({ length: n }, () => 'minmax(0, 1fr) ').join('')}48px 40px`;
   const gridVars = { '--grid': gridOf(cols.length), '--grid-1': gridOf(Math.min(1, cols.length)), '--grid-0': gridOf(0) } as Record<string, string>;
@@ -177,12 +179,11 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
                     type="button"
                     role="menuitem"
                     onClick={() => {
-                      navigator.clipboard?.writeText(`${location.origin}${import.meta.env.BASE_URL}app/l/${L.id}`).catch(() => {});
                       setMenu(false);
-                      toast('Link copied');
+                      setSharing(true);
                     }}
                   >
-                    <Icon name="share" size={16} /> Share
+                    <Icon name="share" size={16} /> Share…
                   </button>
                   <button
                     type="button"
@@ -321,6 +322,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
         })}
       </div>
 
+      {sharing && <ShareSheet L={L} onClose={() => setSharing(false)} />}
       <div className="lv-foot">
         <i aria-hidden="true" />
         <span className="t-foot" style={{ fontSize: 11 }}>
