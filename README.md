@@ -22,11 +22,18 @@ Desktop (needs Rust, and on Linux WebKitGTK; see `docs/platforms.md`):
 npm run dev -w @see/desktop
 ```
 
+iOS and Android (Expo; open it in Expo Go or a simulator):
+
+```bash
+npm run start -w @see/mobile
+```
+
 ## What is where
 
 ```
 apps/web         the web app: landing, sign up and log in, the app        React, Vite
 apps/desktop     the desktop shell: a native window around apps/web     Tauri 2
+apps/mobile      iOS and Android: the phone shell on the shared packages Expo, React Native
 packages/tokens  design tokens: tokens.json → tokens.css and TS          every platform
 packages/brand   type engine, wordmark, + box, icons, pictures, app icons every platform
 packages/core    data model, list operations, store, settings, notification copy   every platform

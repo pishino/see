@@ -15,5 +15,9 @@
     "tokens": "npm run build -w @see/tokens",
     "tokens:check": "npm run check -w @see/tokens",
     "test": "npm run test -w @see/core"
+  },
+  "overrides": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   }
 }

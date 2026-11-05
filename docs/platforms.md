@@ -42,18 +42,25 @@ One window around the web build. It opens on the app (`/app`), never the marketi
 Next for desktop: the `see://` scheme (tauri-plugin-deep-link) routed through `routeOf`, and native
 notifications (tauri-plugin-notification) using the copy in `@see/core`.
 
-## iOS and Android (planned: `apps/mobile`, Expo)
+## iOS and Android (`apps/mobile`, Expo SDK 58)
 
-Not scaffolded yet: the web app comes first. When it starts:
+One React Native app for both, on the same packages as the web. It has the phone shell (bottom bar: Charts,
+Polls, Find, You), the masthead, your lists by category, a list you can rank (tap a row, move it with ▲ ▼),
+polls with results after you vote (closed polls show how they ended), Find with Add "…" as your own item, and
+your page at a glance. Lists and settings live in AsyncStorage under the web's keys.
 
-- Expo with expo-router; screens follow PixelPhone and V3Responsive (bottom bar on phones, the rail on tablets).
-- Fonts: Archivo and Instrument Sans through `@expo-google-fonts`.
-- Marks and icons: `react-native-svg`, drawing the paths from `@see/brand`. The Plus field becomes a Skia
-  canvas (`@shopify/react-native-skia`); pixels stay only there and in pictures.
-- State: `StoreProvider` and `SettingsProvider` from `@see/core/react`, with AsyncStorage adapters (both
-  providers accept an async `load`).
-- Push: the titles, lines and bundling rules in `@see/core` (`compose`, `NOTIFICATIONS`); each opens its
-  `see://` link through `routeOf`. Android's small icon is the + box in one colour; poll notifications are violet.
-- App icon: `packages/brand/icons/png/app-store-1024.png` (iOS), `google-play-512.png`, the adaptive icon from
-  `maskable.svg`, and the launch screen from `launch.svg` (the + box on ink).
-- Reduced motion: the OS setting and Settings › Display both drop every duration to 1 ms, as on the web.
+- Run: `npm run start -w @see/mobile` (Expo Go or a dev build), `npm run ios -w @see/mobile`,
+  `npm run android -w @see/mobile`; `npm run web -w @see/mobile` previews it in a browser.
+- Check: `npm run typecheck -w @see/mobile`; `npm run bundle -w @see/mobile` bundles for both platforms with Metro,
+  no device needed.
+- One React: the root `overrides` pin `react` and `react-dom` to the version Expo's SDK expects (19.3.0), so the
+  providers in `@see/core/react` and both apps share a single copy. Move them together when the SDK moves.
+- Marks and icons: `react-native-svg`, drawing the paths from `@see/brand` (`src/marks.tsx`).
+- App icon: `packages/brand/icons/png/app-store-1024.png` (iOS) and `google-play-512.png` (Android adaptive
+  foreground), set in `app.json`.
+
+Next for the phones, in order: Archivo and Instrument Sans (`@expo-google-fonts`); drag to rank
+(react-native-gesture-handler and Reanimated); the player sheet and corner player; Settings; the launch motion
+from `logoBoxFrame` in `@see/brand`; push with the copy in `@see/core` (`compose`, `NOTIFICATIONS`), each opening its
+`see://` link through `routeOf`; the Plus field as a Skia canvas. Reduced motion: the OS setting and
+Settings › Display both drop every duration to 1 ms, as on the web.

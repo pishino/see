@@ -1,0 +1,34 @@
+{
+  "name": "@see/mobile",
+  "private": true,
+  "version": "0.1.0",
+  "description": "See on iOS and Android (Expo). Shares @see/core, @see/brand and @see/tokens with the web app.",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
+    "bundle": "expo export --platform android --platform ios --output-dir dist",
+    "typecheck": "tsc --noEmit",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~58.0.17",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@see/brand": "0.1.0",
+    "@see/core": "0.1.0",
+    "@see/tokens": "0.1.0",
+    "expo": "~58.0.23",
+    "expo-status-bar": "~58.0.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.1",
+    "react-native-safe-area-context": "~5.11.1",
+    "react-native-svg": "15.16.0",
+    "react-native-web": "~0.21.4"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.1",
+    "typescript": "~5.9.3"
+  }
+}
