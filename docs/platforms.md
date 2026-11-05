@@ -45,10 +45,17 @@ notifications (tauri-plugin-notification) using the copy in `@see/core`.
 ## iOS and Android (`apps/mobile`, Expo SDK 58)
 
 One React Native app for both, on the same packages as the web. It has the phone shell (bottom bar: Charts,
-Polls, Find, You), the masthead, your lists by category, a list you can rank (tap a row, move it with ▲ ▼),
-polls with results after you vote (closed polls show how they ended), Find with Add "…" as your own item, and
-your page at a glance. Lists and settings live in AsyncStorage under the web's keys.
+Polls, Find, You), the masthead, your lists by category, and a list you rank by dragging: hold a row's grip, the
+rows between make room and show the numbers they'll take, and letting go saves it (a haptic tick for each place
+passed; screen readers get Move up and Move down on the grip). Tap a row for the player sheet: the picture, then
+rank first, the kicker, title and maker, Play and Add, and About, Watch or Listen, More. Minimised, it is a bar
+above the tabs that keeps playing; Android's back minimises it. Polls show results after you vote, Find adds
+anything (or your own item), and You plays your No. 1 in the bar. Lists and settings live in AsyncStorage under
+the web's keys.
 
+- The player's state (`PlayerProvider`, `usePlayer`) is in `@see/core/react`, so the clock, autoplay and "nothing
+  plays from a removed source" are the web's own. The pictures are the web's flat-tone scenes from `@see/brand`
+  (`art`), recorded as SVG shapes (`artShapes`) for react-native-svg.
 - Run: `npm run start -w @see/mobile` (Expo Go or a dev build), `npm run ios -w @see/mobile`,
   `npm run android -w @see/mobile`; `npm run web -w @see/mobile` previews it in a browser.
 - Check: `npm run typecheck -w @see/mobile`; `npm run bundle -w @see/mobile` bundles for both platforms with Metro,
@@ -59,8 +66,7 @@ your page at a glance. Lists and settings live in AsyncStorage under the web's k
 - App icon: `packages/brand/icons/png/app-store-1024.png` (iOS) and `google-play-512.png` (Android adaptive
   foreground), set in `app.json`.
 
-Next for the phones, in order: Archivo and Instrument Sans (`@expo-google-fonts`); drag to rank
-(react-native-gesture-handler and Reanimated); the player sheet and corner player; Settings; the launch motion
-from `logoBoxFrame` in `@see/brand`; push with the copy in `@see/core` (`compose`, `NOTIFICATIONS`), each opening its
+Next for the phones, in order: Settings; the open slot's type-to-find; scrolling while you drag near an edge;
+push with the copy in `@see/core` (`compose`, `NOTIFICATIONS`), each opening its
 `see://` link through `routeOf`; the Plus field as a Skia canvas. Reduced motion: the OS setting and
 Settings › Display both drop every duration to 1 ms, as on the web.

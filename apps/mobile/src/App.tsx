@@ -4,18 +4,20 @@
  * knows comes from @see/core, so it says and does what the web app does.
  */
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View, useColorScheme, type TextStyle } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput, View, type TextStyle } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { BY_ID, POLLS, PEOPLE, addToList, filledCount, listSummary, makerOf, moveEntry, moveOf, pad2, search, slotsOf, type List } from '@see/core';
-import { SettingsProvider, StoreProvider, useSettings, useStore } from '@see/core/react';
-import { colors, size, type ColorRole } from '@see/tokens';
+import { BY_ID, POLLS, PEOPLE, addToList, filledCount, listSummary, makerOf, search, slotsOf, type List } from '@see/core';
+import { PlayerProvider, SettingsProvider, StoreProvider, usePlayer, useSettings, useStore } from '@see/core/react';
+import { size } from '@see/tokens';
 import { CategoryTag, Icon, PlusBox, Wordmark, type IconName } from './marks';
 import { nativeSettings, nativeStorage } from './storage';
 import { Txt, useBrandFonts } from './type';
 import { Launch } from './Launch';
+import { ListScreen } from './ListScreen';
+import { MiniPlayer, PlayerSheet } from './Player';
+import { useColors, type C } from './theme';
 
-type C = Record<ColorRole, string>;
 type Tab = 'charts' | 'polls' | 'find' | 'you';
 
 export default function App() {
@@ -23,23 +25,19 @@ export default function App() {
     <SafeAreaProvider>
       <SettingsProvider storage={nativeSettings}>
         <StoreProvider storage={nativeStorage}>
-          <Shell />
+          <PlayerProvider>
+            <Shell />
+          </PlayerProvider>
         </StoreProvider>
       </SettingsProvider>
     </SafeAreaProvider>
   );
 }
 
-function useColors(): { c: C; dark: boolean } {
-  const { settings } = useSettings();
-  const device = useColorScheme();
-  const dark = settings.appearance === 'Match device' ? device !== 'light' : settings.appearance !== 'Light';
-  return { c: colors(dark ? 'dark' : 'light'), dark };
-}
-
 function Shell() {
   const fonts = useBrandFonts();
   const { c, dark } = useColors();
+  const player = usePlayer();
   const [tab, setTab] = useState<Tab>('charts');
   const [open, setOpen] = useState<string | null>(null);
   const [note, setNote] = useState('');
@@ -64,7 +62,7 @@ function Shell() {
         ) : tab === 'find' ? (
           <Find c={c} say={say} />
         ) : (
-          <You c={c} onOpen={setOpen} />
+          <You c={c} />
         )}
       </View>
       {!!note && (
@@ -73,6 +71,7 @@ function Shell() {
           <Txt style={{ color: c['toast-text'], fontWeight: '600', fontSize: 13 }}>{note}</Txt>
         </View>
       )}
+      {player.xid && player.view === 'mini' && <MiniPlayer c={c} />}
       <SafeAreaView edges={['bottom']} style={[s.bar, { backgroundColor: c.bg, borderTopColor: c['surface-1'] }]}>
         {(
           [
@@ -102,6 +101,15 @@ function Shell() {
           );
         })}
       </SafeAreaView>
+      {player.xid && player.view === 'sheet' && (
+        <PlayerSheet
+          c={c}
+          say={say}
+          onOpenList={(id) => {
+            setOpen(id);
+          }}
+        />
+      )}
       <Launch bg={c.bg} flare={c.flare} />
     </SafeAreaView>
   );
@@ -148,92 +156,6 @@ function Charts({ c, onOpen }: { c: C; onOpen: (id: string) => void }) {
   );
 }
 
-const MOVE_INK = (c: C) => ({ up: c.up, down: c['flare-soft'], same: c['text-off'], new: c['text-2'], none: c['text-off'] });
-
-/** A list: rank, move, title, maker. Tap a row to pick it, then move it with ▲ ▼ (drag comes with gestures). */
-function ListScreen({ id, c, onBack }: { id: string; c: C; onBack: () => void }) {
-  const store = useStore();
-  const L = store.list(id);
-  const [sel, setSel] = useState<number | null>(null);
-  if (!L) {
-    return (
-      <View style={s.page}>
-        <Txt style={[s.hero, { color: c.text, fontSize: 28 }]}>This list isn’t here</Txt>
-        <Pressable onPress={onBack} style={[s.btn, { backgroundColor: c.flare }]}>
-          <Txt style={[s.btnText, { color: c['on-flare'] }]}>Back to charts</Txt>
-        </Pressable>
-      </View>
-    );
-  }
-  const slots = slotsOf(L);
-  const ink = MOVE_INK(c);
-  const move = (from: number, to: number) => {
-    if (to < 0 || to >= slots.length || !slots[from]) return;
-    store.replaceList(moveEntry(L, from, to));
-    setSel(to);
-  };
-  return (
-    <ScrollView contentContainerStyle={[s.page, { paddingHorizontal: 0 }]}>
-      <View style={{ paddingHorizontal: size['gutter-phone'], gap: 10, paddingBottom: 14 }}>
-        <Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel="Back" style={{ width: 44, height: 44, justifyContent: 'center' }}>
-          <Icon name="back" size={22} color={c.text} />
-        </Pressable>
-        <CategoryTag name={store.categories.find((x) => x.id === L.cat)?.name ?? L.cat} height={18} color={c.flare} />
-        <Txt style={[s.hero, { color: c.text, fontSize: 34 }]}>{L.name}</Txt>
-      </View>
-      {slots.map((xid, ix) => {
-        if (!xid) {
-          return (
-            <View key={`open-${ix}`} style={[s.lrow, { borderBottomColor: c['surface-1'] }]}>
-              <Txt style={[s.rank, { color: c.slot }]}>{pad2(ix + 1)}</Txt>
-              <Txt style={{ color: c['text-off'], fontSize: 14 }}>No. {ix + 1} is open</Txt>
-            </View>
-          );
-        }
-        const x = BY_ID[xid];
-        if (!x) return null;
-        const mv = moveOf(L, xid, ix);
-        const on = sel === ix;
-        return (
-          <Pressable
-            key={xid}
-            onPress={() => setSel(on ? null : ix)}
-            style={[s.lrow, { borderBottomColor: c['surface-1'], backgroundColor: on ? c['surface-1'] : 'transparent' }]}
-            accessibilityLabel={`No. ${ix + 1}: ${x.t}, ${makerOf(x)}`}
-            accessibilityHint="Tap, then move it up or down"
-          >
-            <Txt style={[s.rank, { color: ix === 0 ? c.flare : c.text }]}>{pad2(ix + 1)}</Txt>
-            <Txt style={{ width: 34, fontSize: 11, fontWeight: '800', color: ink[mv.tone] }} accessibilityLabel={mv.aria}>
-              {mv.t}
-            </Txt>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Txt numberOfLines={1} style={{ color: x.gone ? c['text-3'] : c.text, fontSize: 15, fontWeight: '700', textTransform: 'uppercase' }}>
-                {x.t}
-              </Txt>
-              <Txt numberOfLines={1} style={{ color: c['text-3'], fontSize: 12 }}>
-                {makerOf(x)}
-              </Txt>
-            </View>
-            {on && (
-              <View style={{ flexDirection: 'row' }}>
-                <Pressable onPress={() => move(ix, ix - 1)} style={s.icon} accessibilityLabel={`Move ${x.t} up`}>
-                  <Txt style={{ color: c.text, fontSize: 16 }}>▲</Txt>
-                </Pressable>
-                <Pressable onPress={() => move(ix, ix + 1)} style={s.icon} accessibilityLabel={`Move ${x.t} down`}>
-                  <Txt style={{ color: c.text, fontSize: 16 }}>▼</Txt>
-                </Pressable>
-              </View>
-            )}
-          </Pressable>
-        );
-      })}
-      <Txt style={{ color: c['text-3'], fontSize: 11.5, padding: size['gutter-phone'] }}>
-        {filledCount(L)} of {L.n} · saved as you go
-      </Txt>
-    </ScrollView>
-  );
-}
-
 /** Polls: violet. Results after you vote. */
 function Polls({ c }: { c: C }) {
   const [votes, setVotes] = useState<Record<string, number>>({});
@@ -273,6 +195,7 @@ function Polls({ c }: { c: C }) {
 /** Find: anything in See; + adds it to your pinned list. Nothing matching? Add it as your own. */
 function Find({ c, say }: { c: C; say: (t: string) => void }) {
   const store = useStore();
+  const player = usePlayer();
   const [q, setQ] = useState('');
   const results = useMemo(() => search(q), [q]);
   const target: List | undefined = store.lists.find((L) => L.pinned);
@@ -299,10 +222,10 @@ function Find({ c, say }: { c: C; say: (t: string) => void }) {
       </View>
       {results.map((x) => (
         <View key={x.id} style={[s.row, { borderBottomColor: c['surface-1'] }]}>
-          <View style={{ flex: 1 }}>
+          <Pressable style={{ flex: 1 }} onPress={() => player.play(x.id, { listId: null, view: 'sheet' })} accessibilityLabel={`Open ${x.t}`}>
             <Txt style={{ color: c.text, fontWeight: '800', fontSize: 14, textTransform: 'uppercase' }}>{x.t}</Txt>
             <Txt style={{ color: c['text-3'], fontSize: 12 }}>{makerOf(x)}</Txt>
-          </View>
+          </Pressable>
           <Pressable onPress={() => add(x.id, x.t)} style={s.icon} accessibilityLabel={`Add ${x.t}${target ? ` to ${target.name}` : ''}`}>
             <PlusBox height={20} color={c.flare} />
           </Pressable>
@@ -331,8 +254,9 @@ function Find({ c, say }: { c: C; say: (t: string) => void }) {
 }
 
 /** You: at a glance, your No. 1, your people, and every list. */
-function You({ c, onOpen }: { c: C; onOpen: (id: string) => void }) {
+function You({ c }: { c: C }) {
   const store = useStore();
+  const player = usePlayer();
   const { settings } = useSettings();
   const people = [...new Set(store.lists.flatMap((L) => L.people))];
   const top = store.lists.find((L) => L.pinned && slotsOf(L)[0]);
@@ -358,10 +282,14 @@ function You({ c, onOpen }: { c: C; onOpen: (id: string) => void }) {
         ))}
       </View>
       {no1 && top && (
-        <Pressable onPress={() => onOpen(top.id)} style={[s.card, { backgroundColor: c['surface-1'], borderLeftColor: c.flare }]}>
+        <Pressable
+          onPress={() => (player.xid === no1.id ? player.toggle() : player.play(no1.id, { listId: top.id, view: 'mini' }))}
+          style={[s.card, { backgroundColor: c['surface-1'], borderLeftColor: c.flare }]}
+          accessibilityLabel={`Play ${no1.t}, your No. 1`}
+        >
           <Txt style={[s.label, { color: c['text-3'] }]}>Your No. 1</Txt>
           <Txt style={{ color: c.text, fontWeight: '800', textTransform: 'uppercase' }}>{no1.t}</Txt>
-          <Txt style={{ color: c['text-3'], fontSize: 12 }}>{no1.m}</Txt>
+          <Txt style={{ color: c['text-3'], fontSize: 12 }}>{no1.m} · plays in the bar</Txt>
         </Pressable>
       )}
       {people.length > 0 && (
@@ -396,7 +324,7 @@ const s = StyleSheet.create({
   btnText: { fontWeight: '800', fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.6, transform: [{ skewX: '12deg' }] },
   field: { height: size.field, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, borderWidth: 1, marginBottom: 6 },
   stat: { flex: 1, padding: 14, gap: 2 },
-  toast: { position: 'absolute', left: 20, right: 20, bottom: 96, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
+  toast: { position: 'absolute', left: 20, right: 20, bottom: 150, zIndex: 5, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
   bar: { flexDirection: 'row', borderTopWidth: 1 },
   tab: { flex: 1, height: 64, alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8 },
 });

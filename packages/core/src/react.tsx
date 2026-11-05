@@ -142,3 +142,5 @@ export function useSettings(): SettingsCtx {
   if (!s) throw new Error('useSettings outside SettingsProvider');
   return s;
 }
+
+export { PlayerProvider, usePlayer, type Player, type PlayerView } from './player';

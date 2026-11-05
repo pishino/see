@@ -8,3 +8,4 @@ export * from './type';
 export * from './avatar';
 export { PICTURE_LAYERS } from './picture';
 export * from './logobox';
+export * from './art';
