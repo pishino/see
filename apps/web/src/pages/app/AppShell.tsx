@@ -19,6 +19,7 @@ import { PlayerProvider, usePlayer } from './player';
 import { MiniPlayer, PlayerSheet } from './PlayerView';
 import { PersonDrawer, PersonView } from './PersonView';
 import { overOf } from './PersonLink';
+import { flushPending, usePending } from '../../data/pending';
 import { useOnline } from '../../lib/useOnline';
 import { useToast } from '../../components/Toast';
 import { useRef } from 'react';
@@ -55,10 +56,18 @@ export default function AppShell() {
   const online = useOnline();
   const toast = useToast();
   const wasOnline = useRef(online);
+  const pending = usePending();
   useEffect(() => {
-    if (online && !wasOnline.current) toast('Back online · your changes are saved');
+    if (online && !wasOnline.current) {
+      const n = flushPending();
+      toast(n ? `Back online · ${n} ${n === 1 ? 'change' : 'changes'} synced` : 'Back online');
+    }
     wasOnline.current = online;
   }, [online, toast]);
+  // the first change made offline says where it lives for now
+  useEffect(() => {
+    if (pending.changes === 1) toast('Saved on this device. It syncs when you’re back.');
+  }, [pending.changes, toast]);
   // Activity: a panel from the right over whatever you were doing; on phones, its own page
   const openActivity = useCallback(() => (phone ? navigate('/app/activity') : setActivity(true)), [phone, navigate]);
   useEffect(() => setActivity(false), [loc.pathname]);

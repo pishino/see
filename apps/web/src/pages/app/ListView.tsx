@@ -8,8 +8,9 @@ import { PlusBox } from '../../brand/marks';
 import { PlusField } from '../../brand/PlusField';
 import { ReadChip } from '../../components/controls';
 import { useToast } from '../../components/Toast';
+import { usePending } from '../../data/pending';
 import { useStore } from '../../data/store';
-import { BY_ID, COLS, KIND_PL, PEOPLE, PERIODS, belowTheLine, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, removeAt, search, slotsOf, titleOf, type Entry, type List } from '@see/core';
+import { BY_ID, COLS, KIND_PL, PEOPLE, PERIODS, belowTheLine, goneLine, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, removeAt, search, slotsOf, titleOf, type Entry, type List } from '@see/core';
 import { usePhone } from '../../lib/useMediaQuery';
 import { usePlayer } from './player';
 
@@ -67,6 +68,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
   const firstOpen = slots.indexOf(null);
   const [focus, setFocus] = useState(0);
   const player = usePlayer();
+  const waiting = usePending().waiting.get(L.id);
   const [menu, setMenu] = useState(false);
   const [sizeOpen, setSizeOpen] = useState(false);
   // the full table, then with the album dropped, then with the maker folded into the title's second line
@@ -254,6 +256,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
               data-focus={ix === focus && !drag}
               data-playing={isPlaying}
               data-dragging={isDrag}
+              data-gone={x.gone ? true : undefined}
               data-over={!!drag && !isDrag && ix === target && target < drag.from}
               style={{
                 ...gridVars,
@@ -265,9 +268,15 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
               <span className="t-rank lv-rank" style={{ color: rink }}>
                 {pad2(ix + 1)}
               </span>
-              <span className="t-move" aria-label={mv.aria} style={{ color: MOVE_INK[mv.tone] }}>
-                {mv.t}
-              </span>
+              {waiting?.has(xid) ? (
+                <span className="t-move lv-wait" aria-label="Waiting to sync">
+                  WAITING
+                </span>
+              ) : (
+                <span className="t-move" aria-label={mv.aria} style={{ color: MOVE_INK[mv.tone] }}>
+                  {mv.t}
+                </span>
+              )}
               <button
                 type="button"
                 className="lv-name"
@@ -289,7 +298,8 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
                 type="button"
                 className="icon-btn lv-play"
                 aria-pressed={isPlaying}
-                aria-label={`${isPlaying ? 'Pause' : 'Play'} ${x.t}`}
+                aria-label={x.gone ? `Play is off: ${goneLine(x)}` : `${isPlaying ? 'Pause' : 'Play'} ${x.t}`}
+                disabled={!!x.gone}
                 onClick={() => (player.xid === xid ? player.toggle() : player.play(xid, { listId: L.id, view: 'mini' }))}
               >
                 <Icon name={isPlaying ? 'pause' : 'play'} size={16} color={isPlaying ? 'var(--see-accent)' : 'var(--see-text-2)'} />
@@ -309,6 +319,12 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
               >
                 <Icon name="grip" size={20} />
               </button>
+              {x.gone && (
+                <span className="lv-gone">
+                  <span>{goneLine(x, ix + 1)}</span>
+                  <Link to={`/app/find?q=${encodeURIComponent(x.m)}`}>Find another</Link>
+                </span>
+              )}
             </div>
           );
         })}

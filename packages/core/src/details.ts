@@ -18,6 +18,12 @@ const SOURCE: Record<string, string> = {
   es: 'ESPN',
 };
 
+/** Removed at its source: it keeps its place on your list; play is off (V3ProblemStates, inline line). */
+export function goneLine(x: Entry, rank?: number): string | null {
+  if (!x.gone) return null;
+  return `Removed from ${SOURCE[x.gone] ?? x.gone}.${rank ? ` It keeps No. ${rank};` : ''} play is off.`;
+}
+
 /** "MUSIC VIDEO · 2023 · AFROBEATS" */
 export function kickerOf(x: Entry): string {
   return [KIND_WORD[x.k], x.y, x.g].filter(Boolean).join(' · ');

@@ -1357,3 +1357,38 @@
     transform: none;
   }
 }
+
+/* removed at its source (V3ProblemStates, inline line): it keeps its place; the line sits under it */
+.lv-row[data-gone] {
+  height: auto;
+  min-height: 56px;
+  padding-block: 8px 10px;
+  row-gap: 2px;
+}
+.lv-row[data-gone] .lv-name .t-row {
+  color: var(--see-text-3);
+}
+.lv-row[data-gone] .lv-play {
+  opacity: 0.35;
+}
+.lv-gone {
+  grid-column: 3 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--see-flare-soft);
+}
+.lv-gone a {
+  color: var(--see-text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.lv-wait {
+  color: var(--see-text-3);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+}

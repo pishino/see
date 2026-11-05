@@ -20,6 +20,8 @@ export interface Entry {
   src: string[];
   y: string;
   g: string;
+  /** removed at its source (a source key): it keeps its place, play is off */
+  gone?: string;
 }
 
 export interface Category {

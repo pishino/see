@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useMatch } from 'react-router-dom';
+import { useMatch, useSearchParams } from 'react-router-dom';
 import { Icon } from '../../brand/Icon';
 import { PlusBox } from '../../brand/marks';
 import { useToast } from '../../components/Toast';
@@ -133,7 +133,8 @@ export function FindPill() {
 
 /** Phones: Find is its own tab. */
 export function FindView() {
-  const [q, setQ] = useState('');
+  const [params] = useSearchParams();
+  const [q, setQ] = useState(() => params.get('q') ?? '');
   const results = useMemo(() => search(q), [q]);
   const store = useStore();
   const addTo = useAddTo();
