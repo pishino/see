@@ -728,6 +728,7 @@ function Services() {
                       <Button
                         size="sm"
                         variant="quiet"
+                        aria-label={`${n}, connected. Reads ${c?.reads ?? ''}. Disconnect`}
                         onClick={() => {
                           set('conn', { ...settings.conn, [n]: false });
                           set('lastConn', n);

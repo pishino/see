@@ -70,10 +70,22 @@ export function Legal({ doc }: { doc: 'terms' | 'privacy' }) {
           <span className="t-label">Updated {d.updated}</span>
           <h1 className="t-hero">{d.title}</h1>
           <p className="lg-intro">{d.intro}</p>
+          {d.short && (
+            <section aria-labelledby="short-h" style={{ background: 'var(--see-surface-1)', padding: '16px 20px' }}>
+              <h2 id="short-h" className="t-label">
+                The short version
+              </h2>
+              <ul style={{ margin: '10px 0 0', paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {d.short.map((x) => (
+                  <li key={x}>{x}</li>
+                ))}
+              </ul>
+            </section>
+          )}
           {d.sections.map((s) => (
             <section key={s.id} id={s.id} aria-labelledby={`${s.id}-h`}>
               <h2 id={`${s.id}-h`} className="t-title">
-                {s.h}
+                {d.sections.indexOf(s) + 1} · {s.h}
               </h2>
               {s.p.map((p, i) => (
                 <p key={i}>{p}</p>

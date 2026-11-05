@@ -355,7 +355,7 @@ export function MiniPlayer() {
   const pct = p.duration ? (p.t / p.duration) * 100 : 0;
   const pic = isVideo(x) && !phone;
   return (
-    <div className="pl-dock" role="region" aria-label="Now playing">
+    <div className="pl-dock" role="region" aria-label={`Now playing: ${x.t}${x.m ? ` by ${x.m}` : ''}, ${clock(p.t)} of ${clock(p.duration)}`}>
       {pic && (
         <button type="button" className="pl-dock__pic" onClick={() => p.setView('sheet')} aria-label={`Make ${x.t} bigger`}>
           <Picture xid={x.id} className="pl-dock__img" />

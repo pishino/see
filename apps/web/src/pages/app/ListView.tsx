@@ -53,6 +53,7 @@ export function ListView({ onNewList }: { onNewList: () => void }) {
 function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
   const store = useStore();
   const toast = useToast();
+  const navigate = useNavigate();
   const phone = usePhone();
   const siblings = store.listsIn(L.cat);
   const kind = kindOf(L);
@@ -199,6 +200,41 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
                   >
                     <Icon name="list" size={16} /> Size: top {L.n}
                   </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      store.replaceList({ ...L, poll: !L.poll });
+                      setMenu(false);
+                      toast(L.poll ? 'Not a poll any more' : `${L.name} is a poll: people vote, your list stays yours`);
+                    }}
+                  >
+                    <Icon name="poll" size={16} /> {L.poll ? 'Stop the poll' : 'Make it a poll'}
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setMenu(false);
+                      setPeopleOpen(true);
+                    }}
+                  >
+                    <Icon name="person" size={16} /> Invite people
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    style={{ color: 'var(--see-flare-soft)' }}
+                    onClick={() => {
+                      const kept = L;
+                      setMenu(false);
+                      store.dispatch({ type: 'removeList', id: L.id });
+                      navigate('/app');
+                      toast(`${kept.name} deleted`, () => store.dispatch({ type: 'addList', list: kept }));
+                    }}
+                  >
+                    <Icon name="trash" size={16} /> Delete
+                  </button>
                 </div>
               )}
             </div>
@@ -280,7 +316,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
                   setFocus(ix);
                   player.play(xid, { listId: L.id, view: 'sheet' });
                 }}
-                aria-label={`No. ${ix + 1}: ${x.t}, ${makerOf(x)}. Open`}
+                aria-label={`No. ${ix + 1}, ${x.t}${x.m && !x.own ? ` by ${x.m}` : ''}, ${mv.aria}. Opens details.`}
               >
                 <span className="t-row">{x.t}</span>
                 <span className="t-meta lv-second">{makerOf(x)}</span>
@@ -303,7 +339,7 @@ function ListBody({ L, onNewList }: { L: List; onNewList: () => void }) {
               <button
                 type="button"
                 className="lv-grip"
-                aria-label={`Move ${x.t}: drag, or use the arrow keys. Delete takes it off`}
+                aria-label={`Drag ${x.t}. Space to lift, arrows to move. Delete takes it off.`}
                 onPointerDown={(e) => onGripDown(e, ix)}
                 onPointerMove={onGripMove}
                 onPointerUp={onGripUp}

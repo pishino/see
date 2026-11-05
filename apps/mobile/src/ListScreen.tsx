@@ -256,6 +256,18 @@ export function ListScreen({ id, c }: { id: string; c: C }) {
               setMenu(null);
             }],
             [`Size: top ${L.n}`, () => setMenu('size')],
+            [L.poll ? 'Stop the poll' : 'Make it a poll', () => {
+              store.replaceList({ ...L, poll: !L.poll });
+              nav.say(L.poll ? 'Not a poll any more' : `${L.name} is a poll: people vote, your list stays yours`);
+              setMenu(null);
+            }],
+            ['Delete', () => {
+              const kept = L;
+              setMenu(null);
+              store.dispatch({ type: 'removeList', id: L.id });
+              nav.pop();
+              nav.say(`${kept.name} deleted. Undo is in Charts’ menu soon`);
+            }],
           ] as [string, () => void][]
         ).map(([t, f]) => (
           <Pressable key={t} onPress={f} accessibilityRole="menuitem" style={{ minHeight: 48, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor: c['surface-2'] }}>

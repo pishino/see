@@ -22,6 +22,7 @@ import { MakerPage, MakerView, OverDrawer, PanelView, TheirListView } from './Pa
 import { overOf } from './PersonLink';
 import { OurSide } from '../../components/OurSide';
 import { Launch } from '../../components/Launch';
+import { useSpot } from '../../components/Ads';
 import { TabSync } from './TabSync';
 import { flushPending, usePending } from '../../data/pending';
 import { useOnline } from '../../lib/useOnline';
@@ -142,8 +143,30 @@ export default function AppShell() {
 /** The player: the sheet over everything, or minimised; nothing when nothing plays. */
 function PlayerLayer() {
   const p = usePlayer();
+  const resume = useRef(false);
+  const spot = useSpot(useCallback(() => {
+    if (resume.current) p.toggle();
+    resume.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [p.toggle]));
+  // between previews only: when one ends and autoplay brings the next, never inside a preview
+  const prev = useRef({ xid: p.xid, ended: false });
+  useEffect(() => {
+    const was = prev.current;
+    if (p.xid && was.xid && p.xid !== was.xid && was.ended && p.playing && spot.start()) {
+      resume.current = true;
+      p.toggle();
+    }
+    prev.current = { xid: p.xid, ended: p.duration > 0 && p.t >= p.duration - 0.3 };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [p.xid, p.t]);
   if (!p.xid) return null;
-  return p.view === 'sheet' ? <PlayerSheet /> : <MiniPlayer />;
+  return (
+    <>
+      {p.view === 'sheet' ? <PlayerSheet /> : <MiniPlayer />}
+      {spot.view}
+    </>
+  );
 }
 
 /** Wide screens: Activity is a panel from the right; close it and you are back. */
@@ -207,7 +230,7 @@ function BottomNav({ onCreate }: { onCreate: () => void }) {
         <Icon name="poll" size={22} />
         <span>Polls</span>
       </NavLink>
-      <button type="button" onClick={onCreate} aria-label="Create: a category, a list or a poll" aria-haspopup="dialog">
+      <button type="button" onClick={onCreate} aria-label="Make something new: a list, a category or a poll." aria-haspopup="dialog">
         <PlusBox height={35} />
       </button>
       <NavLink to="/app/find">

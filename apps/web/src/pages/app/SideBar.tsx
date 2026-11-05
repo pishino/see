@@ -253,7 +253,7 @@ export function SideBar({ category, onCreate, shell }: { category: string; onCre
             <span className="t-foot">@joey</span>
           </span>
         </button>
-        <button type="button" className="bb side-create" onClick={onCreate} aria-label="Create: a category, a list or a poll" aria-haspopup="dialog">
+        <button type="button" className="bb side-create" onClick={onCreate} aria-label="Make something new: a list, a category or a poll." aria-haspopup="dialog">
           <PlusBox height={30} />
         </button>
       </div>

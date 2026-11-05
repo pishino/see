@@ -583,6 +583,11 @@
   flex-shrink: 0;
   overflow: hidden;
 }
+/* The list header holds the actions menu, which hangs below it. */
+.lv-hdr {
+  overflow: visible;
+  z-index: 4;
+}
 .hdr__shade {
   position: absolute;
   inset: 0;

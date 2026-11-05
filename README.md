@@ -75,8 +75,16 @@ phones in the native apps (`shellFor` and `gutterFor` in `@see/tokens`).
 
 ## Not built yet
 
-The player and video player, profiles of other people and groups, safety (report and block), emails,
-integrations (Reddit, Discord, embeds), ads, socials and the problem states. The iOS and Android apps (see
-`docs/platforms.md` for the plan). The canvas still lists three open choices: whether see goes inside the + box
-in the app (V3Masthead), whether flare is offered as an appearance (V3FlareMode), and how video plays
-(V3VideoPlayer).
+Everything on the boards is built on the web, and the phone apps carry the same screens. What's left needs a
+server, which this repo doesn't have yet:
+
+- Accounts. Sign-up, log-in and the email code work in the browser, and each device keeps its own lists.
+  Nothing syncs between devices or people.
+- The crowd on the web. Shared links, embeds and the published chart count picks from the link itself; the
+  Reddit app and the Discord bot keep a real crowd in their own storage.
+- Sending push and email. The phone apps ask for push and register a token, and `@see/core` builds the
+  messages (`deliver`, `sendExpo`); `@see/emails` renders all six emails. Something has to send them.
+- Selling ads. The ad spaces, tags and the sponsored poll are in place with sample sponsors.
+- Posting to X for you. X's API is paid, so sharing to X opens its composer with the text and link.
+
+The boards marked Earlier on the canvas are kept for reference and weren't built.

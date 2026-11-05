@@ -673,6 +673,7 @@ export default function Landing() {
     };
   };
 
+  const [choosing, setChoosing] = useState(false);
   const decideCookies = (v: string, text: string) => {
     try {
       localStorage.setItem(COOKIE_KEY, v);
@@ -982,7 +983,9 @@ export default function Landing() {
           <span>Help</span>
           <Link to="/terms">Terms</Link>
           <Link to="/privacy">Privacy</Link>
-          <span>Cookies</span>
+          <button type="button" onClick={() => setChoosing(true)} style={{ border: 0, background: 'transparent', padding: 0, color: 'inherit', font: 'inherit', fontWeight: 600, cursor: 'pointer' }}>
+            Cookies
+          </button>
         </span>
         <span className="lo-fc">
           <Flag name={country} width={22} />
@@ -991,7 +994,16 @@ export default function Landing() {
         <span className="t-meta">© 2026 See</span>
       </footer>
 
-      {(cookie === 'open' || cookie === 'min') && (
+      {choosing && (
+        <CookieChoice
+          onClose={() => setChoosing(false)}
+          onSave={(v) => {
+            setChoosing(false);
+            decideCookies(v, 'Saved. Change it any time: Cookies, at the foot of every page.');
+          }}
+        />
+      )}
+            {(cookie === 'open' || cookie === 'min') && (
         <div className="lp-ck" role="region" aria-label="Cookies">
           {cookie === 'min' ? (
             <button type="button" className="lp-ck__tab" onClick={() => setCookie('open')}>
@@ -1009,7 +1021,7 @@ export default function Landing() {
                 <button type="button" className="lp-ck__n" onClick={() => decideCookies('need', 'Only what See needs')}>
                   Only needed
                 </button>
-                <button type="button" className="lp-ck__c" onClick={() => decideCookies('need', 'Only what See needs, for now')}>
+                <button type="button" className="lp-ck__c" onClick={() => setChoosing(true)}>
                   Choose
                 </button>
               </div>
@@ -1021,3 +1033,43 @@ export default function Landing() {
   );
 }
 
+
+/** What See may keep (V3Legal): needed is always on; measure and personal ads only if you say so. One Save. */
+function CookieChoice({ onClose, onSave }: { onClose: () => void; onSave: (v: string) => void }) {
+  const saved = (() => {
+    try {
+      return localStorage.getItem(COOKIE_KEY) ?? 'need';
+    } catch {
+      return 'need';
+    }
+  })();
+  const [measure, setMeasure] = useState(saved === 'all' || saved.includes('measure'));
+  const [ads, setAds] = useState(saved === 'all' || saved.includes('ads'));
+  const row = (title: string, sub: string, on: boolean, set?: (v: boolean) => void) => (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '14px 0', borderBottom: '1px solid var(--see-surface-2)' }}>
+      <span>
+        <b>{title}</b>
+        <span style={{ display: 'block', fontSize: 12.5, color: 'var(--see-text-3)' }}>{sub}</span>
+      </span>
+      <button type="button" role="switch" className="switch" aria-checked={on} aria-label={title} disabled={!set} onClick={() => set?.(!on)} />
+    </div>
+  );
+  return (
+    <>
+      <div onClick={onClose} aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 90, background: 'rgba(11,15,14,0.66)' }} />
+      <div role="dialog" aria-modal="true" aria-label="What See may keep" style={{ position: 'fixed', right: 0, top: 0, bottom: 0, zIndex: 91, width: 'min(460px, 100%)', background: 'var(--see-surface-1)', padding: 28, display: 'flex', flexDirection: 'column', gap: 6, overflowY: 'auto' }}>
+        <span className="t-label">Cookies</span>
+        <h2 className="t-hero" style={{ fontSize: 28 }}>
+          What See may keep
+        </h2>
+        {row('Needed', 'Sign-in and your settings. Always on.', true)}
+        {row('Measure', 'Counts visits, never who you are.', measure, setMeasure)}
+        {row('Personal ads', 'Ads that follow you to other pages.', ads, setAds)}
+        <button type="button" className="btn" style={{ alignSelf: 'flex-start', marginTop: 14 }} onClick={() => onSave(measure && ads ? 'all' : ['need', measure && 'measure', ads && 'ads'].filter(Boolean).join('+'))}>
+          Save
+        </button>
+        <span style={{ fontSize: 12, color: 'var(--see-text-3)' }}>Change it any time: Cookies, at the foot of every page.</span>
+      </div>
+    </>
+  );
+}

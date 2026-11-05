@@ -31,6 +31,7 @@ import {
 import { useSettings } from '@see/core/react';
 import { PlusBox } from '../../brand/marks';
 import { Button } from '../../components/Button';
+import { AdTag, useAd } from '../../components/Ads';
 import { useToast } from '../../components/Toast';
 import { useStore } from '../../data/store';
 import { usePhone } from '../../lib/useMediaQuery';
@@ -53,7 +54,8 @@ export function PollsView({ onNew }: { category?: string; onNew?: (name?: string
   const [tab, setTab] = useState<PollTab>('play');
   const [view, setView] = useState<'home' | 'make' | 'play'>('home');
   const [pid, setPid] = useState<string | null>(null);
-  const p = all.find((x) => x.id === pid) ?? null;
+  const [sponsored, setSponsored] = useState<PollDef | null>(null);
+  const p = all.find((x) => x.id === pid) ?? (sponsored?.id === pid ? sponsored : null);
 
   const open = (x: PollDef) => {
     setPid(x.id);
@@ -87,6 +89,7 @@ export function PollsView({ onNew }: { category?: string; onNew?: (name?: string
             </button>
           ))}
         </div>
+        {tab === 'play' && <SponsoredPoll onOpen={(x) => (setPid(x.id), setView('play'), setSponsored(x))} />}
         {groups[tab].map((x) => {
           const c = pollCard(x, gameOf(x, games));
           return (
@@ -263,7 +266,7 @@ function PlayPoll({ p, game, others, games, onOpen, onNext, onBack, phone }: { p
           {VOTE_SAYS(wait)}
         </p>
       )}
-      <div className="pv-duel">
+      <div className="pv-duel" role="group" aria-label={done ? `Your winner: ${game.winner !== null ? p.items[game.winner][0] : ''}` : `${game.mode === 'pairs' ? `Round ${game.roundNo}` : 'One stays'}, ${left} left: ${pr[0] !== null ? p.items[pr[0]][0] : ''} against ${pr[1] !== null ? p.items[pr[1]][0] : ''}`}>
         {unplayedClosed ? (
           <div className="pv-step">
             <p className="dlg-p">This poll is closed. Here’s how it ended.</p>
@@ -561,5 +564,25 @@ function MakePoll({ onCancel, onMade }: { onCancel: () => void; onMade: (p: Poll
         </Button>
       </span>
     </div>
+  );
+}
+
+/** A sponsored poll (V3Ads): a poll like any other, tagged AD in grey; it never moves anyone's chart. */
+function SponsoredPoll({ onOpen }: { onOpen: (p: PollDef) => void }) {
+  const ad = useAd('poll', { cat: 'MUSIC' });
+  if (!ad) return null;
+  const p: PollDef = { id: `ad-${ad.id}`, q: ad.line, cat: 'MUSIC', mode: 'stay', by: ad.name, ends: 'A week left', items: [['Ember', 'Ola Dara'], ['Northline', 'Ola Dara'], ['Slow Burn', 'Ola Dara'], ['Harbour Lights', 'Ola Dara']] };
+  return (
+    <button type="button" className="pv-card" onClick={() => onOpen(p)} aria-label={`Advertisement. ${p.q}`}>
+      <span className="pv-kick" style={{ color: 'var(--see-text-3)' }}>
+        <span>
+          <AdTag /> {ad.name}
+        </span>
+        <span>{p.ends}</span>
+      </span>
+      <b>{p.q}</b>
+      <span className="t-meta">{p.items.length} in it · One stays · sponsored</span>
+      <span className="pv-act">Play</span>
+    </button>
   );
 }
