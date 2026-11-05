@@ -71,8 +71,12 @@ Android's back steps out one level. Lists and settings live in AsyncStorage unde
 - App icon: `packages/brand/icons/png/app-store-1024.png` (iOS) and `google-play-512.png` (Android adaptive
   foreground), set in `app.json`.
 
-Next for the phones, in order: asking the phone for push permission when a push switch goes on
-(expo-notifications); the open slot's type-to-find; scrolling while you drag near an edge;
-push with the copy in `@see/core` (`compose`, `NOTIFICATIONS`), each opening its
-`see://` link through `routeOf`; the Plus field as a Skia canvas. Reduced motion: the OS setting and
+Also on the phones: sign up (what you rank, the code, what you link, your first list) and log in on the flare
+flood; Create from the + in the bar (See files the name, as on the web); a category's page; Activity behind the
+bell; every person's page with Follow, report and block; a list's ··· (pin, share, size) and type-to-find in its
+first open place; push permission asked the first time a push switch goes on, with Open settings if the phone
+said no; `see://` links; and the offline banner.
+
+Next for the phones: scrolling while you drag near an edge, and real push delivery (a token sent to a server).
+Reduced motion: the OS setting and
 Settings › Display both drop every duration to 1 ms, as on the web.

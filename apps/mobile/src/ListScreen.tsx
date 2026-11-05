@@ -4,13 +4,15 @@
  * tap play for the bar. Screen readers get Move up and Move down on the grip.
  */
 import { useEffect, useRef, useState } from 'react';
-import { PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { PanResponder, Pressable, ScrollView, Share, StyleSheet, TextInput, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { BY_ID, filledCount, makerOf, moveEntry, moveOf, pad2, slotsOf } from '@see/core';
+import { BY_ID, SIZE_STOPS, belowTheLine, filledCount, goneLine, kindFor, kindOf, makerOf, moveEntry, moveOf, pad2, placeAt, search, slotsOf, type List } from '@see/core';
 import { usePlayer, useStore } from '@see/core/react';
 import { size } from '@see/tokens';
 import { CategoryTag, Icon } from './marks';
 import { PlayGlyph } from './Player';
+import { useNav } from './nav';
+import { Sheet } from './Sheet';
 import type { C } from './theme';
 import { Txt } from './type';
 
@@ -55,8 +57,11 @@ function Grip({ label, c, onStart, onMove, onEnd, onStep }: { label: string; c: 
   );
 }
 
-export function ListScreen({ id, c, onBack }: { id: string; c: C; onBack: () => void }) {
+export function ListScreen({ id, c }: { id: string; c: C }) {
   const store = useStore();
+  const nav = useNav();
+  const onBack = nav.pop;
+  const [menu, setMenu] = useState<'menu' | 'size' | null>(null);
   const player = usePlayer();
   const L = store.list(id);
   const [drag, setDrag] = useState<{ from: number; dy: number } | null>(null);
@@ -95,16 +100,23 @@ export function ListScreen({ id, c, onBack }: { id: string; c: C; onBack: () => 
   };
 
   return (
-    <ScrollView scrollEnabled={!drag} contentContainerStyle={{ paddingTop: 12, paddingBottom: 40 }}>
+    <View style={{ flex: 1 }}>
+    <ScrollView scrollEnabled={!drag} keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingTop: 12, paddingBottom: 40 }}>
       <View style={{ paddingHorizontal: size['gutter-phone'], gap: 10, paddingBottom: 14 }}>
-        <Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel="Back" style={{ width: 44, height: 44, justifyContent: 'center' }}>
-          <Icon name="back" size={22} color={c.text} />
-        </Pressable>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Pressable onPress={onBack} accessibilityRole="button" accessibilityLabel="Back" style={{ width: 44, height: 44, justifyContent: 'center' }}>
+            <Icon name="back" size={22} color={c.text} />
+          </Pressable>
+          <Pressable onPress={() => setMenu('menu')} accessibilityRole="button" accessibilityLabel={`More for ${L.name}`} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="dots" size={20} color={c['text-2']} />
+          </Pressable>
+        </View>
         <CategoryTag name={store.categories.find((x) => x.id === L.cat)?.name ?? L.cat} height={18} color={c.flare} />
         <Txt style={{ color: c.text, fontSize: 34, fontWeight: '900', textTransform: 'uppercase', lineHeight: 34 }}>{L.name}</Txt>
       </View>
       <View>
         {slots.map((xid, ix) => {
+          if (!xid && ix === slots.indexOf(null) && !drag) return <SlotFind key={`open-${ix}`} L={L} ix={ix} c={c} />;
           if (!xid) {
             return (
               <View key={`open-${ix}`} style={[s.row, { borderBottomColor: c['surface-1'] }]}>
@@ -151,8 +163,8 @@ export function ListScreen({ id, c, onBack }: { id: string; c: C; onBack: () => 
                 <Txt numberOfLines={1} style={{ color: off ? c['text-3'] : c.text, fontSize: 15, fontWeight: '700', textTransform: 'uppercase' }}>
                   {x.t}
                 </Txt>
-                <Txt numberOfLines={1} style={{ color: c['text-3'], fontSize: 12 }}>
-                  {makerOf(x)}
+                <Txt numberOfLines={1} style={{ color: x.gone ? c['flare-soft'] : c['text-3'], fontSize: 12 }}>
+                  {x.gone ? goneLine(x, ix + 1) : makerOf(x)}
                 </Txt>
               </Pressable>
               <Pressable
@@ -189,6 +201,105 @@ export function ListScreen({ id, c, onBack }: { id: string; c: C; onBack: () => 
         {filledCount(L)} of {L.n} · saved as you go
       </Txt>
     </ScrollView>
+    {menu === 'menu' && (
+      <Sheet c={c} onClose={() => setMenu(null)} label={`More for ${L.name}`}>
+        {(
+          [
+            [L.pinned ? 'Unpin from Charts' : 'Pin to Charts', () => {
+              store.togglePin(L.id);
+              nav.say(L.pinned ? 'Unpinned' : 'Pinned to Charts');
+              setMenu(null);
+            }],
+            ['Share the list', () => {
+              Share.share({ message: `${L.name} on See: see://list/${L.id}` }).catch(() => {});
+              setMenu(null);
+            }],
+            [`Size: top ${L.n}`, () => setMenu('size')],
+          ] as [string, () => void][]
+        ).map(([t, f]) => (
+          <Pressable key={t} onPress={f} accessibilityRole="menuitem" style={{ minHeight: 48, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor: c['surface-2'] }}>
+            <Txt style={{ color: c.text, fontSize: 15, fontWeight: '600' }}>{t}</Txt>
+          </Pressable>
+        ))}
+      </Sheet>
+    )}
+    {menu === 'size' && (
+      <Sheet c={c} onClose={() => setMenu(null)} label="Size">
+        <Txt style={{ color: c['text-3'], fontSize: 11, fontWeight: '600', letterSpacing: 1.2 }}>SIZE</Txt>
+        {SIZE_STOPS.map((n) => (
+          <Pressable
+            key={n}
+            accessibilityRole="radio"
+            aria-checked={L.n === n}
+            onPress={() => {
+              const cut = belowTheLine({ ...L, n });
+              store.setSize(L.id, n);
+              setMenu(null);
+              nav.say(cut ? `Top ${n}: ${cut} below the line` : `Top ${n}`);
+            }}
+            style={{ minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: c['surface-2'] }}
+          >
+            <Txt style={{ color: L.n === n ? c.text : c['text-2'], fontSize: 15, fontWeight: L.n === n ? '800' : '600' }}>Top {n}</Txt>
+            {L.n === n && <Icon name="check" size={14} color={c.flare} />}
+          </Pressable>
+        ))}
+      </Sheet>
+    )}
+    </View>
+  );
+}
+
+/** The first open place: type to find it; nothing matches, and it is yours to add. */
+function SlotFind({ L, ix, c }: { L: List; ix: number; c: C }) {
+  const store = useStore();
+  const nav = useNav();
+  const [q, setQ] = useState('');
+  const results = q.trim() ? search(q, kindOf(L)).filter((x) => !L.items.includes(x.id)).slice(0, 5) : [];
+  const put = (xid: string, t: string) => {
+    const r = placeAt(L, ix, xid);
+    if ('already' in r) return nav.say(`Already on ${L.name}`);
+    store.replaceList(r.list);
+    nav.say(r.below ? `Below the line on ${L.name}` : `${t} in at No. ${r.at + 1}`);
+    setQ('');
+  };
+  return (
+    <View>
+      <View style={[s.row, { borderBottomColor: c['surface-1'] }]}>
+        <Txt style={[s.rank, { color: c['flare-soft'] }]}>{pad2(ix + 1)}</Txt>
+        <TextInput
+          value={q}
+          onChangeText={setQ}
+          placeholder={`Type to find No. ${ix + 1}`}
+          placeholderTextColor={c['text-3']}
+          accessibilityLabel={`Find No. ${ix + 1}`}
+          autoCorrect={false}
+          style={{ flex: 1, height: '100%', color: c.text, fontSize: 15, fontFamily: 'InstrumentSans_400Regular' }}
+        />
+        <Icon name="search" size={14} color={c['text-3']} />
+      </View>
+      {results.map((x) => (
+        <Pressable key={x.id} onPress={() => put(x.id, x.t)} style={{ paddingLeft: 58, paddingVertical: 10, backgroundColor: c['surface-1'], borderBottomWidth: 1, borderBottomColor: c['surface-2'] }} accessibilityLabel={`Put ${x.t} at No. ${ix + 1}`}>
+          <Txt style={{ color: c.text, fontWeight: '800', fontSize: 14, textTransform: 'uppercase' }}>{x.t}</Txt>
+          <Txt style={{ color: c['text-3'], fontSize: 12 }}>
+            {makerOf(x)}
+            {x.y ? ` · ${x.y}` : ''}
+          </Txt>
+        </Pressable>
+      ))}
+      {q.trim().length > 1 && results.length === 0 && (
+        <Pressable
+          onPress={() => {
+            const x = store.addOwn(q, kindFor(L, store.categories.find((k) => k.id === L.cat)?.name));
+            put(x.id, x.t);
+          }}
+          style={{ paddingLeft: 58, paddingVertical: 10, backgroundColor: c['surface-1'] }}
+          accessibilityRole="button"
+        >
+          <Txt style={{ color: c.text, fontWeight: '800', fontSize: 14 }}>Add “{q.trim()}”</Txt>
+          <Txt style={{ color: c['text-3'], fontSize: 12 }}>Nothing matches. Rank it as your own; you can link a source later.</Txt>
+        </Pressable>
+      )}
+    </View>
   );
 }
 

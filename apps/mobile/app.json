@@ -8,11 +8,28 @@
     "userInterfaceStyle": "automatic",
     "icon": "../../packages/brand/icons/png/app-store-1024.png",
     "backgroundColor": "#0B0F0E",
-    "splash": { "backgroundColor": "#0B0F0E", "resizeMode": "contain" },
-    "ios": { "bundleIdentifier": "app.see.ios", "supportsTablet": true },
+    "splash": {
+      "backgroundColor": "#0B0F0E",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "bundleIdentifier": "app.see.ios",
+      "supportsTablet": true
+    },
     "android": {
       "package": "app.see.android",
-      "adaptiveIcon": { "foregroundImage": "../../packages/brand/icons/png/google-play-512.png", "backgroundColor": "#0B0F0E" }
-    }
+      "adaptiveIcon": {
+        "foregroundImage": "../../packages/brand/icons/png/google-play-512.png",
+        "backgroundColor": "#0B0F0E"
+      }
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#FF4A1C"
+        }
+      ]
+    ]
   }
 }

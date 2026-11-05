@@ -5,9 +5,12 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BackHandler, Platform, Pressable, ScrollView, StyleSheet, TextInput, View, type TextStyle } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNetInfo } from '@react-native-community/netinfo';
+import * as Linking from 'expo-linking';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { BY_ID, POLLS, PEOPLE, addToList, filledCount, listSummary, makerOf, search, slotsOf, type List } from '@see/core';
+import { BY_ID, POLLS, PEOPLE, SEED_ACTIVITY, addToList, filledCount, listSummary, makerOf, search, slotsOf, type List } from '@see/core';
 import { PlayerProvider, SettingsProvider, StoreProvider, usePlayer, useSettings, useStore } from '@see/core/react';
 import { size } from '@see/tokens';
 import { CategoryTag, Icon, PlusBox, Wordmark, type IconName } from './marks';
@@ -18,9 +21,13 @@ import { ListScreen } from './ListScreen';
 import { MiniPlayer, PlayerSheet } from './Player';
 import { useColors, type C } from './theme';
 import { ProfilePicture } from './ProfilePicture';
-import { SettingsScreen, type SettingsPage } from './Settings';
+import { SettingsScreen } from './Settings';
+import { Auth } from './Auth';
+import { NavCtx, useNav, type Nav, type Route, type Tab } from './nav';
+import { ActivityScreen, Button, CategoryScreen, CreateSheet, PersonScreen, useFollowLink } from './Screens';
 
-type Tab = 'charts' | 'polls' | 'find' | 'you';
+const SESSION = 'see.session.v1';
+const SEEN = 'see.activity.seen';
 
 export default function App() {
   return (
@@ -28,7 +35,7 @@ export default function App() {
       <SettingsProvider storage={nativeSettings}>
         <StoreProvider storage={nativeStorage}>
           <PlayerProvider>
-            <Shell />
+            <Root />
           </PlayerProvider>
         </StoreProvider>
       </SettingsProvider>
@@ -36,111 +43,199 @@ export default function App() {
   );
 }
 
-function Shell() {
+/** Signed in, the app; signed out, sign up or log in. The launch plays over whichever opens. */
+function Root() {
   const fonts = useBrandFonts();
   const { c, dark } = useColors();
   const { settings } = useSettings();
-  const player = usePlayer();
-  const [tab, setTab] = useState<Tab>('charts');
-  const [open, setOpen] = useState<string | null>(null);
-  const [page, setPage] = useState<SettingsPage | null>(null);
-  // Android's back steps out one level: a legal page to Help, a section to Settings, Settings or a list to the tabs
-  const here = useRef({ open, page });
-  here.current = { open, page };
+  const [session, setSession] = useState<'wait' | 'in' | 'out'>('wait');
   useEffect(() => {
-    if (Platform.OS !== 'android') return;
-    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      const { open: o, page: pg } = here.current;
-      if (o) setOpen(null);
-      else if (pg === 'terms' || pg === 'privacy') setPage('help');
-      else if (pg && pg !== 'home') setPage('home');
-      else if (pg) setPage(null);
-      else return false;
-      return true;
-    });
-    return () => sub.remove();
+    AsyncStorage.getItem(SESSION).then(
+      (v) => setSession(v === 'in' ? 'in' : 'out'),
+      () => setSession('out'),
+    );
   }, []);
+  const signIn = () => {
+    setSession('in');
+    AsyncStorage.setItem(SESSION, 'in').catch(() => {});
+  };
+  const signOut = () => {
+    setSession('out');
+    AsyncStorage.removeItem(SESSION).catch(() => {});
+  };
+  return (
+    <View style={{ flex: 1, backgroundColor: c.bg }}>
+      <StatusBar style={session === 'out' ? 'dark' : dark ? 'light' : 'dark'} />
+      {fonts && session === 'in' && <Shell onSignOut={signOut} />}
+      {fonts && session === 'out' && <Auth onIn={signIn} />}
+      <Launch bg={c.bg} flare={c.flare} reduce={settings.reduceMotion} />
+    </View>
+  );
+}
+
+function Shell({ onSignOut }: { onSignOut: () => void }) {
+  const { c } = useColors();
+  const player = usePlayer();
+  const [tab, setTabState] = useState<Tab>('charts');
+  const [stack, setStack] = useState<Route[]>([]);
+  const [creating, setCreating] = useState<{ name: string; cat?: string } | null>(null);
+  const [seen, setSeen] = useState(true);
   const [note, setNote] = useState('');
+  const top = stack[stack.length - 1];
   const say = (t: string) => {
     setNote(t);
     setTimeout(() => setNote((n) => (n === t ? '' : n)), 4000);
   };
-  const violet = tab === 'polls';
+  useEffect(() => {
+    AsyncStorage.getItem(SEEN).then((v) => setSeen(v === '1'), () => {});
+  }, []);
+  const nav = useMemo<Nav>(
+    () => ({
+      push: (r) => {
+        if (r.k === 'activity') {
+          setSeen(true);
+          AsyncStorage.setItem(SEEN, '1').catch(() => {});
+        }
+        // settings move within themselves; everything else stacks
+        setStack((st) => (r.k === 'settings' && st[st.length - 1]?.k === 'settings' ? [...st.slice(0, -1), r] : [...st, r]));
+      },
+      pop: () => setStack((st) => st.slice(0, -1)),
+      tab: (t) => {
+        setTabState(t);
+        setStack([]);
+      },
+      create: (name = '', cat) => setCreating({ name, cat }),
+      say,
+      signOut: onSignOut,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onSignOut],
+  );
+
+  // Android's back steps out one level: a legal page to Help, a section to Settings, any other page off the stack
+  const here = useRef(stack);
+  here.current = stack;
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      const t = here.current[here.current.length - 1];
+      if (!t) return false;
+      if (t.k === 'settings' && (t.page === 'terms' || t.page === 'privacy')) nav.push({ k: 'settings', page: 'help' });
+      else if (t.k === 'settings' && t.page !== 'home') nav.push({ k: 'settings', page: 'home' });
+      else nav.pop();
+      return true;
+    });
+    return () => sub.remove();
+  }, [nav]);
+
+  // see:// links (a notification, a shared list, someone's page) open where they point
+  const url = Linking.useLinkingURL();
+  const followLink = useRef<(l: string) => void>(() => {});
+  useEffect(() => {
+    if (url && url.startsWith('see://')) followLink.current(url);
+  }, [url]);
+
+  // offline is a condition, not a dead end: a quiet banner, and one toast when you're back
+  const net = useNetInfo();
+  const offline = net.isConnected === false;
+  const was = useRef(offline);
+  useEffect(() => {
+    if (was.current && !offline) say('Back online · your changes are saved');
+    was.current = offline;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offline]);
+
+  const unread = seen ? 0 : SEED_ACTIVITY.filter((a) => a.unread).length;
+  const violet = tab === 'polls' && !top;
   const accent = violet ? c.violet : c.flare;
-  if (!fonts) return <View style={{ flex: 1, backgroundColor: c.bg }} />;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={['top', 'left', 'right']}>
-      <StatusBar style={dark ? 'light' : 'dark'} />
-      <View style={{ flex: 1 }}>
-        {open ? (
-          <ListScreen id={open} c={c} onBack={() => setOpen(null)} />
-        ) : page ? (
-          <SettingsScreen page={page} go={setPage} onClose={() => setPage(null)} c={c} say={say} />
-        ) : tab === 'charts' ? (
-          <Charts c={c} onOpen={setOpen} />
-        ) : tab === 'polls' ? (
-          <Polls c={c} />
-        ) : tab === 'find' ? (
-          <Find c={c} say={say} />
-        ) : (
-          <You c={c} onSettings={() => setPage('home')} />
+    <NavCtx.Provider value={nav}>
+      <LinkFollower set={(f) => (followLink.current = f)} />
+      <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={['top', 'left', 'right']}>
+        {offline && (
+          <View style={[s.banner, { backgroundColor: c['surface-2'], borderLeftColor: c['text-off'] }]} accessibilityRole="alert">
+            <Txt style={{ color: c.text, fontSize: 12.5, lineHeight: 18 }}>
+              You’re offline. Every list you’ve opened still opens, ranks and plays what’s saved; changes stay on this phone until you’re back.
+            </Txt>
+          </View>
         )}
-      </View>
-      {!!note && (
-        <View style={[s.toast, { backgroundColor: c['toast-bg'] }]} accessibilityLiveRegion="polite">
-          <PlusBox height={16} color={c['toast-text']} />
-          <Txt style={{ color: c['toast-text'], fontWeight: '600', fontSize: 13 }}>{note}</Txt>
+        <View style={{ flex: 1 }}>
+          {top?.k === 'list' ? (
+            <ListScreen key={top.id} id={top.id} c={c} />
+          ) : top?.k === 'cat' ? (
+            <CategoryScreen id={top.id} c={c} />
+          ) : top?.k === 'activity' ? (
+            <ActivityScreen c={c} />
+          ) : top?.k === 'person' ? (
+            <PersonScreen key={top.h} h={top.h} c={c} />
+          ) : top?.k === 'settings' ? (
+            <SettingsScreen page={top.page} go={(page) => nav.push({ k: 'settings', page })} onClose={nav.pop} c={c} say={say} />
+          ) : tab === 'charts' ? (
+            <Charts c={c} />
+          ) : tab === 'polls' ? (
+            <Polls c={c} />
+          ) : tab === 'find' ? (
+            <Find c={c} say={say} />
+          ) : (
+            <You c={c} unread={unread} />
+          )}
         </View>
-      )}
-      {player.xid && player.view === 'mini' && <MiniPlayer c={c} />}
-      <SafeAreaView edges={['bottom']} style={[s.bar, { backgroundColor: c.bg, borderTopColor: c['surface-1'] }]}>
-        {(
-          [
-            ['charts', 'Charts', 'list'],
-            ['polls', 'Polls', 'poll'],
-            ['find', 'Find', 'search'],
-            ['you', 'You', 'person'],
-          ] as [Tab, string, IconName][]
-        ).map(([k, label, icon]) => {
-          const on = tab === k && !open;
-          return (
-            <Pressable
-              key={k}
-              onPress={() => {
-                setTab(k);
-                setOpen(null);
-                setPage(null);
-              }}
-              style={s.tab}
-              accessibilityRole="tab"
-              aria-selected={on}
-              accessibilityLabel={label}
-            >
-              <View style={{ height: 2, alignSelf: 'stretch', marginHorizontal: 18, backgroundColor: on ? accent : 'transparent' }} />
-              <Icon name={icon} size={20} color={on ? c.text : c['text-3']} />
-              <Txt style={{ fontSize: 11, fontWeight: '600', color: on ? c.text : c['text-3'] }}>{label}</Txt>
-            </Pressable>
-          );
-        })}
+        {!!note && (
+          <View style={[s.toast, { backgroundColor: c['toast-bg'] }]} accessibilityLiveRegion="polite">
+            <PlusBox height={16} color={c['toast-text']} />
+            <Txt style={{ color: c['toast-text'], fontWeight: '600', fontSize: 13, flexShrink: 1 }}>{note}</Txt>
+          </View>
+        )}
+        {player.xid && player.view === 'mini' && <MiniPlayer c={c} />}
+        <SafeAreaView edges={['bottom']} style={[s.bar, { backgroundColor: c.bg, borderTopColor: c['surface-1'] }]}>
+          {(
+            [
+              ['charts', 'Charts', 'list'],
+              ['polls', 'Polls', 'poll'],
+              ['+', 'New list', 'plus'],
+              ['find', 'Find', 'search'],
+              ['you', 'You', 'person'],
+            ] as [Tab | '+', string, IconName][]
+          ).map(([k, label, icon]) => {
+            if (k === '+') {
+              return (
+                <Pressable key={k} onPress={() => nav.create()} style={s.tab} accessibilityRole="button" accessibilityLabel={label}>
+                  <View style={{ height: 2 }} />
+                  <PlusBox height={30} color={accent} />
+                  <View style={{ height: 13 }} />
+                </Pressable>
+              );
+            }
+            const on = tab === k && !top;
+            return (
+              <Pressable key={k} onPress={() => nav.tab(k)} style={s.tab} accessibilityRole="tab" aria-selected={on} accessibilityLabel={label}>
+                <View style={{ height: 2, alignSelf: 'stretch', marginHorizontal: 14, backgroundColor: on ? accent : 'transparent' }} />
+                <Icon name={icon} size={20} color={on ? c.text : c['text-3']} />
+                <Txt style={{ fontSize: 11, fontWeight: '600', color: on ? c.text : c['text-3'] }}>{label}</Txt>
+              </Pressable>
+            );
+          })}
+        </SafeAreaView>
+        {player.xid && player.view === 'sheet' && <PlayerSheet c={c} say={say} onOpenList={(id) => nav.push({ k: 'list', id })} />}
+        {creating && <CreateSheet c={c} initialName={creating.name} initialCat={creating.cat} onClose={() => setCreating(null)} />}
       </SafeAreaView>
-      {player.xid && player.view === 'sheet' && (
-        <PlayerSheet
-          c={c}
-          say={say}
-          onOpenList={(id) => {
-            setOpen(id);
-          }}
-        />
-      )}
-      <Launch bg={c.bg} flare={c.flare} reduce={settings.reduceMotion} />
-    </SafeAreaView>
+    </NavCtx.Provider>
   );
 }
 
+/** Hands the shell a link follower that can use the nav (it lives inside the provider). */
+function LinkFollower({ set }: { set: (f: (l: string) => void) => void }) {
+  const follow = useFollowLink();
+  set(follow);
+  return null;
+}
+
 /** Charts: what you pinned, then your categories. */
-function Charts({ c, onOpen }: { c: C; onOpen: (id: string) => void }) {
+function Charts({ c }: { c: C }) {
   const store = useStore();
+  const nav = useNav();
+  const onOpen = (id: string) => nav.push({ k: 'list', id });
   const pinned = store.lists.filter((L) => L.pinned);
   return (
     <ScrollView contentContainerStyle={s.page}>
@@ -148,6 +243,21 @@ function Charts({ c, onOpen }: { c: C; onOpen: (id: string) => void }) {
         <Wordmark height={30} color={c.flare} />
         <PlusBox height={24} color={c.flare} />
       </View>
+      {store.lists.length === 0 && (
+        <View style={{ gap: 12, paddingVertical: 12 }}>
+          <Txt style={[s.hero, { color: c.text, fontSize: 28 }]}>Your first list</Txt>
+          <Txt style={{ color: c['text-2'], fontSize: 14, lineHeight: 21 }}>Name something you’d rank: a year of songs, the films you love, shows to start. See files it for you.</Txt>
+          <Button label="Make a list" c={c} onPress={() => nav.create()} />
+          <Txt style={[s.label, { color: c['text-3'], paddingTop: 10 }]}>Or start from one of these</Txt>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+            {['Songs of the year', 'Films I love', 'Shows to start'].map((n) => (
+              <Pressable key={n} onPress={() => nav.create(n)} style={{ minHeight: 34, paddingHorizontal: 12, justifyContent: 'center', backgroundColor: c['surface-1'] }}>
+                <Txt style={{ color: c.text, fontSize: 12.5, fontWeight: '600' }}>{n}</Txt>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      )}
       {pinned.length > 0 && <Txt style={[s.label, { color: c['text-3'] }]}>Pinned</Txt>}
       {pinned.map((L) => (
         <Pressable key={L.id} onPress={() => onOpen(L.id)} style={[s.card, { backgroundColor: c['surface-1'], borderLeftColor: c.flare }]} accessibilityRole="button">
@@ -162,7 +272,9 @@ function Charts({ c, onOpen }: { c: C; onOpen: (id: string) => void }) {
         if (!lists.length) return null;
         return (
           <View key={cat.id} style={{ paddingVertical: 10, gap: 6 }}>
-            <CategoryTag name={cat.name} height={24} color={c.flare} />
+            <Pressable onPress={() => nav.push({ k: 'cat', id: cat.id })} accessibilityRole="button" accessibilityLabel={`Open ${cat.name.toLowerCase()}`} style={{ alignSelf: 'flex-start' }}>
+              <CategoryTag name={cat.name} height={24} color={c.flare} />
+            </Pressable>
             {lists.map((L) => (
               <Pressable key={L.id} onPress={() => onOpen(L.id)} style={[s.row, { borderBottomColor: c['surface-1'] }]} accessibilityRole="button">
                 <Txt style={{ color: c.text, fontSize: 15, fontWeight: '700', flex: 1 }}>{L.name}</Txt>
@@ -277,8 +389,10 @@ function Find({ c, say }: { c: C; say: (t: string) => void }) {
 }
 
 /** You: at a glance, your No. 1, your people, and every list. */
-function You({ c, onSettings }: { c: C; onSettings: () => void }) {
+function You({ c, unread }: { c: C; unread: number }) {
   const store = useStore();
+  const nav = useNav();
+  const onSettings = () => nav.push({ k: 'settings', page: 'home' });
   const player = usePlayer();
   const { settings } = useSettings();
   const people = [...new Set(store.lists.flatMap((L) => L.people))];
@@ -298,6 +412,14 @@ function You({ c, onSettings }: { c: C; onSettings: () => void }) {
           <Txt style={{ color: c['text-3'], fontSize: 12 }}>{settings.handle}</Txt>
           {!!settings.bio && <Txt style={{ color: c['text-2'], fontSize: 13 }}>{settings.bio}</Txt>}
         </View>
+        <Pressable onPress={() => nav.push({ k: 'activity' })} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }} accessibilityLabel={unread ? `Activity: ${unread} new` : 'Activity'}>
+          <Icon name="bell" size={22} color={c.text} />
+          {unread > 0 && (
+            <View style={{ position: 'absolute', right: 5, top: 5, minWidth: 14, height: 14, paddingHorizontal: 3, backgroundColor: c.flare, alignItems: 'center', justifyContent: 'center' }}>
+              <Txt style={{ color: c['on-flare'], fontSize: 9.5, fontWeight: '900' }}>{unread}</Txt>
+            </View>
+          )}
+        </Pressable>
       </View>
       <Pressable onPress={onSettings} accessibilityRole="button" style={[s.row, { borderBottomColor: c['surface-1'], borderTopWidth: 1, borderTopColor: c['surface-1'] }]}>
         <Txt style={{ flex: 1, color: c.text, fontSize: 14, fontWeight: '600' }}>Settings</Txt>
@@ -332,12 +454,12 @@ function You({ c, onSettings }: { c: C; onSettings: () => void }) {
         <View>
           <Txt style={[s.label, { color: c['text-3'] }]}>Your people</Txt>
           {people.map((h) => (
-            <View key={h} style={[s.row, { borderBottomColor: c['surface-1'] }]}>
+            <Pressable key={h} onPress={() => nav.push({ k: 'person', h })} style={[s.row, { borderBottomColor: c['surface-1'] }]} accessibilityLabel={`@${h}: open their page`}>
               <Txt style={{ color: c.text, fontWeight: '700', fontSize: 13 }}>@{h}</Txt>
               <Txt style={{ color: c['text-3'], fontSize: 12 }}>
                 {PEOPLE[h]} · on {store.lists.filter((L) => L.people.includes(h)).length} of your lists
               </Txt>
-            </View>
+            </Pressable>
           ))}
         </View>
       )}
@@ -361,6 +483,7 @@ const s = StyleSheet.create({
   field: { height: size.field, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, borderWidth: 1, marginBottom: 6 },
   stat: { flex: 1, padding: 14, gap: 2 },
   edit: { position: 'absolute', left: -2, bottom: -6, height: 14, paddingHorizontal: 5, justifyContent: 'center', transform: [{ skewX: '-9deg' }] },
+  banner: { marginHorizontal: 20, marginTop: 8, padding: 12, borderLeftWidth: 3 },
   toast: { position: 'absolute', left: 20, right: 20, bottom: 150, zIndex: 5, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
   bar: { flexDirection: 'row', borderTopWidth: 1 },
   tab: { flex: 1, height: 64, alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8 },

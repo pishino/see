@@ -3,7 +3,7 @@
  * line saying what it is set to now. No Save button: a change is the change, kept in this phone's storage.
  */
 import { useState } from 'react';
-import { Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Linking, Pressable, ScrollView, TextInput, View } from 'react-native';
 import {
   COLOURS,
   DEVICES,
@@ -25,6 +25,8 @@ import { size } from '@see/tokens';
 import { Choices, Label, LinkRow, QuietButton, Row, Switch, SwitchRow } from './controls';
 import { Icon } from './marks';
 import { ProfilePicture } from './ProfilePicture';
+import { useNav } from './nav';
+import { usePushPermission } from './push';
 import type { C } from './theme';
 import { Txt } from './type';
 
@@ -101,6 +103,8 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
   const { settings, set } = useSettings();
   const [del, setDel] = useState<'closed' | 'confirm' | 'done'>('closed');
   const [typed, setTyped] = useState('');
+  const [push, askPush] = usePushPermission();
+  const nav = useNav();
   const toggle = <K extends keyof Settings>(k: K, title: string, sub?: string) => (
     <SwitchRow title={title} sub={sub} on={!!settings[k]} onChange={(v) => set(k, v as Settings[K])} c={c} />
   );
@@ -189,7 +193,7 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
             />
           ))}
           <Label c={c}>Leaving</Label>
-          <Row title="Sign out" sub="Your lists stay as they are." c={c} end={<QuietButton label="Sign out" c={c} onPress={() => say('Signed out')} />} />
+          <Row title="Sign out" sub="Your lists stay as they are." c={c} end={<QuietButton label="Sign out" c={c} onPress={nav.signOut} />} />
           {del === 'closed' && (
             <Pressable onPress={() => setDel('confirm')} accessibilityRole="button" style={{ paddingVertical: 16 }}>
               <Txt style={{ color: c['flare-soft'], fontWeight: '700', fontSize: 14 }}>Delete account</Txt>
@@ -300,6 +304,14 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
     case 'notif':
       return (
         <>
+          {push === 'denied' && (
+            <View style={{ backgroundColor: c['surface-2'], borderLeftWidth: 3, borderLeftColor: c['flare-soft'], padding: 14, gap: 10, marginTop: 6 }} accessibilityRole="alert">
+              <Txt style={{ color: c.text, fontSize: 13, lineHeight: 19 }}>
+                Notifications are off for See in your phone’s settings, so push can’t reach you. Email still can.
+              </Txt>
+              <QuietButton label="Open settings" c={c} onPress={() => Linking.openSettings().catch(() => {})} />
+            </View>
+          )}
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 22, paddingRight: 4, paddingTop: 6 }} importantForAccessibility="no-hide-descendants">
             <Txt style={{ color: c['text-3'], fontSize: 10, fontWeight: '600', letterSpacing: 1.2 }}>PUSH</Txt>
             <Txt style={{ color: c['text-3'], fontSize: 10, fontWeight: '600', letterSpacing: 1.2 }}>EMAIL</Txt>
@@ -315,7 +327,17 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
                 c={c}
                 end={
                   <View style={{ flexDirection: 'row', gap: 12 }}>
-                    <Switch on={v.push} label={`${n.label} by push`} onChange={(on) => put('push', on)} c={c} />
+                    <Switch
+                      on={v.push && push !== 'denied'}
+                      disabled={push === 'denied'}
+                      label={push === 'denied' ? `${n.label} by push: can’t reach you, notifications are off for See on this phone` : `${n.label} by push`}
+                      onChange={(on) => {
+                        // the phone is asked the first time a push switch goes on, never before
+                        if (on && push === 'ask') askPush();
+                        put('push', on);
+                      }}
+                      c={c}
+                    />
                     <Switch on={v.email} label={`${n.label} by email`} onChange={(on) => put('email', on)} c={c} />
                   </View>
                 }
@@ -413,11 +435,11 @@ function Section({ id, c, say, go }: { id: SectionId; c: C; say: (t: string) => 
 }
 
 /** Terms and Privacy, the same words as the web (@see/core legal). */
-function Legal({ doc, c, onBack }: { doc: 'terms' | 'privacy'; c: C; onBack: () => void }) {
+export function Legal({ doc, c, onBack, back = 'Help and legal' }: { doc: 'terms' | 'privacy'; c: C; onBack: () => void; back?: string }) {
   const d = doc === 'terms' ? TERMS : PRIVACY;
   return (
     <ScrollView contentContainerStyle={{ padding: size['gutter-phone'], paddingTop: 4, paddingBottom: 60, gap: 10 }}>
-      <Head title={d.title} back="Help and legal" onBack={onBack} c={c} />
+      <Head title={d.title} back={back} onBack={onBack} c={c} />
       <Txt style={{ color: c['text-3'], fontSize: 11, fontWeight: '600', letterSpacing: 1.2, textTransform: 'uppercase' }}>Updated {d.updated}</Txt>
       <Txt style={{ color: c.text, fontSize: 17, lineHeight: 25 }}>{d.intro}</Txt>
       {d.sections.map((s) => (
