@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>See</title>
+    <style>
+      :root { --bg: #0b0f0e; --s1: #141a18; --s2: #1d2422; --text: #f4f5f2; --t2: #c9cfcc; --t3: #9aa39f; --flare: #ff4a1c; --violet: #7c6bff; --vt: #b9afff; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      main { padding: 16px; display: flex; flex-direction: column; gap: 12px; max-width: 640px; }
+      .k { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t3); }
+      h1 { margin: 0; font: 900 28px/1 system-ui, sans-serif; text-transform: uppercase; letter-spacing: -0.01em; }
+      .top { color: var(--flare); }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+      .chip { border: 0; background: var(--s1); color: var(--text); padding: 6px 10px; text-align: left; clip-path: polygon(0 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%); }
+      button.chip:active { background: var(--s2); }
+      .chip b { display: block; font-weight: 800; font-size: 12.5px; text-transform: uppercase; }
+      .chip span { font-size: 11px; color: var(--t3); }
+      .row { display: grid; grid-template-columns: 32px 1fr auto; gap: 10px; align-items: center; min-height: 44px; border: 0; border-bottom: 1px solid var(--s1); background: transparent; color: var(--text); text-align: left; width: 100%; padding: 0; }
+      .row b { text-transform: uppercase; font-size: 13.5px; }
+      .n { font-weight: 800; font-variant-numeric: tabular-nums; }
+      .go { align-self: flex-start; border: 0; background: var(--flare); color: var(--bg); font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; padding: 12px 20px; clip-path: polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%); }
+      .go:disabled { opacity: 0.4; }
+      .quiet { background: var(--s2); color: var(--text); }
+      .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .crowd, .crowd .k { color: var(--vt); }
+      .same { color: var(--vt); font-size: 10px; font-weight: 700; }
+      .m { color: var(--t3); font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <main id="app" aria-live="polite"><p class="m">Loading…</p></main>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

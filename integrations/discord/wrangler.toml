@@ -1,0 +1,15 @@
+# See on Discord. `npx wrangler deploy` from this folder; set the secrets with `npx wrangler secret put …`.
+name = "see-discord"
+main = "src/worker.ts"
+compatibility_date = "2025-06-01"
+
+[vars]
+# Where See's links open (the web app); the bot builds every link from here.
+SEE_URL = "https://pishino.github.io/see/"
+
+# Fills, sessions and votes. Create it with `npx wrangler kv namespace create FILLS` and paste the id here.
+[[kv_namespaces]]
+binding = "FILLS"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+# Secrets (not in this file): DISCORD_PUBLIC_KEY, DISCORD_APPLICATION_ID

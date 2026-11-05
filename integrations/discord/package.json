@@ -1,0 +1,16 @@
+{
+  "name": "@see/discord",
+  "private": true,
+  "version": "0.1.0",
+  "description": "See on Discord: /see rank and /see poll, ranked privately, the server's order after you lock in. A Cloudflare Worker.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "register": "node scripts/register.mjs",
+    "deploy": "npx wrangler deploy",
+    "dev": "npx wrangler dev"
+  },
+  "dependencies": {
+    "@see/core": "0.1.0"
+  }
+}
