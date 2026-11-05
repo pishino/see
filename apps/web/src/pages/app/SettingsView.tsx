@@ -437,6 +437,18 @@ function SectionBody({ id }: { id: SectionId }) {
           <Seg k="canAdd" label="Who can add you to a list" options={['Anyone', 'Your people', 'No one']} />
           <Toggle k="showVotes" label="Show how I voted in polls" sub="Off: people see the result, never your vote." />
           <Toggle k="compare" label="Let people compare their lists with mine" />
+          <Label>Blocked</Label>
+          {settings.blocked.length === 0 && <p className="st-sub">No one. Block someone from the ··· on their page; they aren’t told.</p>}
+          {settings.blocked.map((h) => (
+            <div key={h} className="st-item">
+              <div className="st-line">
+                <b>@{h}</b>
+                <Button variant="quiet" size="sm" onClick={() => set('blocked', settings.blocked.filter((x) => x !== h))}>
+                  Unblock
+                </Button>
+              </div>
+            </div>
+          ))}
         </>
       );
 

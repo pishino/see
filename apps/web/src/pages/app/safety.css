@@ -1,0 +1,125 @@
+/* Report and block (V3Safety), and the problem states (V3ProblemStates). No red, no blame: soft orange marks a
+   problem, grey a condition. */
+
+.dlg {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  z-index: var(--see-z-report);
+  width: min(460px, calc(100% - 32px));
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  background: var(--see-surface-1);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  animation: see-pop var(--see-dur-base) var(--see-ease) both;
+}
+.dlg-h {
+  font-size: 28px;
+}
+.dlg-p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--see-text-2);
+}
+.dlg-reasons {
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+}
+.dlg-reason {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  border-bottom: 1px solid var(--see-surface-2);
+  background: transparent;
+  padding: 0 4px;
+  color: var(--see-text);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+.dlg-reason:hover {
+  background: var(--see-wash-1);
+}
+.dlg-dot {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--see-text-off);
+  flex-shrink: 0;
+}
+.dlg-reason[aria-checked='true'] .dlg-dot {
+  border-color: var(--see-accent);
+  background: var(--see-accent);
+}
+.dlg-sw {
+  min-height: 44px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.dlg-acts {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+}
+.dlg-block {
+  color: var(--see-flare-soft);
+}
+
+/* a problem or a condition, said in one place: what happened, what still works, one thing to do */
+.ps-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 24px 0;
+  max-width: 520px;
+}
+.ps-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px var(--gutter) 0;
+  padding: 10px 14px 10px 16px;
+  background: var(--see-surface-2);
+  box-shadow: inset 3px 0 0 var(--bar, var(--see-text-off));
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--see-text);
+}
+.ps-full {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px var(--gutter);
+  max-width: 640px;
+}
+.ps-starts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 839px) {
+  .dlg {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    translate: none;
+    width: auto;
+    max-height: 92dvh;
+    clip-path: none;
+    animation: see-sheet-in var(--see-dur-sheet) var(--see-ease) both;
+  }
+}

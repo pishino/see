@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { ButtonLink } from '../../components/Button';
+import './safety.css';
 import { Avatar } from '../../brand/Avatar';
 import { Icon } from '../../brand/Icon';
 import { PlusBox } from '../../brand/marks';
@@ -39,7 +41,17 @@ export function ListView({ onNewList }: { onNewList: () => void }) {
   const { id = '' } = useParams();
   const store = useStore();
   const L = store.list(id);
-  if (!L) return <Navigate to="/app" replace />;
+  if (!L) {
+    return (
+      <div className="ps-full">
+        <h1 className="t-hero" style={{ fontSize: 44 }}>
+          This list isn’t here
+        </h1>
+        <p className="dlg-p">It may have been deleted, or the link is wrong. Your lists are fine.</p>
+        <ButtonLink to="/app">Back to Charts</ButtonLink>
+      </div>
+    );
+  }
   return <ListBody key={L.id} L={L} onNewList={onNewList} />;
 }
 

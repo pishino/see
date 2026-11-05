@@ -8,7 +8,7 @@ import { SEED_ACTIVITY, type ActivityItem } from '@see/core';
 const SEEN_KEY = 'see.activity.seen';
 
 interface Ui {
-  openCreate: () => void;
+  openCreate: (name?: string) => void;
   openActivity: () => void;
   activity: ActivityItem[];
   unread: number;
@@ -25,7 +25,7 @@ function readSeen() {
   }
 }
 
-export function UiProvider({ onCreate, onActivity, children }: { onCreate: () => void; onActivity: () => void; children: ReactNode }) {
+export function UiProvider({ onCreate, onActivity, children }: { onCreate: (name?: string) => void; onActivity: () => void; children: ReactNode }) {
   const [seen, setSeen] = useState(readSeen);
   const markSeen = useCallback(() => {
     setSeen(true);

@@ -5,12 +5,35 @@ import { MCELL, tagOf } from '@see/brand';
 import { useStore } from '../../data/store';
 import { listSummary } from '@see/core';
 import { usePhone } from '../../lib/useMediaQuery';
+import { Button } from '../../components/Button';
+import './safety.css';
 
 /** Charts home: what you pinned, then your categories. */
-export function Home({ onNewCategory }: { onNewCategory: () => void }) {
+export function Home({ onNewCategory }: { onNewCategory: (name?: string) => void }) {
   const store = useStore();
   const phone = usePhone();
   const pinned = store.lists.filter((L) => L.pinned);
+
+  // home before the first list: one clear action and names to tap, so nobody stares at a blank page
+  if (store.lists.length === 0) {
+    return (
+      <div className="ps-full">
+        <h1 className="t-hero" style={{ fontSize: phone ? 36 : 56 }}>
+          No lists yet
+        </h1>
+        <p className="dlg-p">Name something you’d rank: a year of songs, the films you love, shows to start. See files it for you.</p>
+        <Button onClick={() => onNewCategory()}>Make a list</Button>
+        <span className="t-label">Or start from one of these</span>
+        <div className="ps-starts">
+          {['Songs of the year', 'Films I love', 'Shows to start'].map((n) => (
+            <button key={n} type="button" className="choice" onClick={() => onNewCategory(n)}>
+              {n}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="home">
@@ -41,7 +64,7 @@ export function Home({ onNewCategory }: { onNewCategory: () => void }) {
       <section style={{ display: 'flex', flexDirection: 'column', gap: phone ? 4 : 30, paddingTop: phone ? 14 : 0 }}>
         <div className="home__head" style={phone ? { paddingTop: 0, paddingBottom: 4 } : undefined}>
           <h2 className="t-label">Your categories</h2>
-          <button type="button" className="bb" onClick={onNewCategory} aria-label="New category" style={{ width: 48, height: 40, marginRight: -10 }}>
+          <button type="button" className="bb" onClick={() => onNewCategory()} aria-label="New category" style={{ width: 48, height: 40, marginRight: -10 }}>
             <PlusBox height={phone ? 24 : 26} />
           </button>
         </div>

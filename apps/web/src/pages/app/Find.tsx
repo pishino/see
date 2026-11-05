@@ -5,7 +5,7 @@ import { PlusBox } from '../../brand/marks';
 import { useToast } from '../../components/Toast';
 import { useStore } from '../../data/store';
 import { usePlayer } from './player';
-import { KIND_WORD, addToList, kindOf, search, type Entry, type List } from '@see/core';
+import { KIND_WORD, addToList, didYouMean, kindOf, search, type Entry, type List } from '@see/core';
 
 function useAddTo() {
   const store = useStore();
@@ -43,6 +43,24 @@ function Result({ x, onAdd }: { x: Entry; onAdd: () => void }) {
   );
 }
 
+/** Nothing matched: says what was searched, offers the nearest real match, and how to go on. */
+function NoMatch({ q, onPick }: { q: string; onPick: (x: Entry) => void }) {
+  const near = didYouMean(q);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '6px 2px 12px' }}>
+      <b style={{ fontSize: 14 }}>Nothing matches “{q}”</b>
+      <span className="t-meta" style={{ whiteSpace: 'normal' }}>
+        Check the spelling, or add it as your own item. You can link a source later.
+      </span>
+      {near && (
+        <button type="button" className="choice" style={{ alignSelf: 'flex-start', textTransform: 'none', letterSpacing: 0, fontFamily: 'var(--see-font-body)', fontWeight: 600 }} onClick={() => onPick(near)}>
+          Did you mean {near.t} · {near.m}?
+        </button>
+      )}
+    </div>
+  );
+}
+
 /** Desktop: the corner pill. Its field sits on the floor; results rise above it. */
 export function FindPill() {
   const store = useStore();
@@ -69,6 +87,7 @@ export function FindPill() {
           {results.map((x) => (
             <Result key={x.id} x={x} onAdd={() => addTo(L, x)} />
           ))}
+          {q.trim() && results.length === 0 && <NoMatch q={q} onPick={(x) => setQ(x.t)} />}
           <span className="t-foot" style={{ paddingTop: 4 }}>
             <b style={{ color: 'var(--see-text)', fontWeight: 600 }}>{q ? 'Results' : 'Ideas'}</b> · + {L ? `adds to ${L.name}` : 'picks a list for it'}
           </span>
@@ -129,6 +148,7 @@ export function FindView() {
         {results.map((x) => (
           <Result key={x.id} x={x} onAdd={() => addTo(target, x)} />
         ))}
+        {q.trim() && results.length === 0 && <NoMatch q={q} onPick={(x) => setQ(x.t)} />}
       </div>
       <span className="t-foot">{target ? `+ adds to ${target.name}` : ''}</span>
     </div>

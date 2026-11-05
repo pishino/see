@@ -40,6 +40,10 @@ export interface Settings {
   rings: boolean;
   adTopics: Record<string, boolean>;
   rankAds: boolean;
+  /** Everyone you blocked (Settings › Privacy lists them) */
+  blocked: string[];
+  /** People whose pages you follow */
+  following: string[];
 }
 
 export const COLOURS: [string, string][] = [
@@ -114,6 +118,8 @@ export const DEFAULT_SETTINGS: Settings = {
   rings: false,
   adTopics: { 'Music launches': true, 'Films and cinema': true, TV: true, 'Live events': true, 'Tech and audio': false },
   rankAds: true,
+  blocked: [],
+  following: [],
 };
 
 export interface Section {

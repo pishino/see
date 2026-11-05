@@ -40,3 +40,23 @@ describe('settings', () => {
     expect(withDefaults(null)).toBe(DEFAULT_SETTINGS);
   });
 });
+
+import { BLOCK_SAYS, newReport, personOf, sharedLists } from './people';
+import { reduce as reduceState, seedState as seed } from './store';
+
+describe('people and safety', () => {
+  it('opens a page for every name', () => {
+    expect(personOf('@ada')).toMatchObject({ handle: 'ada', name: 'Ada' });
+    expect(personOf('nobody')).toBeNull();
+  });
+  it('hides while it is looked at, and blocks only when asked', () => {
+    const r = newReport({ kind: 'person', handle: 'ada' }, 'It’s spam or a scam');
+    expect(r.hide).toBe(true);
+    expect(r.block).toBe(false);
+  });
+  it('takes a blocked person off the lists you made', () => {
+    const s = reduceState(seed(), { type: 'removePerson', handle: 'ada' });
+    expect(sharedLists('ada', s.lists)).toHaveLength(0);
+    expect(BLOCK_SAYS.confirm('ada')).toBe('@ada can’t find you or see your lists.');
+  });
+});

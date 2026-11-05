@@ -110,13 +110,13 @@ export function YouView() {
           {people.map((h) => {
             const on = store.lists.filter((L) => L.people.includes(h)).length;
             return (
-              <div key={h} className="yp-person">
+              <Link key={h} to={`/app/u/${h}`} className="yp-person" style={{ color: 'inherit', textDecoration: 'none' }}>
                 <Avatar handle={h} size={26} ring={false} />
                 <span className="t-row-sm">@{h}</span>
                 <span className="t-meta" aria-label={PEOPLE[h]}>
                   On {on} of your lists
                 </span>
-              </div>
+              </Link>
             );
           })}
         </section>

@@ -136,7 +136,8 @@ export function routeOf(link: string): string {
   if (p.startsWith('poll/')) return '/app/polls';
   if (p.startsWith('you/activity')) return '/app/activity';
   if (p.startsWith('you')) return '/app/you';
-  if (p.startsWith('u/')) return '/app/you';
+  if (p.startsWith('u/')) return `/app/u/${p.slice(2)}`;
+  if (p.startsWith('entry/')) return '/app/find';
   return '/app';
 }
 

@@ -129,3 +129,11 @@ describe('player details', () => {
     expect(nextInList(l1, 'v6')).toBeNull();
   });
 });
+
+import { didYouMean } from './details';
+describe('search never ends at no', () => {
+  it('offers the nearest real match', () => {
+    expect(didYouMean('Lonley at the top')?.t).toBe('Lonely At The Top');
+    expect(didYouMean('zzzzzzzz')).toBeNull();
+  });
+});

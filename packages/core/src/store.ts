@@ -4,6 +4,7 @@
  */
 import { SEED_CATEGORIES, seedLists, type Category, type List } from './seed';
 import { resize } from './model';
+import { withoutPerson } from './people';
 
 export interface State {
   lists: List[];
@@ -19,6 +20,7 @@ export type Action =
   | { type: 'addCategory'; category: Category }
   | { type: 'addList'; list: List }
   | { type: 'removeList'; id: string }
+  | { type: 'removePerson'; handle: string }
   | { type: 'load'; state: State }
   | { type: 'reset' };
 
@@ -48,6 +50,8 @@ export function reduce(s: State, a: Action): State {
       return { ...s, lists: [...s.lists, a.list] };
     case 'removeList':
       return { ...s, lists: s.lists.filter((L) => L.id !== a.id) };
+    case 'removePerson':
+      return { ...s, lists: withoutPerson(s.lists, a.handle) };
     case 'load':
       return a.state;
     case 'reset':

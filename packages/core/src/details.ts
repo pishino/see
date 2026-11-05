@@ -146,3 +146,38 @@ export function nextInList(L: List | undefined, xid: string): string | null {
   for (let j = i + 1; j < slots.length; j++) if (slots[j] && BY_ID[slots[j]!]) return slots[j];
   return null;
 }
+
+function distance(a: string, b: string): number {
+  const m = a.length;
+  const n = b.length;
+  const d = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    let prev = d[0];
+    d[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const tmp = d[j];
+      d[j] = Math.min(d[j] + 1, d[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = tmp;
+    }
+  }
+  return d[n];
+}
+
+/** Search never ends at "no": the nearest real title or name, when one is close. */
+export function didYouMean(q: string): Entry | null {
+  const s = q.trim().toLowerCase();
+  if (s.length < 3) return null;
+  let best: Entry | null = null;
+  let bestD = Infinity;
+  for (const x of CATALOG) {
+    for (const cand of [x.t, x.m]) {
+      const c = cand.toLowerCase();
+      const dd = distance(s, c.slice(0, Math.max(s.length, Math.min(c.length, s.length + 2))));
+      if (dd < bestD) {
+        bestD = dd;
+        best = x;
+      }
+    }
+  }
+  return bestD <= Math.max(2, Math.floor(s.length / 4)) ? best : null;
+}

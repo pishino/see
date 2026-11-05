@@ -17,6 +17,10 @@ import { ActivityList, ActivityView } from './ActivityView';
 import { UiProvider } from './ui';
 import { PlayerProvider, usePlayer } from './player';
 import { MiniPlayer, PlayerSheet } from './PlayerView';
+import { PersonView } from './PersonView';
+import { useOnline } from '../../lib/useOnline';
+import { useToast } from '../../components/Toast';
+import { useRef } from 'react';
 import { CreateDrawer } from './CreateDrawer';
 import './app.css';
 
@@ -37,10 +41,19 @@ export default function AppShell() {
   const loc = useLocation();
   const polls = loc.pathname.startsWith('/app/polls');
   const cat = useCurrentCategory();
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating] = useState<string | false>(false);
   const [activity, setActivity] = useState(false);
   const navigate = useNavigate();
-  const openCreate = useCallback(() => setCreating(true), []);
+  const openCreate = useCallback((name?: string) => setCreating(typeof name === 'string' ? name : ''), []);
+  const newBlank = useCallback(() => setCreating(''), []);
+  // offline: a quiet banner, never a wall; back online, one toast
+  const online = useOnline();
+  const toast = useToast();
+  const wasOnline = useRef(online);
+  useEffect(() => {
+    if (online && !wasOnline.current) toast('Back online · your changes are saved');
+    wasOnline.current = online;
+  }, [online, toast]);
   // Activity: a panel from the right over whatever you were doing; on phones, its own page
   const openActivity = useCallback(() => (phone ? navigate('/app/activity') : setActivity(true)), [phone, navigate]);
   useEffect(() => setActivity(false), [loc.pathname]);
@@ -57,28 +70,34 @@ export default function AppShell() {
     <UiProvider onCreate={openCreate} onActivity={openActivity}>
     <PlayerProvider>
     <div className="app" data-accent={polls ? 'violet' : undefined} data-shell={shell} data-short={short || undefined}>
-      {!phone && <SideBar category={cat} shell={shell} onCreate={openCreate} />}
+      {!phone && <SideBar category={cat} shell={shell} onCreate={newBlank} />}
       <main className="app-main">
         {phone && <PhoneMasthead category={catName} inline={short} home={loc.pathname === '/app' || loc.pathname === '/app/'} polls={polls} />}
+        {!online && (
+          <div className="ps-banner" role="status">
+            You’re offline. Every list you’ve opened still opens, ranks and plays what’s saved; changes stay on this device until you’re back.
+          </div>
+        )}
         <div className="app-scroll no-scrollbar">
           <div className="app-page">
           <Routes>
-            <Route index element={<Home onNewCategory={() => setCreating(true)} />} />
-            <Route path="c/:cat" element={<CategoryView onNewList={() => setCreating(true)} />} />
-            <Route path="l/:id" element={<ListView onNewList={() => setCreating(true)} />} />
-            <Route path="polls" element={<PollsView category={cat} onNew={() => setCreating(true)} />} />
+            <Route index element={<Home onNewCategory={openCreate} />} />
+            <Route path="c/:cat" element={<CategoryView onNewList={newBlank} />} />
+            <Route path="l/:id" element={<ListView onNewList={newBlank} />} />
+            <Route path="polls" element={<PollsView category={cat} onNew={openCreate} />} />
             <Route path="find" element={<FindView />} />
             <Route path="you" element={<YouView />} />
             <Route path="settings" element={<SettingsView />} />
             <Route path="settings/:section" element={<SettingsView />} />
             <Route path="activity" element={<ActivityView />} />
+            <Route path="u/:handle" element={<PersonView />} />
           </Routes>
           </div>
         </div>
         {!phone && <FindPill />}
-        {phone && <BottomNav onCreate={openCreate} />}
+        {phone && <BottomNav onCreate={newBlank} />}
       </main>
-      {creating && <CreateDrawer defaultCategory={cat} onClose={() => setCreating(false)} />}
+      {creating !== false && <CreateDrawer defaultCategory={cat} initialName={creating} onClose={() => setCreating(false)} />}
       {activity && <ActivityDrawer onClose={() => setActivity(false)} />}
       <PlayerLayer />
     </div>

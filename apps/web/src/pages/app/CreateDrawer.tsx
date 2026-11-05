@@ -8,12 +8,12 @@ import { useSettings } from '@see/core/react';
 import { SIZE_STOPS, suggestCategory } from '@see/core';
 
 /** Create: name the list first; See suggests the category. A drawer from the right; a sheet on phones. */
-export function CreateDrawer({ defaultCategory, onClose }: { defaultCategory: string; onClose: () => void }) {
+export function CreateDrawer({ defaultCategory, initialName = '', onClose }: { defaultCategory: string; initialName?: string; onClose: () => void }) {
   const store = useStore();
   const { settings } = useSettings();
   const toast = useToast();
   const navigate = useNavigate();
-  const [name, setName] = useState('');
+  const [name, setName] = useState(initialName);
   const [cat, setCat] = useState<string | null>(defaultCategory || null);
   const [touched, setTouched] = useState(false);
   const [size, setSize] = useState(() => Number(settings.size) || 10);

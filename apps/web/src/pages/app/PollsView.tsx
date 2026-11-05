@@ -25,7 +25,7 @@ function fromList(L: List, cat: string): Card {
 }
 
 /** Polls: the whole app turns violet. Results show after you vote. */
-export function PollsView({ category, onNew }: { category: string; onNew: () => void }) {
+export function PollsView({ category, onNew }: { category: string; onNew: (name?: string) => void }) {
   const store = useStore();
   const cat = category || store.categories[0]?.id || 'MUSIC';
   const catName = store.categories.find((c) => c.id === cat)?.name ?? cat;
@@ -41,10 +41,20 @@ export function PollsView({ category, onNew }: { category: string; onNew: () => 
         <h1 className="t-label" style={{ color: 'var(--see-violet-text)' }}>
           Polls in {catName.toLowerCase()}
         </h1>
-        <button type="button" className="bb" onClick={onNew} aria-label="New poll" style={{ width: 48, height: 40, marginRight: -10 }}>
+        <button type="button" className="bb" onClick={() => onNew()} aria-label="New poll" style={{ width: 48, height: 40, marginRight: -10 }}>
           <PlusBox height={26} color="var(--see-violet)" />
         </button>
       </div>
+      {cards.length === 0 && (
+        <div className="ps-state">
+          <h2 className="t-title" style={{ fontSize: 24 }}>
+            No polls yet
+          </h2>
+          <p className="st-sub" style={{ fontSize: 14 }}>
+            Any list can become a poll: open its menu and choose Make it a poll. People vote; your list stays yours.
+          </p>
+        </div>
+      )}
       <div className="home__grid2" style={{ alignItems: 'start' }}>
         {cards.map((p) => {
           const mine = votes[p.id];
