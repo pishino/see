@@ -8,8 +8,8 @@ There are three ways to look at See. Pick the first one that works for you.
 | Way | You install | You need | Best for |
 | --- | --- | --- | --- |
 | **A. The live website** (GitHub Pages) | Nothing | The publish step to be green (see below) | Everyday testing. Just open a link. |
-| **B. In your browser, on GitHub** (Codespaces) | Nothing | A GitHub account | Testing before A works. It runs a private copy of See for you. |
-| **C. On your own computer** | Node.js and Git | About 20 minutes the first time | Testing the latest work, and working offline. |
+| **B. In your browser, on GitHub** (Codespaces) | Nothing | A GitHub account in good standing | Testing before A works. It runs a private copy of See for you. A billing lock on the account probably blocks this too. |
+| **C. On your own computer** | Node.js and Git | About 20 minutes the first time | Testing the latest work, and working offline. Doesn't depend on GitHub billing at all. |
 
 Everything below is for the web app. The phone apps are covered at the end.
 
@@ -30,19 +30,31 @@ Merging into `main` makes GitHub build the site. The build is called the **Pages
 ### If the Pages line is red
 
 Click the red line, then click **build** in the list on the left. The reason is written in red near the top of
-the page, or in the box labelled **Annotations**. Read it, then:
+the page, in the box labelled **Annotations**.
 
-- If it mentions **billing, payments or a spending limit**: open GitHub › your profile picture › **Settings** ›
-  **Billing and licensing** and fix whatever it flags. This repository is public, so building it should be
-  free, but an account that has a payment problem can still be blocked.
-- If it mentions **Actions being disabled or restricted**: open the repository › **Settings** › **Actions** ›
-  **General**, choose **Allow all actions and reusable workflows**, and save.
-- If it mentions your **account being locked or flagged**: that is GitHub's decision. Contact GitHub Support.
-  Meanwhile use way B or C.
-- If it says anything else, copy the red text and send it to Claude.
+**"The job was not started because your account is locked due to a billing issue."** This is the one we hit.
+GitHub has locked the account, and while it's locked no workflow can run, so nothing gets published. Nothing is
+wrong with See. Only you can fix it:
 
-When you've fixed it, go to the **Actions** tab › **Pages** (left side) › **Run workflow** › choose `main` ›
-**Run workflow**. Wait for the green tick.
+1. Open https://github.com/settings/billing (or: your profile picture › **Settings** › **Billing and
+   licensing**). The names change a little over time.
+2. Look for a failed payment, an unpaid balance or a warning banner. Update the payment method or pay what's
+   owed.
+3. If nothing there explains it (for instance you've never paid GitHub anything), contact GitHub Support at
+   https://support.github.com/contact, choose billing, and quote the sentence above.
+4. When the lock is lifted, go to the **Actions** tab › **Pages** (left side) › **Run workflow** › choose
+   `main` › **Run workflow**, or ask Claude to start it. Wait for the green tick.
+
+While the account is locked, use way C. It runs on your own computer and doesn't touch GitHub billing. Way B
+probably won't work either, because Codespaces is billed through the same account.
+
+Other messages you might see:
+
+- **Actions being disabled or restricted**: open the repository › **Settings** › **Actions** › **General**,
+  choose **Allow all actions and reusable workflows**, and save.
+- **Your account being flagged**: that is GitHub's decision. Contact GitHub Support.
+- **A message about "ubuntu-latest" moving to Ubuntu 26**: a notice, not an error. Ignore it.
+- Anything else: copy the red text and send it to Claude.
 
 ### 2. One-time setting (you've done this)
 
@@ -236,7 +248,7 @@ Your lists are saved in the browser. To wipe them: click the padlock (or the sli
 
 | What you see | What to do |
 | --- | --- |
-| The Pages line on the Actions tab is red | See "If the Pages line is red", above. |
+| The Pages line on the Actions tab is red | See "If the Pages line is red", above. "Account is locked due to a billing issue" means fix billing, or use way C. |
 | A GitHub "404" at `pishino.github.io/see/` | Wait a minute. Then check **Settings › Pages** says Source: GitHub Actions, and that the Actions tab has a green tick. |
 | The site looks old | Hard reload: **Ctrl+Shift+R** (Windows) or **Cmd+Shift+R** (Mac). Then check you merged the latest pull request. |
 | `npm: command not found` | Node.js isn't installed. Do the one-time setup again, then close and reopen the terminal. |
