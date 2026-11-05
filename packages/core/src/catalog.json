@@ -1577,6 +1577,8 @@
   },
   {
    "id": "p2",
+   "closed": "Oct 20",
+   "voted": 2,
    "cat": "MOVIES",
    "q": "Film of the year?",
    "n": 912,

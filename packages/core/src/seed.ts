@@ -52,6 +52,10 @@ export interface Poll {
   q: string;
   n: number;
   o: [string, number][];
+  /** when voting closed, if it has */
+  closed?: string;
+  /** the option you voted for, if you did */
+  voted?: number;
 }
 
 interface RawList {

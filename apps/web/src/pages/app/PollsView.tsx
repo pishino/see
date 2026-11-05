@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { PlusBox } from '../../brand/marks';
+import { Button } from '../../components/Button';
 import { useStore } from '../../data/store';
-import { BY_ID, POLLS, type List } from '@see/core';
+import { usePlayer } from './player';
+import { BY_ID, CATALOG, POLLS, type List } from '@see/core';
 
 interface Card {
   id: string;
@@ -10,6 +12,8 @@ interface Card {
   n: number;
   /** label and share of the vote (results show after you vote) */
   o: [string, number][];
+  closed?: string;
+  voted?: number;
 }
 
 function fromList(L: List, cat: string): Card {
@@ -27,19 +31,21 @@ function fromList(L: List, cat: string): Card {
 /** Polls: the whole app turns violet. Results show after you vote. */
 export function PollsView({ category, onNew }: { category: string; onNew: (name?: string) => void }) {
   const store = useStore();
-  const cat = category || store.categories[0]?.id || 'MUSIC';
-  const catName = store.categories.find((c) => c.id === cat)?.name ?? cat;
-  const cards: Card[] = [
-    ...store.listsIn(cat).filter((L) => L.poll).map((L) => fromList(L, catName)),
-    ...POLLS.filter((p) => p.cat === cat).map((p) => ({ id: p.id, k: `Poll · ${catName}`, q: p.q, n: p.n, o: p.o })),
-  ];
+  // from a category, its polls; from the tab, all of them
+  const cats = category ? [category] : store.categories.map((c) => c.id);
+  const nameOf = (id: string) => store.categories.find((c) => c.id === id)?.name ?? id;
+  const cards: Card[] = cats.flatMap((cat) => [
+    ...store.listsIn(cat).filter((L) => L.poll).map((L) => fromList(L, nameOf(cat))),
+    ...POLLS.filter((p) => p.cat === cat).map((p) => ({ id: p.id, k: `Poll · ${nameOf(cat)}`, q: p.q, n: p.n, o: p.o, closed: p.closed, voted: p.voted })),
+  ]);
   const [votes, setVotes] = useState<Record<string, number>>({});
+  const player = usePlayer();
 
   return (
     <div className="polls">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <h1 className="t-label" style={{ color: 'var(--see-violet-text)' }}>
-          Polls in {catName.toLowerCase()}
+          {category ? `Polls in ${nameOf(category).toLowerCase()}` : 'All polls'}
         </h1>
         <button type="button" className="bb" onClick={() => onNew()} aria-label="New poll" style={{ width: 48, height: 40, marginRight: -10 }}>
           <PlusBox height={26} color="var(--see-violet)" />
@@ -57,16 +63,20 @@ export function PollsView({ category, onNew }: { category: string; onNew: (name?
       )}
       <div className="home__grid2" style={{ alignItems: 'start' }}>
         {cards.map((p) => {
-          const mine = votes[p.id];
-          const voted = mine !== undefined;
+          // a closed poll still gives the ending: the result, your own vote, and the way to the winner
+          const mine = p.closed ? p.voted : votes[p.id];
+          const voted = mine !== undefined || !!p.closed;
+          const winner = p.closed ? p.o.reduce((a, b) => (b[1] > a[1] ? b : a)) : null;
+          const winnerId = winner ? CATALOG.find((x) => x.t === winner[0])?.id : undefined;
           return (
             <section key={p.id} className="poll-card" aria-label={p.q}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span className="t-label" style={{ color: 'var(--see-violet-text)' }}>
                   {p.k}
                 </span>
-                <span className="t-foot">{(p.n + (voted ? 1 : 0)).toLocaleString('en')} voted</span>
+                <span className="t-foot">{(p.n + (voted && !p.closed ? 1 : 0)).toLocaleString('en')} voted</span>
               </div>
+              {p.closed && <p className="st-sub" style={{ fontSize: 13 }}>This poll is closed. Here’s how it ended.</p>}
               <h2 className="poll-q">{p.q}</h2>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {p.o.map(([label, share], i) => (
@@ -75,6 +85,7 @@ export function PollsView({ category, onNew }: { category: string; onNew: (name?
                     type="button"
                     className="poll-opt pb"
                     aria-pressed={mine === i}
+                    disabled={!!p.closed}
                     onClick={() => setVotes((v) => ({ ...v, [p.id]: i }))}
                   >
                     <span className="poll-opt__bar" style={{ width: voted ? `${share}%` : 0 }} />
@@ -92,7 +103,21 @@ export function PollsView({ category, onNew }: { category: string; onNew: (name?
                   </button>
                 ))}
               </div>
-              <span className="t-foot">{voted ? 'Your vote is in. Change it any time.' : 'Results after you vote'}</span>
+              {p.closed ? (
+                <>
+                  <span className="t-foot" style={{ whiteSpace: 'normal' }}>
+                    Voting closed on {p.closed}.
+                    {mine !== undefined ? ` You voted ${p.o[mine][0]}, with ${p.o[mine][1]}% of people.` : ''}
+                  </span>
+                  {winnerId && (
+                    <Button size="sm" style={{ alignSelf: 'flex-start' }} onClick={() => player.play(winnerId, { listId: null, view: 'sheet' })}>
+                      See the winner
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <span className="t-foot">{voted ? 'Your vote is in. Change it any time.' : 'Results after you vote'}</span>
+              )}
             </section>
           );
         })}
